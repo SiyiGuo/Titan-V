@@ -15,7 +15,7 @@ class MCTS():
         self.Ns = {}        # stores #times board s was visited
         self.Ps = {}        # stores initial policy (returned by neural net)
 
-        self.Es = {}        # stores game.getGameEnded ended for board s
+        self.Es = {}        # stores game.getGameEnded ended for board s || Store the gaming result of current board situation
         self.Vs = {}        # stores game.getValidMoves for board s
 
     def getActionProb(self, canonicalBoard, temp=1):
@@ -64,13 +64,13 @@ class MCTS():
             v: the negative of the value of the current canonicalBoard
         """
 
-        s = self.game.stringRepresentation(canonicalBoard)
+        s = self.game.stringRepresentation(canonicalBoard) #read board
 
-        if s not in self.Es:
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
-        if self.Es[s]!=0:
+        if s not in self.Es: # situation s's result not known
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
+        if self.Es[s]!=0: #if there is a winner
             # terminal node
-            return -self.Es[s]
+            return -self.Es[s] #NOTE: return the state of the other player
 
         if s not in self.Ps:
             # leaf node

@@ -38,17 +38,17 @@ class Coach():
                            pi is the MCTS informed policy vector, v is +1 if
                            the player eventually won the game, else -1.
         """
-        trainExamples = []
-        board = self.game.getInitBoard()
+        trainExamples = [] #move history of this single episode
+        board = self.game.getInitBoard() #load the gam setup
         self.curPlayer = 1
-        episodeStep = 0
+        episodeStep = 0 #record the truns that has passed of current game
 
         while True:
             episodeStep += 1
-            canonicalBoard = self.game.getCanonicalForm(board,self.curPlayer)
+            canonicalBoard = self.game.getCanonicalForm(board,self.curPlayer) #current situation of the board in the player's point of view
             temp = int(episodeStep < self.args.tempThreshold)
 
-            pi = self.mcts.getActionProb(canonicalBoard, temp=temp)
+            pi = self.mcts.getActionProb(canonicalBoard, temp=temp) #NOTE: ???the probability of winnning for different move on current situation?
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b,p in sym:
                 trainExamples.append([b, self.curPlayer, p, None])
@@ -75,7 +75,7 @@ class Coach():
             print('------ITER ' + str(i) + '------')
             # examples of the iteration
             if not self.skipFirstSelfPlay or i>1:
-                iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)
+                iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)  #remove the previous training example
     
                 eps_time = AverageMeter()
                 bar = Bar('Self Play', max=self.args.numEps)
@@ -83,7 +83,7 @@ class Coach():
     
                 for eps in range(self.args.numEps):
                     self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
-                    iterationTrainExamples += self.executeEpisode()
+                    iterationTrainExamples += self.executeEpisode() #play one game, adding the gaming history
     
                     # bookkeeping + plot progress
                     eps_time.update(time.time() - end)
