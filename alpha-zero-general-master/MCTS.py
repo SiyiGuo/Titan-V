@@ -10,9 +10,9 @@ class MCTS():
         self.game = game
         self.nnet = nnet
         self.args = args
-        self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
-        self.Nsa = {}       # stores #times edge s,a was visited
-        self.Ns = {}        # stores #times board s was visited
+        self.Qsa = {}       # stores Q values for s,a (as defined in the paper) || the reward for current move a
+        self.Nsa = {}       # stores #times edge s,a was visited || the # of time we have taking action a in current situation
+        self.Ns = {}        # stores #times board s was visited || the # of this situation we have been in 
         self.Ps = {}        # stores initial policy (returned by neural net)
 
         self.Es = {}        # stores game.getGameEnded ended for board s || Store the gaming result of current board situation

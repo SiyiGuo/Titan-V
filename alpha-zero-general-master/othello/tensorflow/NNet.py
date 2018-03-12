@@ -16,18 +16,18 @@ from .OthelloNNet import OthelloNNet as onnet
 args = dotdict({
     'lr': 0.001,
     'dropout': 0.3,
-    'epochs': 10,
-    'batch_size': 64,
+    'epochs': 10, #rounds of training
+    'batch_size': 64, #the size of the board?
     'num_channels': 512,
 })
 
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
-        self.nnet = onnet(game, args)
-        self.board_x, self.board_y = game.getBoardSize()
-        self.action_size = game.getActionSize()
+        self.nnet = onnet(game, args) #Core Algorithm Part
+        self.board_x, self.board_y = game.getBoardSize() #Board Dimension
+        self.action_size = game.getActionSize() #number of possible actions
 
-        self.sess = tf.Session(graph=self.nnet.graph)
+        self.sess = tf.Session(graph=self.nnet.graph) #SPECIFY WHICH GPU to USE
         self.saver = None
         with tf.Session() as temp_sess:
             temp_sess.run(tf.global_variables_initializer())
@@ -35,7 +35,7 @@ class NNetWrapper(NeuralNet):
 
     def train(self, examples):
         """
-        examples: list of examples, each example is of form (board, pi, v)
+        examples: list of examples, each example is of form (board, pi, v) || past data
         """
 
         for epoch in range(args.epochs):
@@ -52,10 +52,14 @@ class NNetWrapper(NeuralNet):
             # self.sess.run(tf.local_variables_initializer())
             while batch_idx < int(len(examples)/args.batch_size):
                 sample_ids = np.random.randint(len(examples), size=args.batch_size)
-                boards, pis, vs = list(zip(*[examples[i] for i in sample_ids]))
+                boards, pis, vs = list(zip(*[examples[i] for i in sample_ids])) #boards,possible winning on each position, winning result
 
                 # predict and compute gradient and do SGD step
-                input_dict = {self.nnet.input_boards: boards, self.nnet.target_pis: pis, self.nnet.target_vs: vs, self.nnet.dropout: args.dropout, self.nnet.isTraining: True}
+                input_dict = {self.nnet.input_boards: boards, 
+                                self.nnet.target_pis: pis, 
+                                 self.nnet.target_vs: vs, 
+                                   self.nnet.dropout: args.dropout, 
+                                self.nnet.isTraining: True}
 
                 # measure data loading time
                 data_time.update(time.time() - end)
@@ -89,6 +93,7 @@ class NNetWrapper(NeuralNet):
     def predict(self, board):
         """
         board: np array with board
+        Making the prediction of winning for current move
         """
         # timing
         start = time.time()
@@ -103,6 +108,9 @@ class NNetWrapper(NeuralNet):
         return prob[0], v[0]
 
     def save_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
+        """
+        Save the model with filename in folder
+        """
         filepath = os.path.join(folder, filename)
         if not os.path.exists(folder):
             print("Checkpoint Directory does not exist! Making directory {}".format(folder))
@@ -115,6 +123,9 @@ class NNetWrapper(NeuralNet):
             self.saver.save(self.sess, filepath)
 
     def load_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
+        """
+        Load the model with filename in folder
+        """
         filepath = os.path.join(folder, filename)
         if not os.path.exists(filepath+'.meta'):
             raise("No model in path {}".format(filepath))

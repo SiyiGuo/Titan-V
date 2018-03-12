@@ -110,7 +110,7 @@ class Coach():
             # shuffle examlpes before training
             trainExamples = []
             for e in self.trainExamplesHistory:
-                trainExamples.extend(e)
+                trainExamples.extend(e) #adding new move record
             shuffle(trainExamples)
 
             # training new network, keeping a copy of the old one
@@ -119,7 +119,7 @@ class Coach():
             pmcts = MCTS(self.game, self.pnet, self.args) #reset previous models' mcts
             
             #using new data to train the new model
-            self.nnet.train(trainExamples)
+            self.nnet.train(trainExamples) #trin the network with new move record
             nmcts = MCTS(self.game, self.nnet, self.args) #rest new models' mcts
 
             #OLD VS NEW
