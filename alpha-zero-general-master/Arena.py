@@ -37,20 +37,20 @@ class Arena():
         curPlayer = 1
         board = self.game.getInitBoard()
         it = 0
-        while self.game.getGameEnded(board, curPlayer)==0:
+        while self.game.getGameEnded(board, curPlayer)==0: #while game is not ended for current player
             it+=1
-            if verbose:
+            if verbose: #display the board
                 assert(self.display)
                 print("Turn ", str(it), "Player ", str(curPlayer))
                 self.display(board)
-            action = players[curPlayer+1](self.game.getCanonicalForm(board, curPlayer))
+            action = players[curPlayer+1](self.game.getCanonicalForm(board, curPlayer)) #get total number of actions for current player
 
-            valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer),1)
+            valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer),1) #get valid move for current player
 
             if valids[action]==0:
                 print(action)
                 assert valids[action] >0
-            board, curPlayer = self.game.getNextState(board, curPlayer, action)
+            board, curPlayer = self.game.getNextState(board, curPlayer, action) #play the move
         if verbose:
             assert(self.display)
             print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
@@ -67,13 +67,13 @@ class Arena():
             twoWon: games won by player2
             draws:  games won by nobody
         """
-        eps_time = AverageMeter()
-        bar = Bar('Arena.playGames', max=num)
-        end = time.time()
+        eps_time = AverageMeter() # average time taken per game
+        bar = Bar('Arena.playGames', max=num) #draw a bar
+        end = time.time() 
         eps = 0
         maxeps = int(num)
 
-        num = int(num/2)
+        num = int(num/2) #play num games of one player
         oneWon = 0
         twoWon = 0
         draws = 0

@@ -72,7 +72,7 @@ class MCTS():
             # terminal node
             return -self.Es[s] #NOTE: return the state of the other player
 
-        if s not in self.Ps:
+        if s not in self.Ps: #if current state is not visited
             # leaf node
             self.Ps[s], v = self.nnet.predict(canonicalBoard)
             valids = self.game.getValidMoves(canonicalBoard, 1)
@@ -110,11 +110,15 @@ class MCTS():
                     best_act = a
 
         a = best_act
+
+        #get the state after the best action
         next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
         next_s = self.game.getCanonicalForm(next_s, next_player)
 
+        #search next state
         v = self.search(next_s)
 
+        # set the reward(Q) and the number of visitation(N)
         if (s,a) in self.Qsa:
             self.Qsa[(s,a)] = (self.Nsa[(s,a)]*self.Qsa[(s,a)] + v)/(self.Nsa[(s,a)]+1)
             self.Nsa[(s,a)] += 1
