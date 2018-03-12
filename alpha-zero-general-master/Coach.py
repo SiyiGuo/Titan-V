@@ -42,11 +42,12 @@ class Coach():
         board = self.game.getInitBoard() #load the gam setup
         self.curPlayer = 1
         episodeStep = 0 #record the truns that has passed of current game
-
+        
+        #star playing the game
         while True:
             episodeStep += 1
             canonicalBoard = self.game.getCanonicalForm(board,self.curPlayer) #current situation of the board in the player's point of view
-            temp = int(episodeStep < self.args.tempThreshold)
+            temp = int(episodeStep < self.args.tempThreshold) # if episodes more than the tempThreshold, MCTS will search will stop searching?
 
             pi = self.mcts.getActionProb(canonicalBoard, temp=temp) #NOTE: ???the probability of winnning for different move on current situation?
             sym = self.game.getSymmetries(canonicalBoard, pi)
@@ -56,9 +57,10 @@ class Coach():
             action = np.random.choice(len(pi), p=pi)
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
 
-            r = self.game.getGameEnded(board, self.curPlayer)
+            r = self.game.getGameEnded(board, self.curPlayer) #return 0 if game continue, 1 if player1 win, -1 if player 2 win
 
             if r!=0:
+                #return game situation, winning result, who won it 
                 return [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
 
     def learn(self):
@@ -70,7 +72,7 @@ class Coach():
         only if it wins >= updateThreshold fraction of games.
         """
 
-        for i in range(1, self.args.numIters+1):
+        for i in range(1, self.args.numIters+1): #for number of rounds
             # bookkeeping
             print('------ITER ' + str(i) + '------')
             # examples of the iteration
@@ -81,8 +83,9 @@ class Coach():
                 bar = Bar('Self Play', max=self.args.numEps)
                 end = time.time()
     
-                for eps in range(self.args.numEps):
+                for eps in range(self.args.numEps): #for each self-play of this rounds
                     self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
+
                     iterationTrainExamples += self.executeEpisode() #play one game, adding the gaming history
     
                     # bookkeeping + plot progress
@@ -95,10 +98,11 @@ class Coach():
 
                 # save the iteration examples to the history 
                 self.trainExamplesHistory.append(iterationTrainExamples)
-                
+            
+            #self-play finished, updating the move history
             if len(self.trainExamplesHistory) > self.args.numItersForTrainExamplesHistory:
                 print("len(trainExamplesHistory) =", len(self.trainExamplesHistory), " => remove the oldest trainExamples")
-                self.trainExamplesHistory.pop(0)
+                self.trainExamplesHistory.pop(0) #remove the oldest gaming history
             # backup history to a file
             # NB! the examples were collected using the model from the previous iteration, so (i-1)  
             self.saveTrainExamples(i-1)
@@ -110,28 +114,32 @@ class Coach():
             shuffle(trainExamples)
 
             # training new network, keeping a copy of the old one
-            self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
-            self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
-            pmcts = MCTS(self.game, self.pnet, self.args)
+            self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar') #save the previous net
+            self.pnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar') #read the previous net
+            pmcts = MCTS(self.game, self.pnet, self.args) #reset previous models' mcts
             
+            #using new data to train the new model
             self.nnet.train(trainExamples)
-            nmcts = MCTS(self.game, self.nnet, self.args)
+            nmcts = MCTS(self.game, self.nnet, self.args) #rest new models' mcts
 
+            #OLD VS NEW
             print('PITTING AGAINST PREVIOUS VERSION')
             arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
                           lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
-            pwins, nwins, draws = arena.playGames(self.args.arenaCompare)
+            pwins, nwins, draws = arena.playGames(self.args.arenaCompare) #playing new mode against old models
 
             print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
             if pwins+nwins > 0 and float(nwins)/(pwins+nwins) < self.args.updateThreshold:
+                #OLD WIN!
                 print('REJECTING NEW MODEL')
-                self.nnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar')
+                self.nnet.load_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar') #using previous mode, as it beat new model
             else:
+                #NEW WIN!
                 print('ACCEPTING NEW MODEL')
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
-                self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar')                
+                self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar') #save the new model, as this is the best
 
-    def getCheckpointFile(self, iteration):
+    def getCheckpointFile(self, iteration): #reading the tranined network
         return 'checkpoint_' + str(iteration) + '.pth.tar'
 
     def saveTrainExamples(self, iteration):
