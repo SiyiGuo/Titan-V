@@ -36,6 +36,8 @@ class OthelloNNet():
             #two dense layer as suggested in URL: https://www.tensorflow.org/tutorials/layers Building the CNN MNIST Classifier
             s_fc1 = Dropout(Relu(BatchNormalization(Dense(h_conv4_flat, 1024), axis=1, training=self.isTraining)), rate=self.dropout) # batch_size x 1024
             s_fc2 = Dropout(Relu(BatchNormalization(Dense(s_fc1, 512), axis=1, training=self.isTraining)), rate=self.dropout)         # batch_size x 512
+
+            
             self.pi = Dense(s_fc2, self.action_size)                                                        # batch_size x self.action_size
             self.prob = tf.nn.softmax(self.pi) #fotmax function, final layer of the network
             self.v = Tanh(Dense(s_fc2, 1))                                                               # batch_size x 1
