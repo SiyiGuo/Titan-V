@@ -22,9 +22,9 @@ class BoardReader(object):
 class Board(object):
     
     __directions = {
-        "top": (-1,0)
-        "bot": (1,0)
-        "left": (0,-1)
+        "top": (-1,0),
+        "bot": (1,0),
+        "left": (0,-1),
         "right": (0,1)
     }
 
@@ -52,7 +52,7 @@ class Board(object):
         check whether this direction if valid to move
         valid: True of False
         move: if valid return the destination
-        """
+        """ 
         x_orig, y_orig = piecePosition
         x_dir, y_dir = direction
         x_dest, y_dest = (x_orig + x_dir,y_orig + y_dir)
@@ -66,18 +66,12 @@ class Board(object):
         else if self.pieces[x_dest][y_dest] is EMPTY:
             # empty place, can move
             return True, (x_dest, y_dest)
-        else if self.pieces[x_dest][y_dest] == self.pieces[x_orig][y_orig]:
-            #if destination is the same piece
-
-            #TODO: see if we can make a jump
+        else if self.pieces[x_dest][y_dest] == WHITE or self.pieces[x_dest][y_dest] == BLACK:
+            #if destination is a piece
+            #see if we can make a jump
+            if self.pieces[x_dest+x_dir][y_dest+x_dir] == EMPTY:
+                return True, (x_dest+x_dir,y_dest+x_dir)
             return False, None
-
-        else if self.pieces[x_dest][y_dest] != self.pieces[x_orig][y_orig]:
-            #if destination is not the same piece
-
-            #TODO: see if we can make a jump
-            return False, None
-
 
         #now it is the valid case
         return True, (x_dest, y_dest)
@@ -108,8 +102,59 @@ class Board(object):
         """
         Given a color, return all the legal moves
         """
+        moves = []
 
+    def opposite(self,color):
+        if color == WHITE:
+            return BLACK
+        if color == BLACK:
+            return WHITE
+        return None
 
+    def executeMove(self, piecePosition, pieceDestination):    
+        """
+        make the move from orginal position to target position
+        
+        """ 
+        x_orig, y_orig = piecePosition
+        x_dest, y_dest = pieceDestination
+        if self.pieces[x_orig][y_orig] == EMPTY:
+            return
+
+        self.pieces[x_dest][y_dest] = self.pieces[x_orig][y_orig]
+        self.pieces[x_orig][y_orig] = EMPTY
+        
+        friend = self.pieces[x_dest][y_dest]
+        enemy = opposite(self.pieces[x_dest][y_dest])
+
+        for direction in self.__directions.values():
+            x_dir, y_dir = direction
+
+            #if the piece 2 blocks away is the same color 
+            #   and the piese next to current block is the opposite color 
+            #eat it
+            if self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == friend and self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy:
+                self.pieces[x_dest + x_dir][y_dest + y_dir] = EMPTY
+
+        for direction in self.__directions.values():
+            x_dir, y_dir = direction
+
+            #if both diresctions are enemy
+            #be eaten 
+            if self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy and self.pieces[x_dest - x_dir][y_dest - y_dir] == enemy:
+                self.pieces[x_dest][y_dest] = EMPTY
+        
+    def checkEat(self, piecePosition, pieceDestination):    
+        """
+        make the move from orginal position to target position
+         
+        """ 
+        x_orig, y_orig = piecePosition 
+        x_dest, y_dest = pieceDestination
+        self.pieces[x_dest][y_dest] = self.pieces[x_orig][y_orig]
+        self.pieces[x_orig][y_orig] = EMPTY
+        friend = self.pieces[x_dest][y_dest]
+        enemy = opposite(self.pieces[x_dest][y_dest])
 
     
     
