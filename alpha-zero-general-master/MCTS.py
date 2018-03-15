@@ -10,9 +10,9 @@ class MCTS():
         self.game = game
         self.nnet = nnet
         self.args = args
-        self.Qsa = {}       # stores Q values for s,a (as defined in the paper)
-        self.Nsa = {}       # stores #times edge s,a was visited
-        self.Ns = {}        # stores #times board s was visited
+        self.Qsa = {}       # stores Q values for s,a (as defined in the paper) || the reward for current move a
+        self.Nsa = {}       # stores #times edge s,a was visited || the # of time we have taking action a in current situation
+        self.Ns = {}        # stores #times board s was visited || the # of this situation we have been in 
         self.Ps = {}        # stores initial policy (returned by neural net)
 
         self.Es = {}        # stores game.getGameEnded ended for board s || Store the gaming result of current board situation
@@ -34,10 +34,10 @@ class MCTS():
         counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
         if temp==0:
-            bestA = np.argmax(counts)
-            probs = [0]*len(counts)
-            probs[bestA]=1
-            return probs
+            bestA = np.argmax(counts)  #find the best move in the simulation
+            probs = [0]*len(counts) #set prob of winning for other move to be zero
+            probs[bestA]=1 #set the best move to be 1 to let it run
+            return probs #return the action to make sure we only go this move
 
         counts = [x**(1./temp) for x in counts]
         probs = [x/float(sum(counts)) for x in counts]
