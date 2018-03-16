@@ -25,14 +25,23 @@ class Masscare(object):
                 enemys.remove(0)
     
     def kill(self, location, friends):
-        #TODO: if killable, kill and return true
-        #       else return false
+        closeFriends = closestFriend(location,friends)
+        killPos = killPosition(location)
+        for pos in killPos:
+            for friend in closeFriends:
+                
+
     
     def move(self,origLocation, destLocation):
         #TODO: if white piece from orig can move to dest, move and return true ,else return fasle
 
     def closestFriend(self, enemyLocation, friends):
-        for x,y in friends:
+        distances = {}
+        for x in friends:
+            distances[x] = self.distance(enemyLocation, x)
+        distances = sorted(distances)
+        return distances
+        
 
     def distance(self, enenyLocation, myLocation):
         x_enemy, y_enemy = enenyLocation
