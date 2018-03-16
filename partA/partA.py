@@ -143,11 +143,12 @@ class Board(object):
         return list(moves)
 
     def opposite(self,color):
-        if color == WHITE:
-            return BLACK
-        if color == BLACK:
-            return WHITE
-        return None
+        return{
+            WHITE:BLACK,
+            BLACK:WHITE,
+            EMPTY:None,
+            BANNED:None
+        }[color]
 
     def executeMove(self, piecePosition, pieceDestination):    
         """
@@ -203,8 +204,13 @@ canoicalBoard, mode = boardReader.readInput()
 
 board = Board(8, canoicalBoard)
 print(board.pieces)
+import time
+start = time.time()
 print(len(board.getAllLegalMoves(WHITE)))
 print(len(board.getAllLegalMoves(BLACK)))
+end = time.time()
+print(end)
+print(start)
 
 
 
