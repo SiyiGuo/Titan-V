@@ -159,7 +159,7 @@ class Board(object):
         x_orig, y_orig = piecePosition
         x_dest, y_dest = pieceDestination
         if self.pieces[x_orig][y_orig] == EMPTY:
-            return
+            return None
 
         self.pieces[x_dest][y_dest] = self.pieces[x_orig][y_orig]
         self.pieces[x_orig][y_orig] = EMPTY
