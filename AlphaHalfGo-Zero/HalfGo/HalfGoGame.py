@@ -8,6 +8,7 @@ import numpy as np
 class HalfGoGame(Game):
     def __init__(self, n):
         self.n = n
+        self.term = 0
 
     def getInitBoard(self):
         # return initial board (numpy board)
@@ -31,6 +32,9 @@ class HalfGoGame(Game):
         b.pieces = np.copy(board)
         move = (int(action/self.n), action%self.n)
         b.execute_move(move, player)
+
+        #updating the term, as game ended in 24 terms
+        self.term += 1
         return (b.pieces, -player)
 
     def getValidMoves(self, board, player):
@@ -51,9 +55,7 @@ class HalfGoGame(Game):
         # player = 1
         b = Board(self.n)
         b.pieces = np.copy(board)
-        if b.has_legal_moves(player):
-            return 0
-        if b.has_legal_moves(-player):
+        if self.term < 24:
             return 0
         if b.countDiff(player) > 0:
             return 1
