@@ -27,11 +27,15 @@ class MCTS():
             probs: a policy vector where the probability of the ith action is
                    proportional to Nsa[(s,a)]**(1./temp)
         """
+        
         for i in range(self.args.numMCTSSims):
             self.search(canonicalBoard)
+        
 
         s = self.game.stringRepresentation(canonicalBoard)
         counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
+        print("\nfirst search\n")
+        print(counts)
 
         if temp==0:
             bestA = np.argmax(counts)  #find the best move in the simulation

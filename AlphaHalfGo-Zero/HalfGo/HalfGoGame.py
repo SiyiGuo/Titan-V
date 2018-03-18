@@ -8,7 +8,7 @@ import numpy as np
 class HalfGoGame(Game):
     def __init__(self, n):
         self.n = n
-        self.term = 0
+        self.turn = 0
 
     def getInitBoard(self):
         # return initial board (numpy board)
@@ -26,6 +26,7 @@ class HalfGoGame(Game):
     def getNextState(self, board, player, action):
         # if player takes action on board, return next (board,player)
         # action must be a valid move
+        # currently action = an Integer
         if action == self.n*self.n:
             return (board, -player)
         b = Board(self.n)
@@ -34,7 +35,7 @@ class HalfGoGame(Game):
         b.execute_move(move, player)
 
         #updating the term, as game ended in 24 terms
-        self.term += 1
+        self.turn += 1
         return (b.pieces, -player)
 
     def getValidMoves(self, board, player):
@@ -55,11 +56,12 @@ class HalfGoGame(Game):
         # player = 1
         b = Board(self.n)
         b.pieces = np.copy(board)
-        if self.term < 24:
+        if self.turn < 24:
             return 0
-        if b.countDiff(player) > 0:
-            return 1
-        return -1
+        else:
+            if b.countDiff(player) > 0:
+                return 1
+            return -1
 
     def getCanonicalForm(self, board, player):
         # return state if player==1, else return -state if player==-1

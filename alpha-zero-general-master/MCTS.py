@@ -29,10 +29,14 @@ class MCTS():
         """
         for i in range(self.args.numMCTSSims):
             self.search(canonicalBoard)
-
+        
+       
         s = self.game.stringRepresentation(canonicalBoard)
-        counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
+        counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
+        print("\nfirst search\n")
+        print(counts)
+        a = input()
         if temp==0:
             bestA = np.argmax(counts)  #find the best move in the simulation
             probs = [0]*len(counts) #set prob of winning for other move to be zero

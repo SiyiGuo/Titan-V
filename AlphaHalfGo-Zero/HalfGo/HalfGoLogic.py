@@ -18,7 +18,12 @@ BLACK = -1
 class Board():
 
     # list of all 8 directions on the board, as (x,y) offsets
-    __directions = [(1,1),(1,0),(1,-1),(0,-1),(-1,-1),(-1,0),(-1,1),(0,1)]
+    __directions = {
+        "top": (-1,0),
+        "bot": (1,0),
+        "left": (0,-1),
+        "right": (0,1)
+    }
 
     def __init__(self, n):
         "Set up initial board configuration."
@@ -55,7 +60,7 @@ class Board():
         for y in range(self.n):
             for x in range(self.n):
                 if self[x][y]==EMPTY:
-                    moves.update((x,y))
+                    moves.update([(x,y)])
         return list(moves)
 
     def opposite(self,color):
@@ -87,8 +92,11 @@ class Board():
 
             #case Friend Enemy Friend
             #then Enemy will be Eat
-            if self.pieces[x + 2*x_dir][y + 2*y_dir] == friend and self.pieces[x + x_dir][y + y_dir] == enemy:
-                self.pieces[x + x_dir][y + y_dir] = EMPTY
+            try:
+                if self.pieces[x + 2*x_dir][y + 2*y_dir] == friend and self.pieces[x + x_dir][y + y_dir] == enemy:
+                    self.pieces[x + x_dir][y + y_dir] = EMPTY
+            except:
+                pass
 
         #process myself then
         for direction in self.__directions.values():
@@ -96,8 +104,11 @@ class Board():
 
             #ase Enemy Friend Enemy
             #i am eaten
-            if self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy and self.pieces[x_dest - x_dir][y_dest - y_dir] == enemy:
-                self.pieces[x_dest][y_dest] = EMPTY
+            try:
+                if self.pieces[x + x_dir][y+ y_dir] == enemy and self.pieces[x - x_dir][y - y_dir] == enemy:
+                    self.pieces[x][y] = EMPTY
+            except:
+                pass
 
 
 

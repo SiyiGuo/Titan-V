@@ -49,6 +49,8 @@ class Coach():
             canonicalBoard = self.game.getCanonicalForm(board,self.curPlayer) #current situation of the board in the player's point of view
             temp = int(episodeStep < self.args.tempThreshold) # if episodes more than the tempThreshold, MCTS will search will stop searching?
 
+            print(self.game.getCanonicalForm(board,self.curPlayer))
+            print("before MCTS")
             pi = self.mcts.getActionProb(canonicalBoard, temp=temp) #NOTE: ???the probability of winnning for different move on current situation?
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b,p in sym:
@@ -56,6 +58,8 @@ class Coach():
 
             action = np.random.choice(len(pi), p=pi)
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
+            print(self.game.getCanonicalForm(board,self.curPlayer))
+            print("after MCPS")
 
             r = self.game.getGameEnded(board, self.curPlayer) #return 0 if game continue, 1 if player1 win, -1 if player 2 win
 
