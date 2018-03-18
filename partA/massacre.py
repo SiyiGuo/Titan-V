@@ -24,13 +24,18 @@ class Masscare(object):
                 enemys.remove(0)
     
     def kill(self, location, friends):
+        x_enemy, y_enemy = location
         closeFriends = self.closestFriend(location,friends)
         killPos = self.killPosition(location)
         for pos in killPos:
             for friend in closeFriends:
-                if self.move(friend, pos):
+                if self.moveable(friend, pos):
+                    self.move(friend, pos)
                     closeFriends.remove(friend)
                     break
+            if self.board.pieces[x_enemy][y_enemy] == EMPTY:
+                return True
+        return False
         
     def moveable(self,origLocation, destLocation):
         o_visited = []
@@ -84,7 +89,10 @@ class Masscare(object):
                 else:
                     shortestPath[x] = shortestPath[loc]
                     shortestPath[x].append(x)
-        return shortestPath[destLocation]           
+        lastLoc = origLocation
+        for path in shortestPath[destLocation]: 
+            self.board.executeMove(lastLoc,path)
+            lastLoc = path         
 
 
     def closestFriend(self, enemyLocation, friends):
