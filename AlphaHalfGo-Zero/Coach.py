@@ -131,8 +131,8 @@ class Coach():
 
             #OLD VS NEW
             print('PITTING AGAINST PREVIOUS VERSION')
-            arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, temp=0)),
-                          lambda x: np.argmax(nmcts.getActionProb(x, temp=0)), self.game)
+            arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, 0, temp=0)),
+                          lambda x: np.argmax(nmcts.getActionProb(x, 0, temp=0)), self.game)
             pwins, nwins, draws = arena.playGames(self.args.arenaCompare) #playing new mode against old models
 
             print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
