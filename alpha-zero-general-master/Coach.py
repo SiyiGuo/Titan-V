@@ -58,11 +58,10 @@ class Coach():
 
             action = np.random.choice(len(pi), p=pi)
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
-            print(self.game.getCanonicalForm(board,self.curPlayer))
-            print("after MCPS")
+            
 
             r = self.game.getGameEnded(board, self.curPlayer) #return 0 if game continue, 1 if player1 win, -1 if player 2 win
-
+            print("turn %s, game status: %s, take action: %s"%(episodeStep, r, action))
             if r!=0:
                 #return game situation, winning result, who won it 
                 return [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]

@@ -6,3 +6,5 @@
 *.pyproj
 
 *.pyc
+
+AlphaHalfGo-Zero/temp/

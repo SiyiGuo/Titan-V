@@ -18,10 +18,14 @@ class MCTS():
         self.Es = {}        # stores game.getGameEnded ended for board s || Store the gaming result of current board situation
         self.Vs = {}        # stores game.getValidMoves for board s
 
-    def getActionProb(self, canonicalBoard, temp=1):
+    def getActionProb(self, canonicalBoard, turn, temp=1):
         """
         This function performs numMCTSSims simulations of MCTS starting from
         canonicalBoard.
+        Input:
+            cannoicalBoard: board
+            turn: int in range(0,25)
+            temp: 0 or 1
 
         Returns:
             probs: a policy vector where the probability of the ith action is
@@ -29,13 +33,12 @@ class MCTS():
         """
         
         for i in range(self.args.numMCTSSims):
-            self.search(canonicalBoard)
+            self.search(canonicalBoard, turn)
         
-
+        # print("turn %s, before Counts" % turn)
+        # print(canonicalBoard)
         s = self.game.stringRepresentation(canonicalBoard)
         counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
-        print("\nfirst search\n")
-        print(counts)
 
         if temp==0:
             bestA = np.argmax(counts)  #find the best move in the simulation
@@ -48,7 +51,7 @@ class MCTS():
         return probs
 
 
-    def search(self, canonicalBoard):
+    def search(self, canonicalBoard, turn):
         """
         This function performs one iteration of MCTS. It is recursively called
         till a leaf node is found. The action chosen at each node is one that
@@ -71,7 +74,11 @@ class MCTS():
         s = self.game.stringRepresentation(canonicalBoard) #read board
 
         if s not in self.Es: # situation s's result not known
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
+        
+        if turn > 24:
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn)
+
         if self.Es[s]!=0: #if there is a winner
             # terminal node
             return -self.Es[s] #NOTE: return the state of the other player
@@ -117,7 +124,7 @@ class MCTS():
         next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
         next_s = self.game.getCanonicalForm(next_s, next_player)
 
-        v = self.search(next_s)
+        v = self.search(next_s, turn + 1)
 
         if (s,a) in self.Qsa:
             self.Qsa[(s,a)] = (self.Nsa[(s,a)]*self.Qsa[(s,a)] + v)/(self.Nsa[(s,a)]+1)

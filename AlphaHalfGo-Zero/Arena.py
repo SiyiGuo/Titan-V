@@ -37,7 +37,7 @@ class Arena():
         curPlayer = 1
         board = self.game.getInitBoard()
         it = 0
-        while self.game.getGameEnded(board, curPlayer)==0:
+        while self.game.getGameEnded(board, curPlayer, it)==0:
             it+=1
             if verbose:
                 assert(self.display)
@@ -53,9 +53,9 @@ class Arena():
             board, curPlayer = self.game.getNextState(board, curPlayer, action)
         if verbose:
             assert(self.display)
-            print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1)))
+            print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1, it)))
             self.display(board)
-        return self.game.getGameEnded(board, 1)
+        return self.game.getGameEnded(board, 1, it)
 
     def playGames(self, num, verbose=False):
         """
