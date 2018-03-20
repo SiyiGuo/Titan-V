@@ -1,3 +1,5 @@
+import copy
+
 class BoardReader(object):
     def __init__(self):
         self.board = [] # a two dimension list
@@ -110,10 +112,6 @@ class Board(object):
         """
         (x,y) =piecePosition
 
-        if self.pieces[x][y] is EMPTY:
-            """this is an empty piece, skip"""
-            return None
-
         # to be returned
         moves = []
         for direction in self.__directions.values():
@@ -166,22 +164,25 @@ class Board(object):
         friend = self.pieces[x_dest][y_dest]
         enemy = self.opposite(self.pieces[x_dest][y_dest])
 
-        for direction in self.__directions.values():
-            x_dir, y_dir = direction
-
+        for x_dir, y_dir in self.__directions.values():
             #if the piece 2 blocks away is the same color 
             #   and the piese next to current block is the opposite color 
             #eat it
-            if self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == friend and self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy:
-                self.pieces[x_dest + x_dir][y_dest + y_dir] = EMPTY
+            try:
+                if self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == friend and self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy:
+                    self.pieces[x_dest + x_dir][y_dest + y_dir] = EMPTY
+            except:
+                pass
 
-        for direction in self.__directions.values():
-            x_dir, y_dir = direction
+        for x_dir, y_dir in self.__directions.values():
 
             #if both diresctions are enemy
             #be eaten 
-            if self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy and self.pieces[x_dest - x_dir][y_dest - y_dir] == enemy:
-                self.pieces[x_dest][y_dest] = EMPTY
+            try:
+                if self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy and self.pieces[x_dest - x_dir][y_dest - y_dir] == enemy:
+                    self.pieces[x_dest][y_dest] = EMPTY
+            except:
+                pass
         
     def checkEat(self, piecePosition, pieceDestination):    
         """
@@ -195,6 +196,147 @@ class Board(object):
         friend = self.pieces[x_dest][y_dest]
         enemy = self.opposite(self.pieces[x_dest][y_dest])
 
+class Masscare(object):
+    def __init__(self, board):
+        self.board = board
+        enemys = []
+        friends = []
+        for x in range(len(self.board.pieces)):
+            for y in range(len(self.board.pieces[x])):
+                if self.board.pieces[x][y] == BLACK:
+                    enemys.append((x,y))
+                elif self.board.pieces[x][y] == WHITE:
+                    friends.append((x,y))
+        self.killBlacks(enemys, friends)
+    
+    def killBlacks(self, enemys, friends):
+        i = len(enemys) -1
+        while(len(enemys) != 0):
+            bo = self.kill(enemys[i], friends)
+            if bo:
+                enemys.pop(0)
+    
+    def kill(self, location, friends):
+        x_enemy, y_enemy = location
+        closeFriends = self.closestFriend(location,friends)
+        killPos = self.killPosition(location)
+        for posPair in killPos:
+            for pos in posPair:
+                for friend in closeFriends:
+                    if self.moveable(friend, pos):
+                        self.move(friend, pos)
+                        closeFriends.remove(friend)
+                        break
+                if self.board.pieces[x_enemy][y_enemy] == EMPTY:
+                    print('killed')
+                    return True
+        return False
+        
+    def moveable(self,origLocation, destLocation):
+        o_visited = []
+        d_visited = []
+
+        o_toVisit = []
+        d_toVisit = []
+
+        o_distance = 0
+        d_distance = 0
+
+        o_toVisit.append(origLocation)
+        d_toVisit.append(destLocation)
+
+        while (len(o_toVisit) > 0 and len(d_toVisit)> 0): 
+
+            if d_distance < o_distance:
+                loc = d_toVisit.pop(0)
+                d_visited.append(loc)
+                
+                toVisit = self.board.getValidMoveForPiece(loc)
+                for x in toVisit:
+                    if x not in d_visited:
+                        d_toVisit.append(x)
+                d_distance += 1
+
+            else:
+                loc = o_toVisit.pop(0)
+                o_visited.append(loc)
+                toVisit = self.board.getValidMoveForPiece(loc)
+                for x in toVisit:
+                    if x not in o_visited:
+                        o_toVisit.append(x)
+                o_distance += 1
+
+            for x in o_visited:
+                if x in d_visited:
+                    return True
+
+        return False 
+    
+    def move(self,origLocation, destLocation):
+        toVisit = [origLocation]
+        shortestPath = {origLocation: [origLocation]}
+        while destLocation not in shortestPath.keys():
+            loc = toVisit.pop(0)
+            
+            for x in self.board.getValidMoveForPiece(loc):
+                if x in shortestPath.keys():
+                    if len(shortestPath[loc])+1 <= len(shortestPath[x]):
+                        shortestPath[x] = shortestPath[loc]
+                        shortestPath[x].append(x)
+                else:
+                    shortestPath[x] = copy.deepcopy(shortestPath[loc])
+                    shortestPath[x].append(x)
+                    toVisit.append(x)
+        
+        lastLoc = origLocation
+        i = 0
+        for path in shortestPath[destLocation]: 
+            if i == 0:
+                i+=1
+                continue
+            print(str(lastLoc) + "------>>" + str(path))
+            
+            self.board.executeMove(lastLoc,path)
+            print(self.board.pieces)
+            lastLoc = path
+
+
+    def closestFriend(self, enemyLocation, friends):
+        distances = {}
+        for x in friends:
+            distances[x] = self.distance(enemyLocation, x)
+        distances = sorted(distances, reverse = True)
+        return distances
+        
+
+    def distance(self, enenyLocation, myLocation):
+        x_enemy, y_enemy = enenyLocation
+        x_me, y_me = myLocation
+        return ((x_enemy-x_me)**2 + (y_enemy-y_me)**2)        
+    
+    def killPosition(self, enemyLocation):
+        __killDirections = {
+            "vertical": (1,0),
+            "horizontal": (0,1),
+        }
+
+        result = []
+        x_enemy,y_enemy = enemyLocation
+
+        for x_dir,y_dir in __killDirections.values():
+            x1 = x_enemy + x_dir
+            y1 = y_enemy + y_dir
+            x2 = x_enemy - x_dir
+            y2 = y_enemy - y_dir
+            positions = []
+            if x1 > 7 or y1 > 7 or self.board.pieces[x1][y1] == BLACK or self.board.pieces[x2][y2] == BLACK:
+                continue
+            if x1 < 8 and y1 < 8 and self.board.pieces[x1][y1] == EMPTY:
+                positions.append((x1, y1))
+            if self.board.pieces[x2][y2] == EMPTY:
+                positions.append((x2, y2))
+            result.append(positions)
+        return result   
     
     
 
@@ -204,13 +346,16 @@ canoicalBoard, mode = boardReader.readInput()
 
 board = Board(8, canoicalBoard)
 print(board.pieces)
-import time
-start = time.time()
-print(len(board.getAllLegalMoves(WHITE)))
-print(len(board.getAllLegalMoves(BLACK)))
-end = time.time()
-print(end)
-print(start)
+if mode == "move":
+    import time
+    start = time.time()
+    print(len(board.getAllLegalMoves(WHITE)))
+    print(len(board.getAllLegalMoves(BLACK)))
+    end = time.time()
+    print(end)
+    print(start)
+else:
+    mass = Masscare(board)
 
 
 
