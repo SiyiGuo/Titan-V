@@ -1,4 +1,5 @@
 import copy
+import time
 
 class BoardReader(object):
     def __init__(self):
@@ -169,20 +170,20 @@ class Board(object):
             #   and the piese next to current block is the opposite color 
             #eat it
             try:
-                if self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == friend and self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy:
+                if self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == BANNED or self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == friend and self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy:
                     self.pieces[x_dest + x_dir][y_dest + y_dir] = EMPTY
             except:
-                pass
+                continue
 
         for x_dir, y_dir in self.__directions.values():
 
             #if both diresctions are enemy
             #be eaten 
             try:
-                if self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy and self.pieces[x_dest - x_dir][y_dest - y_dir] == enemy:
+                if self.pieces[x_dest + x_dir][y_dest + y_dir] == BANNED or self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy and self.pieces[x_dest - x_dir][y_dest - y_dir] == enemy:
                     self.pieces[x_dest][y_dest] = EMPTY
             except:
-                pass
+                continue
         
     def checkEat(self, piecePosition, pieceDestination):    
         """
@@ -210,10 +211,8 @@ class Masscare(object):
         self.killBlacks(enemys, friends)
     
     def killBlacks(self, enemys, friends):
-        i = len(enemys) -1
-        while(len(enemys) != 0):
-            bo = self.kill(enemys[i], friends)
-            if bo:
+        while(len(enemys) != 1):
+            if self.kill(enemys[0], friends):
                 enemys.pop(0)
     
     def kill(self, location, friends):
@@ -228,7 +227,6 @@ class Masscare(object):
                         closeFriends.remove(friend)
                         break
                 if self.board.pieces[x_enemy][y_enemy] == EMPTY:
-                    print('killed')
                     return True
         return False
         
@@ -295,9 +293,7 @@ class Masscare(object):
                 i+=1
                 continue
             print(str(lastLoc) + "------>>" + str(path))
-            
             self.board.executeMove(lastLoc,path)
-            print(self.board.pieces)
             lastLoc = path
 
 
@@ -338,16 +334,12 @@ class Masscare(object):
             result.append(positions)
         return result   
     
-    
-
-
 boardReader = BoardReader()
 canoicalBoard, mode = boardReader.readInput()
 
 board = Board(8, canoicalBoard)
-print(board.pieces)
 if mode == "move":
-    import time
+    
     start = time.time()
     print(len(board.getAllLegalMoves(WHITE)))
     print(len(board.getAllLegalMoves(BLACK)))
@@ -356,6 +348,7 @@ if mode == "move":
     print(start)
 else:
     mass = Masscare(board)
+    print(mass.board.pieces)
 
 
 
