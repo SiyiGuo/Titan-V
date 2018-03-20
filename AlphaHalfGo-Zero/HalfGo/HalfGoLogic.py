@@ -30,15 +30,15 @@ class Board():
 
         self.n = n
         # Create the empty board array.
-        self.pieces = [[0]*self.n]*self.n
-        self.pieces[0][0] = BANNED
-        self.pieces[0][self.n - 1] = BANNED
-        self.pieces[self.n - 1][0] = BANNED
-        self.pieces[self.n-1][self.n-1] = BANNED
+        self.pieces = [None]*self.n
+        for i in range(self.n):
+            self.pieces[i] = [0]*self.n
 
-    # add [][] indexer syntax to the Board
-    def __getitem__(self, index): 
-        return self.pieces[index]
+        self.pieces[0][0] = BLACK
+        self.pieces[0][self.n - 1] = BLACK
+        self.pieces[self.n - 1][0] = WHITE
+        self.pieces[self.n-1][self.n-1] = WHITE
+
 
     def countDiff(self, color):
         """Counts the # pieces of the given color
@@ -46,9 +46,9 @@ class Board():
         count = 0
         for y in range(self.n):
             for x in range(self.n):
-                if self[x][y]==color:
+                if self.pieces[x][y]==color:
                     count += 1
-                if self[x][y]==-color:
+                if self.pieces[x][y]==-color:
                     count -= 1
         return count
 
@@ -59,12 +59,19 @@ class Board():
         moves = set()  # stores the legal moves.
 
         # Get all the squares with pieces of the given color.
-        for y in range(self.n):
-            for x in range(self.n):
-                if self[x][y]==EMPTY:
-                    moves.update([(x,y)])
+        if color == BLACK:
+            for y in range(2, self.n):
+                for x in range(self.n):
+                    if self.pieces[x][y]==EMPTY:
+                        moves.update([(x,y)])
+        elif color == WHITE:
+            for y in range(self.n - 2):
+                for x in range(self.n):
+                    if self.pieces[x][y]==EMPTY:
+                        moves.update([(x,y)])
+        
         return list(moves)
-
+            
     def opposite(self,color):
         """
         return the notation of opposite color
@@ -81,7 +88,7 @@ class Board():
         color gives the color pf the piece to play (1=white,-1=black)
         """
 
-        x, y = move
+        (x, y) = move
         self.pieces[x][y] = color
 
         #Checking the eat now
