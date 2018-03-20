@@ -143,23 +143,22 @@ class Board(object):
         return list(moves)
 
     def opposite(self,color):
-        if color == WHITE:
-            return BLACK
-        if color == BLACK:
-            return WHITE
-        return None
+        return{
+            WHITE:BLACK,
+            BLACK:WHITE,
+            EMPTY:None,
+            BANNED:None
+        }[color]
 
     def executeMove(self, piecePosition, pieceDestination):    
         """
         make the move from orginal position to target position
-        eat any if possible
-        be eaten if needed
+        
         """ 
-        modifiedBlocks = []
         x_orig, y_orig = piecePosition
         x_dest, y_dest = pieceDestination
         if self.pieces[x_orig][y_orig] == EMPTY:
-            return None
+            return
 
         self.pieces[x_dest][y_dest] = self.pieces[x_orig][y_orig]
         self.pieces[x_orig][y_orig] = EMPTY
@@ -173,48 +172,28 @@ class Board(object):
             #if the piece 2 blocks away is the same color 
             #   and the piese next to current block is the opposite color 
             #eat it
-            if self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == (friend or BANNED) and self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy:
+            if self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == friend and self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy:
                 self.pieces[x_dest + x_dir][y_dest + y_dir] = EMPTY
-                modifiedBlocks.append((x_dest + x_dir, y_dest + y_dir))
 
         for direction in self.__directions.values():
             x_dir, y_dir = direction
 
             #if both diresctions are enemy
             #be eaten 
-            if self.pieces[x_dest + x_dir][y_dest + y_dir] == (enemy or BANNED) and self.pieces[x_dest - x_dir][y_dest - y_dir] == enemy:
+            if self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy and self.pieces[x_dest - x_dir][y_dest - y_dir] == enemy:
                 self.pieces[x_dest][y_dest] = EMPTY
-                modifiedBlocks.append((x_dest, y_dest))
-        return modifiedBlocks
         
     def checkEat(self, piecePosition, pieceDestination):    
         """
         make the move from orginal position to target position
+         
         """ 
-        x_orig, y_orig = piecePosition
+        x_orig, y_orig = piecePosition 
         x_dest, y_dest = pieceDestination
-
-        friend = self.pieces[x_orig][y_orig]
-        enemy = self.opposite(self.pieces[x_orig][y_orig])
-
-        modifiedBlocks = self.executeMove(piecePosition, pieceDestination)
-
-        eliminate = 0
-        lose = 0
-
-        for x,y in modifiedBlocks:
-            if x,y != pieceDestination:
-                self.pieces[x][y] = enemy
-                eliminate += 1
-            else:
-                self.pieces[x][y] = friend
-                lose += 1
-
-        self.pieces[x_dest][y_dest] = EMPTY
-        self.pieces[x_orig][y_orig] = friend
-
-        return eliminate,lose
-
+        self.pieces[x_dest][y_dest] = self.pieces[x_orig][y_orig]
+        self.pieces[x_orig][y_orig] = EMPTY
+        friend = self.pieces[x_dest][y_dest]
+        enemy = self.opposite(self.pieces[x_dest][y_dest])
 
     
     
@@ -225,8 +204,13 @@ canoicalBoard, mode = boardReader.readInput()
 
 board = Board(8, canoicalBoard)
 print(board.pieces)
+import time
+start = time.time()
 print(len(board.getAllLegalMoves(WHITE)))
 print(len(board.getAllLegalMoves(BLACK)))
+end = time.time()
+print(end)
+print(start)
 
 
 

@@ -1,2 +1,10 @@
 
 \.vscode/
+
+\.vs/
+
+*.pyproj
+
+*.pyc
+
+AlphaHalfGo-Zero/temp/

@@ -8,7 +8,6 @@ Board data:
      pieces[1][7] is the square in column 2,
      at the opposite end of the board in row 8.
 Squares are stored and manipulated as (x,y) tuples.
-x is the column, y is the row.
 '''
 class Board():
 
