@@ -7,6 +7,8 @@ Note:
     the BANNED area
 """
 
+import numpy as np
+
 """
 Notation Area
 hacked to run first
@@ -17,7 +19,7 @@ WHITE = 1
 BLACK = -1
 class Board():
 
-    # list of all 8 directions on the board, as (x,y) offsets
+    # direction: (row, column)
     __directions = {
         "top": (-1,0),
         "bot": (1,0),
@@ -26,13 +28,16 @@ class Board():
     }
 
     def __init__(self, n):
-        "Set up initial board configuration."
+        """
+        Set up initial board configuration.
+        input: (column, row)
+        middly process: (row, column)
+        output:(column, row)
+        """
 
         self.n = n
         # Create the empty board array.
-        self.pieces = [None]*self.n
-        for i in range(self.n):
-            self.pieces[i] = [0]*self.n
+        self.pieces = np.zeros((self.n, self.n))
 
         self.pieces[0][0] = BLACK
         self.pieces[0][self.n - 1] = BLACK
@@ -53,8 +58,10 @@ class Board():
         return count
 
     def get_legal_moves(self, color):
-        """Returns all the legal moves for the given color.
+        """
+        Returns all the legal moves for the given color.
         (1 for white, -1 for black)
+        output in the form (column, row)
         """
         moves = set()  # stores the legal moves.
 
@@ -62,12 +69,12 @@ class Board():
         if color == BLACK:
             for y in range(2, self.n):
                 for x in range(self.n):
-                    if self.pieces[x][y]==EMPTY:
+                    if self.pieces[y][x]==EMPTY:
                         moves.update([(x,y)])
         elif color == WHITE:
             for y in range(self.n - 2):
                 for x in range(self.n):
-                    if self.pieces[x][y]==EMPTY:
+                    if self.pieces[y][x]==EMPTY:
                         moves.update([(x,y)])
         
         return list(moves)
@@ -84,12 +91,17 @@ class Board():
         }[color]
 
     def execute_move(self, move, color):
-        """Perform the given move on the board; flips pieces as necessary.
+        """
+        Perform the given move on the board; flips pieces as necessary.
         color gives the color pf the piece to play (1=white,-1=black)
+        input: 
+            (column, row) = (x,y)
+        process: 
+            (row, column) = (y,x)
         """
 
-        (x, y) = move
-        self.pieces[x][y] = color
+        (x, y) = move #(column, row) from input
+        self.pieces[y][x] = color
 
         #Checking the eat now
         friend = color
@@ -97,27 +109,40 @@ class Board():
 
         #process the eat of enemy first according to the rult
         for direction in self.__directions.values():
-            x_dir, y_dir = direction
+            y_dir, x_dir = direction
 
             #case Friend Enemy Friend
             #then Enemy will be Eat
-            try:
-                if self.pieces[x + 2*x_dir][y + 2*y_dir] == friend and self.pieces[x + x_dir][y + y_dir] == enemy:
-                    self.pieces[x + x_dir][y + y_dir] = EMPTY
-            except:
+            index_check = np.array([y + 2*y_dir, x + 2*x_dir, y + y_dir, x + x_dir])
+
+            #as valid index are [0,......self.n-1] eg: n =8, n - 1 = 7, [0,....7]
+            if (index_check < 0).any() or (index_check >= self.n).any():
                 pass
+            else:
+                if np.array_equal(
+                    [self.pieces[y + 2*y_dir][x + 2*x_dir],self.pieces[y + y_dir][x + x_dir]]
+                    ,
+                    [friend, enemy]
+                    ):
+                    self.pieces[y + y_dir][x + x_dir] = EMPTY
 
         #process myself then
         for direction in self.__directions.values():
-            x_dir, y_dir = direction
+            y_dir, x_dir = direction
 
             #ase Enemy Friend Enemy
             #i am eaten
-            try:
-                if self.pieces[x + x_dir][y+ y_dir] == enemy and self.pieces[x - x_dir][y - y_dir] == enemy:
-                    self.pieces[x][y] = EMPTY
-            except:
+            index_check = np.array([y + y_dir, x + x_dir, y - y_dir, x - x_dir])
+            
+            if (index_check < 0).any() or (index_check >= self.n).any():
                 pass
+            else:
+                if np.array_equal(
+                    [self.pieces[y+ y_dir][x + x_dir], self.pieces[y - y_dir][x - x_dir]]
+                    ,
+                    [enemy, enemy]
+                    ):
+                    self.pieces[y][x] = EMPTY
 
 
 
