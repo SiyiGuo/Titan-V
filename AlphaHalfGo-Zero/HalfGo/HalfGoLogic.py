@@ -37,7 +37,12 @@ class Board():
 
         self.n = n
         # Create the empty board array.
-        self.pieces = np.zeros((self.n, self.n))
+        # do not use np.zeros
+        # as numpy can have 0, -0
+        # but their string representation is different!!
+        self.pieces = [None]*self.n
+        for i in range(self.n):
+            self.pieces[i] = [0]*self.n
 
         self.pieces[0][0] = BLACK
         self.pieces[0][self.n - 1] = BLACK

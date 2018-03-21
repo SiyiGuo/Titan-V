@@ -21,6 +21,7 @@ class OthelloGame(Game):
 
     def getActionSize(self):
         # return number of actions
+        # +1 for the bias of the neural network
         return self.n*self.n + 1
 
     def getNextState(self, board, player, action):
@@ -78,7 +79,7 @@ class OthelloGame(Game):
                 if j:
                     newB = np.fliplr(newB)
                     newPi = np.fliplr(newPi)
-                l += [(newB, list(newPi.ravel()) + [pi[-1]])]
+                l += [(newB, list(newPi.ravel()) + [pi[-1]])] #[pi[-1]] is the 65th element in pi
         return l
 
     def stringRepresentation(self, board):

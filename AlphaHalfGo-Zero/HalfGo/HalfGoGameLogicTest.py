@@ -29,6 +29,7 @@ BLACK = -1
 # print(sorted(board.get_legal_moves(WHITE)))
 # print(sorted(board.get_legal_moves(BLACK)))
 
+
 game = HalfGoGame(8)
 
 print("getInitBoard")
@@ -41,9 +42,35 @@ print(game.getBoardSize())
 print("getActionSize")
 print(game.getActionSize())
 
-print("getNextState")
-print(game.getNextState(initBoard, 1, 2))
+print("getNextState, WHITE player place at (0,2)")
+(WHITE02, nextPlayer) = game.getNextState(initBoard, WHITE, 2)
+print(WHITE02)
+print("nextPlayer %s"%nextPlayer)
+print("getNextState, BLACK player place at (1,0)")
+(BLACK10, nextPlayer) = game.getNextState(initBoard, BLACK, 8)
+print(BLACK10)
+print("nextPlayer %s"%nextPlayer)
 
-print("getValidMoves")
-print(game.getValidMoves(initBoard, 1))
+print("getValidMoves WHITE, groups pieces with same column, so add a Transpose")
+print(game.getValidMoves(initBoard, WHITE).reshape(8,8).T)
+print("WHITE valid after place (1,0)")
+print(game.getValidMoves(WHITE02, WHITE).reshape(8,8).T)
+print("getValidMoves BLACK, groups pieces with same column, so add a Transpose")
+print(game.getValidMoves(initBoard, BLACK).reshape(8,8).T)
 
+print("getGameEnded")
+print(game.getGameEnded(WHITE02, BLACK, 25))
+print(game.getGameEnded(WHITE02, BLACK, 24))
+print(game.getGameEnded(WHITE02, BLACK, 23))
+
+
+print("getCanonicalFoem")
+print(game.getCanonicalForm(WHITE02, WHITE))
+print(game.getCanonicalForm(WHITE02, BLACK))
+
+print("getSymmetries")
+print(game.getSymmetries(WHITE02, [i for i in range(64)]))
+
+print("get score")
+print(game.getScore(WHITE02, WHITE))
+print(game.getScore(WHITE02, BLACK))
