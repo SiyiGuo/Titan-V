@@ -118,14 +118,17 @@ class Board():
 
             #case Friend Enemy Friend
             #then Enemy will be Eat
-            index_check = np.array([y + 2*y_dir, x + 2*x_dir, y + y_dir, x + x_dir])
 
             #as valid index are [0,......self.n-1] eg: n =8, n - 1 = 7, [0,....7]
-            if (index_check < 0).any() or (index_check >= self.n).any():
+            a,b,c,d = y + 2*y_dir, x + 2*x_dir, y + y_dir, x + x_dir
+
+            if  (a < 0 or b < 0 or c < 0 or d < 0) or (a >= self.n or b >= self.n or c >= self.n or d >= self.n):
                 pass
             else:
-                if (self.pieces[y + 2*y_dir][x + 2*x_dir],self.pieces[y + y_dir][x + x_dir]) == (friend, enemy):
-                    self.pieces[y + y_dir][x + x_dir] = EMPTY
+                # if (self.pieces[y + 2*y_dir][x + 2*x_dir],self.pieces[y + y_dir][x + x_dir]) == (friend, enemy):
+                #     self.pieces[y + y_dir][x + x_dir] = EMPTY
+                if (self.pieces[a][b],self.pieces[c][d]) == (friend, enemy):
+                    self.pieces[c][d] = EMPTY
 
         #process myself then
         for direction in self.__directions.values():
@@ -133,12 +136,14 @@ class Board():
 
             #ase Enemy Friend Enemy
             #i am eaten
-            index_check = np.array([y + y_dir, x + x_dir, y - y_dir, x - x_dir])
+            a,b,c,d = y + y_dir, x + x_dir, y - y_dir, x - x_dir
             
-            if (index_check < 0).any() or (index_check >= self.n).any():
+            if (a < 0 or b < 0 or c < 0 or d < 0) or (a >= self.n or b >= self.n or c >= self.n or d >= self.n):
                 pass
             else:
-                if ([self.pieces[y+ y_dir][x + x_dir], self.pieces[y - y_dir][x - x_dir]) == (enemy, enemy):
+                # if ([self.pieces[y+ y_dir][x + x_dir], self.pieces[y - y_dir][x - x_dir]) == (enemy, enemy):
+                #     self.pieces[y][x] = EMPTY
+                if (self.pieces[a][b], self.pieces[c][d]) == (enemy, enemy):
                     self.pieces[y][x] = EMPTY
 
 
