@@ -124,11 +124,7 @@ class Board():
             if (index_check < 0).any() or (index_check >= self.n).any():
                 pass
             else:
-                if np.array_equal(
-                    [self.pieces[y + 2*y_dir][x + 2*x_dir],self.pieces[y + y_dir][x + x_dir]]
-                    ,
-                    [friend, enemy]
-                    ):
+                if (self.pieces[y + 2*y_dir][x + 2*x_dir],self.pieces[y + y_dir][x + x_dir]) == (friend, enemy):
                     self.pieces[y + y_dir][x + x_dir] = EMPTY
 
         #process myself then
@@ -142,11 +138,7 @@ class Board():
             if (index_check < 0).any() or (index_check >= self.n).any():
                 pass
             else:
-                if np.array_equal(
-                    [self.pieces[y+ y_dir][x + x_dir], self.pieces[y - y_dir][x - x_dir]]
-                    ,
-                    [enemy, enemy]
-                    ):
+                if ([self.pieces[y+ y_dir][x + x_dir], self.pieces[y - y_dir][x - x_dir]) == (enemy, enemy):
                     self.pieces[y][x] = EMPTY
 
 
