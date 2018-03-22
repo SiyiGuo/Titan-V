@@ -40,9 +40,11 @@ class Board():
         # do not use np.zeros
         # as numpy can have 0, -0
         # but their string representation is different!!
-        self.pieces = [None]*self.n
-        for i in range(self.n):
-            self.pieces[i] = [0]*self.n
+        # self.pieces = [None]*self.n
+        # for i in range(self.n):
+        #     self.pieces[i] = [0]*self.n
+        
+        self.pieces = np.zeros((self.n, self.n), dtype=int)
 
         self.pieces[0][0] = BLACK
         self.pieces[0][self.n - 1] = BLACK
