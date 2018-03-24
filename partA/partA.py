@@ -71,7 +71,7 @@ class Board(object):
             #check whether there is a piece next to it
             if self.pieces[x_next][y_next] is EMPTY or self.pieces[x_next][y_next] is BANNED:
                 #the case it should not mode
-                print("fail"+str((x_dest, y_dest)+str((x_next, y_))))
+                
                 return False, None
             else:
                 #the case white of black piece is next to it
@@ -157,6 +157,7 @@ class Board(object):
         x_orig, y_orig = piecePosition
         x_dest, y_dest = pieceDestination
         if self.pieces[x_orig][y_orig] == EMPTY:
+            print("its empty")
             return
 
         self.pieces[x_dest][y_dest] = self.pieces[x_orig][y_orig]
@@ -191,15 +192,14 @@ class Board(object):
             except:
                 continue
         
-    def checkEaten(self, piecePosition, pieceDestination):     
+    def checkEaten(self, pieceDestination):     
         """ 
         make the move from orginal position to target position 
           
         """  
-        x_orig, y_orig = piecePosition
         x_dest, y_dest = pieceDestination
 
-        enemy = self.opposite(self.pieces[x_orig][y_orig])
+        enemy = BLACK
 
         for x_dir, y_dir in self.__directions.values():
             
@@ -230,14 +230,18 @@ class Masscare(object):
     def killBlacks(self, enemys, friends):
         
         while(enemys != []):
+            print(enemys)
             for index, x in enumerate(enemys):
                 if self.kill(x, friends):
                     enemys.pop(index)
                     enemys = []
+                    friends = []
                     for x in range(len(self.board.pieces)):
                         for y in range(len(self.board.pieces[x])):
                             if self.board.pieces[x][y] == BLACK:
                                 enemys.append((x,y))
+                            elif self.board.pieces[x][y] == WHITE:
+                                friends.append((x,y))
                     break
     
     def kill(self, location, friends):
@@ -303,7 +307,7 @@ class Masscare(object):
             
             for x in self.board.getValidMoveForPiece(loc):
                 if x in shortestPath.keys():
-                    if len(shortestPath[loc])+1 <= len(shortestPath[x]):
+                    if len(shortestPath[loc])+1 < len(shortestPath[x]):
                         shortestPath[x] = shortestPath[loc]
                         shortestPath[x].append(x)
                 else:
@@ -313,7 +317,6 @@ class Masscare(object):
         
         lastLoc = origLocation
         i = 0
-        print(shortestPath)
         for path in shortestPath[destLocation]: 
             if i == 0:
                 i+=1
@@ -356,6 +359,10 @@ class Masscare(object):
                 positions.append((x1, y1))
             if self.board.pieces[x2][y2] == EMPTY:
                 positions.append((x2, y2))
+            if len(positions) == 2 and self.board.checkEaten(positions[0]):
+                temp = positions[0]
+                positions[0] = positions[1]
+                positions[1] = temp
             result.append(positions)
         return result   
     
