@@ -169,8 +169,11 @@ class Board(object):
             #if the piece 2 blocks away is the same color 
             #   and the piese next to current block is the opposite color 
             #eat it
+            
             try:
-                if self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == BANNED or self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == friend and self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy:
+                p1 = self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir]
+                p2 = self.pieces[x_dest + x_dir][y_dest + y_dir]
+                if p1 == BANNED or p1 == friend and p2 == enemy:
                     self.pieces[x_dest + x_dir][y_dest + y_dir] = EMPTY
             except:
                 continue
@@ -179,23 +182,37 @@ class Board(object):
 
             #if both diresctions are enemy
             #be eaten 
+            
             try:
-                if self.pieces[x_dest + x_dir][y_dest + y_dir] == BANNED or self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy and self.pieces[x_dest - x_dir][y_dest - y_dir] == enemy:
+                p1 = self.pieces[x_dest + x_dir][y_dest + y_dir]
+                p2 = self.pieces[x_dest - x_dir][y_dest - y_dir]
+                if (p1 == BANNED or p1 == enemy) and (p2 == BANNED or p2 == enemy):
                     self.pieces[x_dest][y_dest] = EMPTY
             except:
                 continue
         
-    def checkEat(self, piecePosition, pieceDestination):    
-        """
-        make the move from orginal position to target position
-         
+    def checkEaten(self, piecePosition, pieceDestination):     
         """ 
-        x_orig, y_orig = piecePosition 
+        make the move from orginal position to target position 
+          
+        """  
+        x_orig, y_orig = piecePosition
         x_dest, y_dest = pieceDestination
-        self.pieces[x_dest][y_dest] = self.pieces[x_orig][y_orig]
-        self.pieces[x_orig][y_orig] = EMPTY
-        friend = self.pieces[x_dest][y_dest]
-        enemy = self.opposite(self.pieces[x_dest][y_dest])
+
+        enemy = self.opposite(self.pieces[x_orig][y_orig])
+
+        for x_dir, y_dir in self.__directions.values():
+            
+            try:
+                p1 = self.pieces[x_dest + x_dir][y_dest + y_dir]
+                p2 = self.pieces[x_dest - x_dir][y_dest - y_dir]
+                if (p1 == BANNED or p1 == enemy) and (p2 == BANNED or p2 == enemy):
+                    return True
+            except:
+                continue
+        return False
+
+        
 
 class Masscare(object):
     def __init__(self, board):
@@ -211,16 +228,17 @@ class Masscare(object):
         self.killBlacks(enemys, friends)
     
     def killBlacks(self, enemys, friends):
-        i = 0
-        while(len(enemys) != 0):
-            if self.kill(enemys[i], friends):
-                i = -1
-                enemys = []
-                for x in range(len(self.board.pieces)):
-                    for y in range(len(self.board.pieces[x])):
-                        if self.board.pieces[x][y] == BLACK:
-                            enemys.append((x,y))
-            i+=1
+        
+        while(enemys != []):
+            for index, x in enumerate(enemys):
+                if self.kill(x, friends):
+                    enemys.pop(index)
+                    enemys = []
+                    for x in range(len(self.board.pieces)):
+                        for y in range(len(self.board.pieces[x])):
+                            if self.board.pieces[x][y] == BLACK:
+                                enemys.append((x,y))
+                    break
     
     def kill(self, location, friends):
         x_enemy, y_enemy = location
@@ -295,11 +313,11 @@ class Masscare(object):
         
         lastLoc = origLocation
         i = 0
+        print(shortestPath)
         for path in shortestPath[destLocation]: 
             if i == 0:
                 i+=1
                 continue
-            print(str(lastLoc) + "------>>" + str(path))
             self.board.executeMove(lastLoc,path)
             lastLoc = path
 
