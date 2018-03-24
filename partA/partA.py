@@ -67,7 +67,7 @@ class Board(object):
         x_next, y_next = (x_orig + x_dir // 2, y_orig + y_dir // 2) #find the piece next to this piece
         
         x_dest, y_dest = (x_orig + x_dir,y_orig + y_dir)
-        try:
+        if x_dest in range(self.n) and y_dest in range(self.n) and x_next in range(self.n) and y_next in range(self.n):
             #check whether there is a piece next to it
             if self.pieces[x_next][y_next] is EMPTY or self.pieces[x_next][y_next] is BANNED:
                 #the case it should not mode
@@ -79,7 +79,7 @@ class Board(object):
                     return True, (x_dest, y_dest)
                 else:
                     return False, None
-        except:
+        else:
             #cover the case index out of range
             return False, None
 
@@ -93,14 +93,14 @@ class Board(object):
         x_dir, y_dir = direction
         x_dest, y_dest = (x_orig + x_dir,y_orig + y_dir)
 
-        try:
+        if x_dest in range(self.n) and y_dest in range(self.n):
             if self.pieces[x_dest][y_dest] is EMPTY:
                 # empty place, can move
                 return True, (x_dest, y_dest)
             else:
                 #cover other case
                 return False, None
-        except:
+        else:
             #cover the case index out of range
             return False, None
 
