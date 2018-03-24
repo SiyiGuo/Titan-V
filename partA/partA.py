@@ -64,7 +64,7 @@ class Board(object):
         x_next, y_next = (x_orig + x_dir // 2, y_orig + y_dir // 2) #find the piece next to this piece
         
         x_dest, y_dest = (x_orig + x_dir,y_orig + y_dir)
-        if x_dest in range(self.n) and y_dest in range(self.n):
+        if x_dest in range(self.n) and y_dest in range(self.n) and x_next in range(self.n) and y_next in range(self.n):
             #check whether there is a piece next to it
             if self.pieces[x_next][y_next] is EMPTY or self.pieces[x_next][y_next] is BANNED:
                 #the case it should not mode
