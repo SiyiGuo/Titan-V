@@ -211,9 +211,16 @@ class Masscare(object):
         self.killBlacks(enemys, friends)
     
     def killBlacks(self, enemys, friends):
-        while(len(enemys) != 1):
-            if self.kill(enemys[0], friends):
-                enemys.pop(0)
+        i = 0
+        while(len(enemys) != 0):
+            if self.kill(enemys[i], friends):
+                i = -1
+                enemys = []
+                for x in range(len(self.board.pieces)):
+                    for y in range(len(self.board.pieces[x])):
+                        if self.board.pieces[x][y] == BLACK:
+                            enemys.append((x,y))
+            i+=1
     
     def kill(self, location, friends):
         x_enemy, y_enemy = location
