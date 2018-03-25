@@ -47,7 +47,13 @@ class MCTS():
             return probs #return the action to make sure we only go this move
 
         counts = [x**(1./temp) for x in counts]
-        probs = [x/float(sum(counts)) for x in counts]
+        try:
+            probs = [x/float(sum(counts)) for x in counts]
+        except:
+            print("---------------HACK-----------------")
+            print(counts)
+            print(canonicalBoard)
+            probs = [x/1 for x in counts]
         return probs
 
 
