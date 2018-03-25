@@ -24,7 +24,7 @@ class MCTS():
         canonicalBoard.
         Input:
             cannoicalBoard: board
-            turn: int in range(0,25)
+            turn: int in range(0,24)
             temp: 0 or 1
 
         Returns:
@@ -40,6 +40,12 @@ class MCTS():
         s = self.game.stringRepresentation(canonicalBoard)
         counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
+        if (float(sum(counts)) ==0):
+            print(canonicalBoard.reshape(8,8))
+            exit()
+        
+
+
         if temp==0:
             bestA = np.argmax(counts)  #find the best move in the simulation
             probs = [0]*len(counts) #set prob of winning for other move to be zero
@@ -47,13 +53,7 @@ class MCTS():
             return probs #return the action to make sure we only go this move
 
         counts = [x**(1./temp) for x in counts]
-        try:
-            probs = [x/float(sum(counts)) for x in counts]
-        except:
-            print("---------------HACK-----------------")
-            print(counts)
-            print(canonicalBoard)
-            probs = [x/1 for x in counts]
+        probs = [x/float(sum(counts)) for x in counts]
         return probs
 
 
@@ -81,8 +81,8 @@ class MCTS():
 
         if s not in self.Es: # situation s's result not known
             self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
-        
-        if turn > 24:
+
+        if turn >= 24:
             self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn)
 
         if self.Es[s]!=0: #if there is a winner

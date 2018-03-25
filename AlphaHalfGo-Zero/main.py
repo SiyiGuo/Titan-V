@@ -7,7 +7,7 @@ args = dotdict({
     'numIters': 1000, #number of rounds the traning will be
     'numEps': 100,    #number of self-play in each round
     'tempThreshold': 25,
-    'updateThreshold': 0.6, #if new nnet beat wins old nnet above this ration, update to new nnet
+    'updateThreshold': 0.55, #if new nnet beat wins old nnet above this ration, update to new nnet
     'maxlenOfQueue': 200000, #TODO: maximum length of the history in memory??
     'numMCTSSims': 25, #number of MCTS simulation rounds
     'arenaCompare': 40, #num of game New Model VS Old Model will play
