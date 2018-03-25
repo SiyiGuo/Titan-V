@@ -33,29 +33,41 @@ class Arena():
             or
                 draw result returned from the game that is neither 1, -1, nor 0.
         """
+
         players = [self.player2, None, self.player1]
+
         curPlayer = 1 #WHite first
         board = self.game.getInitBoard()
-        it = 0 #turn indicator
-        while self.game.getGameEnded(board, curPlayer, it)==0:
-            it+=1
+        turn = 0 #turn indicator
+
+        #game start
+        while self.game.getGameEnded(board, curPlayer, turn)==0: #this should == trun < 24
             if verbose:
                 assert(self.display)
-                print("Turn ", str(it), "Player ", str(curPlayer))
+                print("Turn ", str(turn), "Player ", str(curPlayer))
                 self.display(board)
-            action = players[curPlayer+1](self.game.getCanonicalForm(board, curPlayer), it)
+
+            #curPlayer = White = 1, curPlayer +1 = 2 -> players[2] = self.player1
+            #curPlayer = Black = -1, curPlayer + 1 = 0 -> players[0] = self.player2
+            action = players[curPlayer+1](self.game.getCanonicalForm(board, curPlayer), turn)
 
             valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), curPlayer)
 
             if valids[action]==0:
                 print(action)
                 assert valids[action] >0
+
+            #update board, curPlayer, turn at the end, as developmet guide indeicated
             board, curPlayer = self.game.getNextState(board, curPlayer, action)
+            turn+=1
+
         if verbose:
             assert(self.display)
-            print("Game over: Turn ", str(it), "Result ", str(self.game.getGameEnded(board, 1, it)))
+            print("Game over: Turn ", str(turn), "Result ", str(self.game.getGameEnded(board, 1, turn)))
             self.display(board)
-        return self.game.getGameEnded(board, 1, it)
+
+        #return single game result
+        return self.game.getGameEnded(board, curPlayer, turn)
 
     def playGames(self, num, verbose=False):
         """
