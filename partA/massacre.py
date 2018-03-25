@@ -99,7 +99,9 @@ class Masscare(object):
         distances = {}
         for x in friends:
             distances[x] = self.distance(enemyLocation, x)
+        print(distances)
         distances = sorted(distances)
+        print(distances)
         return distances.keys()
         
 

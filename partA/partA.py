@@ -174,7 +174,7 @@ class Board(object):
             try:
                 p1 = self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir]
                 p2 = self.pieces[x_dest + x_dir][y_dest + y_dir]
-                if p1 == BANNED or p1 == friend and p2 == enemy:
+                if (p1 == BANNED or p1 == friend) and p2 == enemy:
                     self.pieces[x_dest + x_dir][y_dest + y_dir] = EMPTY
             except:
                 continue
@@ -260,6 +260,8 @@ class Masscare(object):
         return False
         
     def moveable(self,origLocation, destLocation):
+        if (origLocation == destLocation):
+            return True
         o_visited = []
         d_visited = []
 
@@ -272,9 +274,8 @@ class Masscare(object):
         o_toVisit.append(origLocation)
         d_toVisit.append(destLocation)
 
-        while (len(o_toVisit) > 0 and len(d_toVisit)> 0): 
-
-            if d_distance < o_distance:
+        while (len(o_toVisit) > 0 or len(d_toVisit)> 0): 
+            if d_distance < o_distance and len(d_toVisit) != 0:
                 loc = d_toVisit.pop(0)
                 d_visited.append(loc)
                 
@@ -300,6 +301,9 @@ class Masscare(object):
         return False 
     
     def move(self,origLocation, destLocation):
+        print(str(origLocation) + " -------> " + str(destLocation))
+        if origLocation == destLocation:
+            return
         toVisit = [origLocation]
         shortestPath = {origLocation: [origLocation]}
         while destLocation not in shortestPath.keys():
@@ -322,6 +326,7 @@ class Masscare(object):
             if i == 0:
                 i+=1
                 continue
+            print(self.board.pieces)
             self.board.executeMove(lastLoc,path)
             self.totalMove += 1
             print(str(lastLoc) + " --> " + str(path))
@@ -332,7 +337,7 @@ class Masscare(object):
         distances = {}
         for x in friends:
             distances[x] = self.distance(enemyLocation, x)
-        distances = sorted(distances, reverse = True)
+        distances = sorted(distances, key = distances.get)
         return distances
         
 
@@ -358,9 +363,9 @@ class Masscare(object):
             positions = []
             if x1 > 7 or y1 > 7 or self.board.pieces[x1][y1] == BLACK or self.board.pieces[x2][y2] == BLACK:
                 continue
-            if x1 < 8 and y1 < 8 and self.board.pieces[x1][y1] == EMPTY:
+            if x1 < 8 and y1 < 8 and self.board.pieces[x1][y1] != BANNED:
                 positions.append((x1, y1))
-            if self.board.pieces[x2][y2] == EMPTY:
+            if self.board.pieces[x2][y2] != BANNED:
                 positions.append((x2, y2))
             if len(positions) == 2 and self.board.checkEaten(positions[0]):
                 temp = positions[0]
