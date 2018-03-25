@@ -45,7 +45,6 @@ class Coach():
         
         #star playing the game
         while True:
-            episodeStep += 1
             canonicalBoard = self.game.getCanonicalForm(board,self.curPlayer) #current situation of the board in the player's point of view
             temp = int(episodeStep < self.args.tempThreshold) # if episodes more than the tempThreshold, MCTS will search will stop searching?
             
@@ -56,15 +55,23 @@ class Coach():
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b,p in sym:
                 trainExamples.append([b, self.curPlayer, p, None])
-
-            action = np.random.choice(len(pi), p=pi)
             
-            board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
+            action = np.random.choice(len(pi), p=pi)
 
+            # print("player %s take action %s in turn %s"%(self.curPlayer, action, episodeStep))
+
+            #self.curPlayer turn to next player, board update, turn update
+            board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action) 
+            episodeStep += 1
+            
+            # print(board)
+            
+            #check the new board status
             r = self.game.getGameEnded(board, self.curPlayer, episodeStep) #return 0 if game continue, 1 if player1 win, -1 if player 2 win
             # print("turn %s, game status: %s, take action: %s"%(episodeStep, r, action))
 
             if r!=0: 
+                print("game has ended, player %s result %s"%(self.curPlayer, r))
                 #return game situation, winning result, who won it 
                 return [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
 
@@ -131,8 +138,8 @@ class Coach():
 
             #OLD VS NEW
             print('PITTING AGAINST PREVIOUS VERSION')
-            arena = Arena(lambda x: np.argmax(pmcts.getActionProb(x, 0, temp=0)),
-                          lambda x: np.argmax(nmcts.getActionProb(x, 0, temp=0)), self.game)
+            arena = Arena(lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)),
+                          lambda board, turn: np.argmax(nmcts.getActionProb(board, turn, temp=0)), self.game)
             pwins, nwins, draws = arena.playGames(self.args.arenaCompare) #playing new mode against old models
 
             print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))

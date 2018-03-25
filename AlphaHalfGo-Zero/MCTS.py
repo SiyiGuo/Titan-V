@@ -1,6 +1,6 @@
 import math
 import numpy as np
-
+from HalfGo.HalfGoLogic import BLACK, WHITE
 class MCTS():
     """
     This class handles the MCTS tree.
@@ -86,7 +86,10 @@ class MCTS():
         if s not in self.Ps:
             # leaf node
             self.Ps[s], v = self.nnet.predict(canonicalBoard)
-            valids = self.game.getValidMoves(canonicalBoard, 1)
+
+            #if 0,2,...22 than White else 1,3,5.....23 = Black
+            player = WHITE if turn % 2 == 0 else BLACK 
+            valids = self.game.getValidMoves(canonicalBoard, player)
             self.Ps[s] = self.Ps[s]*valids      # masking invalid moves
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:

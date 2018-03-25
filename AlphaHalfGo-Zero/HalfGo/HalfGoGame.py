@@ -2,7 +2,7 @@ from __future__ import print_function
 import sys
 sys.path.append('..')
 from Game import Game
-from HalfGoLogic import Board
+from .HalfGoLogic import Board
 import numpy as np
 
 class HalfGoGame(Game):
@@ -45,22 +45,23 @@ class HalfGoGame(Game):
         b.pieces = np.copy(board)
         #even in string representation, we concat column by column
         #picese are grouped by column
-        move = (int(action/self.n), action%self.n) #(colmn, row)
+        move = (action%self.n, action//self.n,) #(column, row) (int(a/b))
         b.execute_move(move, player)
 
         return (b.pieces, -player)
 
     def getValidMoves(self, board, player):
         # return a fixed size binary vector
+        # move on the same row are grouped together
         valids = [0]*self.getActionSize()
         b = Board(self.n)
         b.pieces = np.copy(board)
-        legalMoves =  b.get_legal_moves(player)
+        legalMoves =  b.get_legal_moves(player) #in the form (column, row)
         if len(legalMoves)==0:
             valids[-1]=1
             return np.array(valids)
         for x, y in legalMoves:
-            valids[self.n*x+y]=1
+            valids[self.n*y+x]=1 #since all rows are grouped together
         return np.array(valids)
 
     def getGameEnded(self, board, player, turn):

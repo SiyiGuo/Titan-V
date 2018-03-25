@@ -1,6 +1,6 @@
 import unittest
-from HalfGoGame import *
-from HalfGoLogic import *
+from .HalfGoGame import *
+from .HalfGoLogic import *
 
 """
 Notation Area

@@ -69,6 +69,8 @@ class Board():
         Returns all the legal moves for the given color.
         (1 for white, -1 for black)
         output in the form (column, row)
+        [(column1, 1) (column2, 1) .... (column1, n) (column2, n)]
+        group place with the same row together
         """
         moves = set()  # stores the legal moves.
 
