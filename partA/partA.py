@@ -215,6 +215,7 @@ class Board(object):
         
 
 class Masscare(object):
+    totalMove = 0
     def __init__(self, board):
         self.board = board
         enemys = []
@@ -230,7 +231,6 @@ class Masscare(object):
     def killBlacks(self, enemys, friends):
         
         while(enemys != []):
-            print(enemys)
             for index, x in enumerate(enemys):
                 if self.kill(x, friends):
                     enemys.pop(index)
@@ -304,8 +304,9 @@ class Masscare(object):
         shortestPath = {origLocation: [origLocation]}
         while destLocation not in shortestPath.keys():
             loc = toVisit.pop(0)
-            
             for x in self.board.getValidMoveForPiece(loc):
+                if x != destLocation and self.board.checkEaten(x):
+                    continue
                 if x in shortestPath.keys():
                     if len(shortestPath[loc])+1 < len(shortestPath[x]):
                         shortestPath[x] = shortestPath[loc]
@@ -322,6 +323,8 @@ class Masscare(object):
                 i+=1
                 continue
             self.board.executeMove(lastLoc,path)
+            self.totalMove += 1
+            print(str(lastLoc) + " --> " + str(path))
             lastLoc = path
 
 
@@ -363,6 +366,8 @@ class Masscare(object):
                 temp = positions[0]
                 positions[0] = positions[1]
                 positions[1] = temp
+            elif len(positions) == 2 and self.board.checkEaten(positions[0]) and self.board.checkEaten(positions[1]):
+                continue
             result.append(positions)
         return result   
     
@@ -381,6 +386,7 @@ if mode == "move":
 else:
     mass = Masscare(board)
     print(mass.board.pieces)
+    print(mass.totalMove)
 
 
 
