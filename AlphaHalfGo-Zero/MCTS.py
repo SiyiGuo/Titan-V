@@ -42,10 +42,11 @@ class MCTS():
 
         if (float(sum(counts)) ==0):
             print("\nerror in MCTS.getActionProb")
+            print("turnindex:%s"%turn)
             print(canonicalBoard.reshape(8,8))
-            print("non existing pattern: %s"%np.fromstring(s, dtype=float))
+            print("non existing pattern: %s"%np.fromstring(s, dtype=int))
             for s, a in self.Nsa.items():
-                print("board: %s, freq: %s"%(np.fromstring(s, dtype=float), a))       
+                print("board: %s, freq: %s"%(np.fromstring(s, dtype=int), a))       
             exit()
         
 
