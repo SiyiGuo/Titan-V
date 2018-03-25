@@ -44,9 +44,10 @@ class MCTS():
             print("\nerror in MCTS.getActionProb")
             print("turnindex:%s"%turn)
             print(canonicalBoard.reshape(8,8))
-            print("non existing pattern: %s"%np.fromstring(s, dtype=int))
-            for s, a in self.Nsa.items():
-                print("board: %s, freq: %s"%(np.fromstring(s, dtype=int), a))       
+            print("non existing pattern: \n %s"%np.fromstring(s, dtype=int).reshape(8,8)) #could add reshape here
+            for (s, a) in self.Nsa.keys():
+                print("board: \n%s, action: \n%s"%(np.fromstring(s, dtype=int).reshape(8,8), a))      
+                print ("counts: %s"%self.Nsa[(s,a)])
             exit()
         
 
