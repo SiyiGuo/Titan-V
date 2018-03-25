@@ -41,7 +41,11 @@ class MCTS():
         counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
         if (float(sum(counts)) ==0):
+            print("\nerror in MCTS.getActionProb")
             print(canonicalBoard.reshape(8,8))
+            print("non existing pattern: %s"%np.fromstring(s, dtype=float))
+            for s, a in self.Nsa.items():
+                print("board: %s, freq: %s"%(np.fromstring(s, dtype=float), a))       
             exit()
         
 
