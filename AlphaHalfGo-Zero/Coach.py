@@ -47,20 +47,19 @@ class Coach():
         while True:
             canonicalBoard = self.game.getCanonicalForm(board,self.curPlayer) #current situation of the board in the player's point of view
             temp = int(episodeStep < self.args.tempThreshold) # if episodes more than the tempThreshold, MCTS will search will stop searching?
-            
-            # print(self.game.getCanonicalForm(board,self.curPlayer))
-            # print("before MCTS, turn" + str(episodeStep))
+            # print("self.curPlayer:%s, turn:%s, board;\n %s"%(self.curPlayer, episodeStep, canonicalBoard.reshape(8,8)))
 
             pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) #NOTE: ???the probability of winnning for different move on current situation?
             sym = self.game.getSymmetries(canonicalBoard, pi)
-            for b,p in sym:
-                trainExamples.append([b, self.curPlayer, p, None])
+            for board,policyVector in sym:
+                trainExamples.append([board, self.curPlayer, policyVector, None])
             
             action = np.random.choice(len(pi), p=pi)
 
             # print("player %s take action %s in turn %s"%(self.curPlayer, action, episodeStep))
 
             #self.curPlayer turn to next player, board update, turn update
+            # print("player %s take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action) 
             episodeStep += 1
             
@@ -71,9 +70,14 @@ class Coach():
             # print("turn %s, game status: %s, take action: %s"%(episodeStep, r, action))
 
             if r!=0: 
-                print("game has ended, player %s result %s"%(self.curPlayer, r))
-                #return game situation, winning result, who won it 
-                return [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
+                print("game has ended, player %s result %s board:\n%s"%(self.curPlayer, r, board.reshape(8,8)))
+                lastTurn = trainExamples[-1]
+                print("last turn suggest player:%s, board:\n%s"%(lastTurn[1], lastTurn[0].reshape(8,8)))
+                #return board winning result, who won it 
+                generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
+                lastResult = generatedTraining[-1]
+                print("input to train example player:%s, result:%s, board:\n%s "%(lastResult[2], r, lastResult[0].reshape(8,8)))
+                return generatedTraining
 
     def learn(self):
         """
@@ -99,7 +103,9 @@ class Coach():
                     self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
 
                     print("\n-----------game "+str(eps)+" start-----------")
-                    iterationTrainExamples += self.executeEpisode() #play one game, adding the gaming history
+                    selfPlayResult = self.executeEpisode() #reutrn [(canonicalBoard,pi,v), (canonicalBoard,pi,v)]
+                    # a = input("do You want to continue?")
+                    iterationTrainExamples +=  selfPlayResult#play one game, adding the gaming history
                     print("\n-----------game "+str(eps)+" end-----------")
     
                     # bookkeeping + plot progress

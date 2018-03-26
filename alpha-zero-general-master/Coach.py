@@ -47,10 +47,11 @@ class Coach():
         while True:
             episodeStep += 1
             canonicalBoard = self.game.getCanonicalForm(board,self.curPlayer) #current situation of the board in the player's point of view
+            canonicalBoard2 = self.game.getCanonicalForm(board,1)
+            print("self.curPlayer:%s, turn:%s, board;\n %s\n noChangeBoard:\n %s"%(self.curPlayer, episodeStep, canonicalBoard.reshape(6,6), canonicalBoard2.reshape(6,6)))
+            a = input("continue?")
             temp = int(episodeStep < self.args.tempThreshold) # if episodes more than the tempThreshold, MCTS will search will stop searching?
 
-            print(self.game.getCanonicalForm(board,self.curPlayer))
-            print("before MCTS")
             pi = self.mcts.getActionProb(canonicalBoard, temp=temp) #NOTE: ???the probability of winnning for different move on current situation?
             sym = self.game.getSymmetries(canonicalBoard, pi)
             for b,p in sym:
@@ -61,7 +62,6 @@ class Coach():
             
 
             r = self.game.getGameEnded(board, self.curPlayer) #return 0 if game continue, 1 if player1 win, -1 if player 2 win
-            print("turn %s, game status: %s, take action: %s"%(episodeStep, r, action))
             if r!=0:
                 #return game situation, winning result, who won it 
                 return [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
@@ -89,7 +89,9 @@ class Coach():
                 for eps in range(self.args.numEps): #for each self-play of this rounds
                     self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
 
-                    iterationTrainExamples += self.executeEpisode() #play one game, adding the gaming history
+                    selfPlayResult = self.executeEpisode() #reutrn [(canonicalBoard,pi,v), (canonicalBoard,pi,v)]
+                    iterationTrainExamples += selfPlayResult #play one game, adding the gaming history
+                    
     
                     # bookkeeping + plot progress
                     eps_time.update(time.time() - end)

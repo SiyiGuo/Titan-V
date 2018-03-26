@@ -94,9 +94,10 @@ class HalfGoGame(Game):
             current situation of the board in the player's point of view
             1 = friendly army
             -1 = enemy
+        Yes! this is correct understanding
         """
-        # return player*board   
-        return -1*board
+        # return player*board
+        return player*board
 
     def getSymmetries(self, board, pi):
         """

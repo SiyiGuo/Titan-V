@@ -93,7 +93,7 @@ class NNetWrapper(NeuralNet):
     def predict(self, board):
         """
         board: np array with board
-        Making the prediction of winning for current move
+        Making the prediction of winning for different move on the board
         """
         # timing
         start = time.time()

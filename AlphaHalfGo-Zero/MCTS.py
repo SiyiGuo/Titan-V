@@ -87,15 +87,19 @@ class MCTS():
         #if 0,2,...22 than White else 1,3,5.....23 = Black
         curr_player =  WHITE if turn % 2 == 0 else BLACK #read player
 
-        if s not in self.Es: # situation s's result not known
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, WHITE, turn) # since we search from white prospective, we only record white's situation
+        # if s not in self.Es: # situation s's result not known
+        #     self.Es[s] = self.game.getGameEnded(canonicalBoard, WHITE, turn) # since we search from white prospective, we only record white's situation
 
-        if turn >= 24:
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, WHITE, turn)
+        # if turn >= 24:
+        #     self.Es[s] = self.game.getGameEnded(canonicalBoard, WHITE, turn)
+        if turn < 24:
+            self.Es[s] = 0
+        else:
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn)
 
         if self.Es[s]!=0: #if there is a winner
             # terminal node
-            print("turn: %s, self.Es[s]:%s board: %s"%(turn, self.Es[s], canonicalBoard.reshape(8,8)))
+            # print("turn: %s, self.Es[s]:%s board:\n %s"%(turn, self.Es[s], canonicalBoard.reshape(8,8)))
             return -self.Es[s] #NOTE: return the state of the other player
 
         if s not in self.Ps:
@@ -153,13 +157,14 @@ class MCTS():
                 print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
                 exit()
 
-        next_s, next_player = self.game.getNextState(canonicalBoard, curr_player, a)
-        # print("MCTS.search turn: %s curr_player:%s best_act: %s next+player:%s"%(turn, curr_player, a, next_player))
-        next_s = self.game.getCanonicalForm(next_s, next_player)
-        if turn == 23:
-            print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
-            print("--------After action---------")
-            print("Player: %s, action: %s, turn: %s, board:\n%s"%(next_player, a, turn + 1, next_s.reshape(8,8)))
+        #NOTE: Here is a hack, but looks 
+        next_s, next_player = self.game.getNextState(canonicalBoard, 1, a) #update move
+        next_s = self.game.getCanonicalForm(next_s, next_player) #substitute ourself into another color's point of view, search from their prospective
+        
+        # if turn == 23:
+        #     print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+        #     print("--------After action---------")
+        #     print("Player: %s, action: %s, turn: %s, board:\n%s"%(next_player, a, turn + 1, next_s.reshape(8,8)))
 
         
         v = self.search(next_s, turn + 1)
@@ -167,13 +172,9 @@ class MCTS():
         if (s,a) in self.Qsa:
             self.Qsa[(s,a)] = (self.Nsa[(s,a)]*self.Qsa[(s,a)] + v)/(self.Nsa[(s,a)]+1)
             self.Nsa[(s,a)] += 1
-            if turn == 23:
-                print(self.Nsa[(s,a)])
         else:
             self.Qsa[(s,a)] = v
             self.Nsa[(s,a)] = 1
-            if turn == 23:
-                print(self.Nsa[(s,a)])
 
         self.Ns[s] += 1
         return -v

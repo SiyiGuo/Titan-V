@@ -26,7 +26,7 @@ class Arena():
     def playGame(self, verbose=False):
         """
         Executes one episode of a game.
-
+        player: lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)
         Returns:
             either
                 winner: player who won the game (1 if player1, -1 if player2)
@@ -54,7 +54,9 @@ class Arena():
             valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), curPlayer)
 
             if valids[action]==0:
+                print("\n player: %s"%curPlayer)
                 print(action)
+                print(board.reshape(8,8))
                 assert valids[action] >0
 
             #update board, curPlayer, turn at the end, as developmet guide indeicated
