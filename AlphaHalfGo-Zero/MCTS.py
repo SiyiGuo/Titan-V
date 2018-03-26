@@ -41,13 +41,13 @@ class MCTS():
         counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
         if (float(sum(counts)) ==0):
-            print("\nerror in MCTS.getActionProb")
+            print("\nerror in MCTS.getActionProb, before deciding action")
             print("turnindex:%s"%turn)
             print(canonicalBoard.reshape(8,8))
             print("non existing pattern: \n %s"%np.fromstring(s, dtype=int).reshape(8,8)) #could add reshape here
-            for (s, a) in self.Nsa.keys():
-                print("board: \n%s, action: \n%s"%(np.fromstring(s, dtype=int).reshape(8,8), a))      
-                print ("counts: %s"%self.Nsa[(s,a)])
+            # for (s, a) in self.Nsa.keys():
+            #     print("board: \n%s, action: \n%s"%(np.fromstring(s, dtype=int).reshape(8,8), a))      
+            #     print ("counts: %s"%self.Nsa[(s,a)])
             exit()
         
 
@@ -84,25 +84,28 @@ class MCTS():
         """
 
         s = self.game.stringRepresentation(canonicalBoard) #read board
+        #if 0,2,...22 than White else 1,3,5.....23 = Black
+        curr_player =  WHITE if turn % 2 == 0 else BLACK #read player
 
         if s not in self.Es: # situation s's result not known
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, WHITE, turn) # since we search from white prospective, we only record white's situation
 
         if turn >= 24:
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn)
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, WHITE, turn)
 
         if self.Es[s]!=0: #if there is a winner
             # terminal node
+            print("turn: %s, self.Es[s]:%s board: %s"%(turn, self.Es[s], canonicalBoard.reshape(8,8)))
             return -self.Es[s] #NOTE: return the state of the other player
 
         if s not in self.Ps:
             # leaf node
             self.Ps[s], v = self.nnet.predict(canonicalBoard)
 
-            #if 0,2,...22 than White else 1,3,5.....23 = Black
-            player = WHITE if turn % 2 == 0 else BLACK 
-            valids = self.game.getValidMoves(canonicalBoard, player)
+            valids = self.game.getValidMoves(canonicalBoard, curr_player)
+
             self.Ps[s] = self.Ps[s]*valids      # masking invalid moves
+
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
                 self.Ps[s] /= sum_Ps_s    # renormalize
@@ -119,7 +122,7 @@ class MCTS():
             self.Ns[s] = 0
             return -v
 
-        valids = self.Vs[s]
+        valids = self.game.getValidMoves(canonicalBoard, curr_player) #because valid move is concerned with the player, so cannot read directly
         cur_best = -float('inf')
         best_act = -1
 
@@ -136,18 +139,41 @@ class MCTS():
                     best_act = a
 
         a = best_act
-        next_s, next_player = self.game.getNextState(canonicalBoard, 1, a)
+
+        if curr_player == WHITE:
+            try:
+                assert a<48 #index of first column, sixth row
+            except:
+                print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+                exit()
+        elif curr_player == BLACK:
+            try:
+                assert a > 15 #index of last column, second row
+            except:
+                print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+                exit()
+
+        next_s, next_player = self.game.getNextState(canonicalBoard, curr_player, a)
+        # print("MCTS.search turn: %s curr_player:%s best_act: %s next+player:%s"%(turn, curr_player, a, next_player))
         next_s = self.game.getCanonicalForm(next_s, next_player)
+        if turn == 23:
+            print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+            print("--------After action---------")
+            print("Player: %s, action: %s, turn: %s, board:\n%s"%(next_player, a, turn + 1, next_s.reshape(8,8)))
 
+        
         v = self.search(next_s, turn + 1)
-
+    
         if (s,a) in self.Qsa:
             self.Qsa[(s,a)] = (self.Nsa[(s,a)]*self.Qsa[(s,a)] + v)/(self.Nsa[(s,a)]+1)
             self.Nsa[(s,a)] += 1
-
+            if turn == 23:
+                print(self.Nsa[(s,a)])
         else:
             self.Qsa[(s,a)] = v
             self.Nsa[(s,a)] = 1
+            if turn == 23:
+                print(self.Nsa[(s,a)])
 
         self.Ns[s] += 1
         return -v

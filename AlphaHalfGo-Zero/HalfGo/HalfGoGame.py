@@ -95,7 +95,8 @@ class HalfGoGame(Game):
             1 = friendly army
             -1 = enemy
         """
-        return player*board
+        # return player*board   
+        return -1*board
 
     def getSymmetries(self, board, pi):
         """
