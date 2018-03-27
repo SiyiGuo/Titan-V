@@ -6,6 +6,7 @@ from pytorch_classification.utils import Bar, AverageMeter
 import time, os, sys
 from pickle import Pickler, Unpickler
 from random import shuffle
+from HalfGo.HalfGoLogic import WHITE, BLACK
 
 
 class Coach():
@@ -40,52 +41,79 @@ class Coach():
         """
         trainExamples = [] #move history of this single episode
         board = self.game.getInitBoard() #load the gam setup
-        self.curPlayer = 1
-        episodeStep = 0 #record the truns that has passed of current game
+        self.curPlayer = WHITE #WHITE goes first
+        episodeStep = 0 #record the truns of self play
         
         #star playing the game
         while True:
-            canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer) #current situation of the board in the player's point of view
-            temp = int(episodeStep < self.args.tempThreshold) # if episodes more than the tempThreshold, MCTS will search will stop searching?
-            # print("self.curPlayer:%s, turn:%s, board;\n %s"%(self.curPlayer, episodeStep, canonicalBoard.reshape(8,8)))
+            # turn objective board into self.curlPlayer POV's board. Ie: black, white -> friend, enemy
+            #       two kinds of board:
+            #           1: Objective board: Black and White
+            #           2: CanonicalBoard:  Friendly and Enemy
+            canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer)
 
-            pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) #NOTE: ???the probability of winnning for different move on current situation?
+            # if episodes > tempThreshold, MCTS will stop updating probs, and just return best move
+            #NOTE: mainly for spped up I guess? currently disable, as episodeStep = 24, args.tempThreshold = 25
+            temp = int(episodeStep < self.args.tempThreshold) 
+
+            # create probability of winning for each action on board for self.currPlayer's POV
+            pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) 
+
+            # one board situation can generate two tranining example # as symmetric does not matter
             sym = self.game.getSymmetries(canonicalBoard, pi)
-            for b,policyVector in sym: #bug come from here using the same board variable
+
+            #adding tranning example
+            #BUG: not showing correctly
+            for b,policyVector in sym: 
+                # (canonicalBoard,player, polivy vector)
                 trainExamples.append([b, self.curPlayer, policyVector, None])
             
+            #DEBUG: 
             probs_display = [round(x,2) for x in pi]
             print("curr_player:%s turn:%s, probs:\n%s"%(self.curPlayer, episodeStep, np.array(probs_display).reshape(8,8)))
 
+            #choose action with highest winning probability
             action = np.random.choice(len(pi), p=pi)
 
             # print("player %s take action %s in turn %s"%(self.curPlayer, action, episodeStep))
 
-            #self.curPlayer turn to next player, board update, turn update
-            print("in player point of view player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
+            #self.curPlayer turn to next player, objective board update, turn update
+            print("in player point of view \n player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action) #regardless of friendly or enemy, show objective
             episodeStep += 1
-            print("after action, show objective board \n ")
+
+            print("after action, objective board \n ")
             print( board.reshape(8,8))
-            print("next player %s turn %s"%(self.curPlayer, episodeStep))
-            a = input()
-            
-            
-            # print(board)
+            print("next player %s next turn %s"%(self.curPlayer, episodeStep))
             
             #check the new board status
-            r = self.game.getGameEnded(board, self.curPlayer, episodeStep) #return 0 if game continue, 1 if player1 win, -1 if player 2 win
-            # print("turn %s, game status: %s, take action: %s"%(episodeStep, r, action))
+            #return 0 if game continue, 1 if WHITE win, -1 if BLACK win. 
+            #thgouth the last turn was BLACK's Move, we updated self.curPlayer after Black action
+            #so we judge result in WHITE's POV
+            # the last turn after black does not added to the trainExample, as we already know who won
+            # we add winning result in next if Statement
+            r = self.game.getGameEnded(board, self.curPlayer, episodeStep) #in WHITE's POV
 
             if r!=0: 
+                #DEBUG
                 print("Objective board")
                 print("game has ended, player %s result %s board:\n%s"%(self.curPlayer, r, board.reshape(8,8)))
-                lastTurn = trainExamples[-1]
-                print("last turn suggest player:%s, board:\n%s"%(lastTurn[1], lastTurn[0].reshape(8,8)))
+
                 #return board winning result, who won it 
-                generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
+                #(canonicalBoard,policyVector,v)
+                # x[0] cannonical board, x[2] policy vector x[1] self.curlPlayer of cannonical board
+                # x[1] is BLACK, return -result as -result is in BLACK's POV
+                # x[1] is WHITE, return result, as result is in WHITE's POV
+                generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE))) for x in trainExamples]
+                # generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
+
+
+                #DEBUG
                 lastResult = generatedTraining[-1]
-                print("input to train example player:%s, result:%s, board:\n%s "%(lastResult[2], r, lastResult[0].reshape(8,8)))
+                print("Input to trainExample")
+                print("result:%s, cannonicalboard:\n%s "%(lastResult[2], lastResult[0].reshape(8,8)))
+
+                # a = input()
                 return generatedTraining
 
     def learn(self):

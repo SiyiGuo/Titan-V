@@ -32,40 +32,35 @@ class MCTS():
                    proportional to Nsa[(s,a)]**(1./temp)
         """
         
+        # perform exploring first
         for i in range(self.args.numMCTSSims):
             self.search(canonicalBoard, turn)
         
-        # print("turn %s, before Counts" % turn)
-        # print(canonicalBoard)
+        # find the prob of action we take
         s = self.game.stringRepresentation(canonicalBoard)
         counts = [self.Nsa[(s,a)] if (s,a) in self.Nsa else 0 for a in range(self.game.getActionSize())]
 
+        # debug check
         if (float(sum(counts)) ==0):
             print("\nerror in MCTS.getActionProb, before deciding action")
             print("turnindex:%s"%turn)
             print(canonicalBoard.reshape(8,8))
             print("non existing pattern: \n %s"%np.fromstring(s, dtype=int).reshape(8,8)) #could add reshape here
-            # for (s, a) in self.Nsa.keys():
-            #     print("board: \n%s, action: \n%s"%(np.fromstring(s, dtype=int).reshape(8,8), a))      
-            #     print ("counts: %s"%self.Nsa[(s,a)])
             exit()
         
-
-
         if temp==0:
             bestA = np.argmax(counts)  #find the best move in the simulation
             probs = [0]*len(counts) #set prob of winning for other move to be zero
             probs[bestA]=1 #set the best move to be 1 to let it run
             return probs #return the action to make sure we only go this move
 
+        #could remove temp? as it is always 1
         counts = [x**(1./temp) for x in counts]
 
-        curr_player =  WHITE if turn % 2 == 0 else BLACK
-        valids = self.game.getValidMoves(canonicalBoard, curr_player)
-        probs = [x/float(sum(counts)) for x in counts]
-        # probs_display = [round(x,2) for x in probs]
-        # # print("curr_player:%s probs:\n%s"%(curr_player, np.array(probs_display).reshape(8,8)))
-        # # a = input()
+        #may need to mask probs
+        # curr_player =  WHITE if turn % 2 == 0 else BLACK
+        # valids = self.game.getValidMoves(canonicalBoard, curr_player)
+        probs = [x/float(sum(counts)) for x in counts] # *valids
 
         return probs
 
@@ -89,51 +84,65 @@ class MCTS():
         Returns:
             v: the negative of the value of the current canonicalBoard
         """
+        # cannonicalboard: on this board, 1=WHITE=Friendly, -1=BLACK=Enemy
+        # each level of search, we substitute ourself into the enemy
 
-        s = self.game.stringRepresentation(canonicalBoard) #read board
-        #if 0,2,...22 than White else 1,3,5.....23 = Black
+
+        # convert to string for hashing
+        s = self.game.stringRepresentation(canonicalBoard)
+
+        # if 0,2,...22 than White else 1,3,5.....23 = Black
         curr_player =  WHITE if turn % 2 == 0 else BLACK #read player
 
-        # if s not in self.Es: # situation s's result not known
-        #     self.Es[s] = self.game.getGameEnded(canonicalBoard, WHITE, turn) # since we search from white prospective, we only record white's situation
-
-        # if turn >= 24:
-        #     self.Es[s] = self.game.getGameEnded(canonicalBoard, WHITE, turn)
+        # turn does not end until 24
         if turn < 24:
             self.Es[s] = 0
         else:
             self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn)
-
-        if self.Es[s]!=0: #if there is a winner
+        
+        # if game has result
+        if self.Es[s]!=0:
             # terminal node
             # print("turn: %s, self.Es[s]:%s board:\n %s"%(turn, self.Es[s], canonicalBoard.reshape(8,8)))
             return -self.Es[s] #NOTE: return the state of the other player
 
+        # if we dont have policy vector for current board
         if s not in self.Ps:
             # leaf node
+            # generate policy vector $ value of current board
+            # nnet return:
+            #   self.Ps[s]:
+            #       the policy vector that indicates move
+            #       with higher change leads to win
+            #   V:
+            #       the winning rate of current board, betweem -1 to 1 
             self.Ps[s], v = self.nnet.predict(canonicalBoard)
 
+            # find all valid move for current player
             valids = self.game.getValidMoves(canonicalBoard, curr_player)
 
-            self.Ps[s] = self.Ps[s]*valids      # masking invalid moves
+            # remove all the invalid move
+            self.Ps[s] = self.Ps[s]*valids
 
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
-                self.Ps[s] /= sum_Ps_s    # renormalize
+                # renormalize
+                self.Ps[s] /= sum_Ps_s    
             else:
                 # if all valid moves were masked make all valid moves equally probable
-                
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
                 print("All valid moves were masked, do workaround.")
                 self.Ps[s] = self.Ps[s] + valids
                 self.Ps[s] /= np.sum(self.Ps[s])
 
+            # record valid move, so that we do not need to re calculate
             self.Vs[s] = valids
             self.Ns[s] = 0
             return -v
 
-        valids = self.game.getValidMoves(canonicalBoard, curr_player) #because valid move is concerned with the player, so cannot read directly
+        # case we have policy for current string
+        valids = self.Vs[s]
         cur_best = -float('inf')
         best_act = -1
 
@@ -148,9 +157,9 @@ class MCTS():
                 if u > cur_best:
                     cur_best = u
                     best_act = a
-
         a = best_act
 
+        #assert invalid move
         if curr_player == WHITE:
             try:
                 assert a<48 #index of first column, sixth row
@@ -164,16 +173,15 @@ class MCTS():
                 print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
                 exit()
 
-        #NOTE: Here is a hack, but looks 
-        next_s, next_player = self.game.getNextState(canonicalBoard, 1, a) #update move
-        next_s = self.game.getCanonicalForm(next_s, next_player) #substitute ourself into another color's point of view, search from their prospective
-        
-        # if turn == 23:
-        #     print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
-        #     print("--------After action---------")
-        #     print("Player: %s, action: %s, turn: %s, board:\n%s"%(next_player, a, turn + 1, next_s.reshape(8,8)))
+        # 1 = friendly, as this is self-play on each turn
+        # so: next_player is always -1
+        # -1 means enemy, not BLACK
+        next_s, next_player = self.game.getNextState(canonicalBoard, 1, a) 
 
+        # substitute ourself to another player, 
+        next_s = self.game.getCanonicalForm(next_s, next_player) 
         
+        # search for it
         v = self.search(next_s, turn + 1)
     
         if (s,a) in self.Qsa:
