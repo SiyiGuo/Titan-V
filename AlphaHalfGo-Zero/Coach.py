@@ -45,14 +45,14 @@ class Coach():
         
         #star playing the game
         while True:
-            canonicalBoard = self.game.getCanonicalForm(board,self.curPlayer) #current situation of the board in the player's point of view
+            canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer) #current situation of the board in the player's point of view
             temp = int(episodeStep < self.args.tempThreshold) # if episodes more than the tempThreshold, MCTS will search will stop searching?
             # print("self.curPlayer:%s, turn:%s, board;\n %s"%(self.curPlayer, episodeStep, canonicalBoard.reshape(8,8)))
 
             pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) #NOTE: ???the probability of winnning for different move on current situation?
             sym = self.game.getSymmetries(canonicalBoard, pi)
-            for board,policyVector in sym:
-                trainExamples.append([board, self.curPlayer, policyVector, None])
+            for b,policyVector in sym: #bug come from here using the same board variable
+                trainExamples.append([b, self.curPlayer, policyVector, None])
             
             probs_display = [round(x,2) for x in pi]
             print("curr_player:%s turn:%s, probs:\n%s"%(self.curPlayer, episodeStep, np.array(probs_display).reshape(8,8)))
@@ -62,11 +62,13 @@ class Coach():
             # print("player %s take action %s in turn %s"%(self.curPlayer, action, episodeStep))
 
             #self.curPlayer turn to next player, board update, turn update
-            print("player %s take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
-            board, self.curPlayer = self.game.getNextState(board, 1, action) #here 1 means friendly unit, as black appear to be white here
+            print("in player point of view player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
+            board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action) #regardless of friendly or enemy, show objective
             episodeStep += 1
-            print("player %s turn %s board:\n%s"%(self.curPlayer, episodeStep, board.reshape(8,8)))
-            # a = input()
+            print("after action, show objective board \n ")
+            print( board.reshape(8,8))
+            print("next player %s turn %s"%(self.curPlayer, episodeStep))
+            a = input()
             
             
             # print(board)
@@ -76,6 +78,7 @@ class Coach():
             # print("turn %s, game status: %s, take action: %s"%(episodeStep, r, action))
 
             if r!=0: 
+                print("Objective board")
                 print("game has ended, player %s result %s board:\n%s"%(self.curPlayer, r, board.reshape(8,8)))
                 lastTurn = trainExamples[-1]
                 print("last turn suggest player:%s, board:\n%s"%(lastTurn[1], lastTurn[0].reshape(8,8)))

@@ -47,9 +47,6 @@ class Coach():
         while True:
             episodeStep += 1
             canonicalBoard = self.game.getCanonicalForm(board,self.curPlayer) #current situation of the board in the player's point of view
-            canonicalBoard2 = self.game.getCanonicalForm(board,1)
-            print("self.curPlayer:%s, turn:%s, board;\n %s\n noChangeBoard:\n %s"%(self.curPlayer, episodeStep, canonicalBoard.reshape(6,6), canonicalBoard2.reshape(6,6)))
-            a = input("continue?")
             temp = int(episodeStep < self.args.tempThreshold) # if episodes more than the tempThreshold, MCTS will search will stop searching?
 
             pi = self.mcts.getActionProb(canonicalBoard, temp=temp) #NOTE: ???the probability of winnning for different move on current situation?
@@ -58,8 +55,12 @@ class Coach():
                 trainExamples.append([b, self.curPlayer, p, None])
 
             action = np.random.choice(len(pi), p=pi)
+
+            print("player %s take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(6,6)))
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action)
-            
+            print("after next state: show objective board\nplayer %s turn %s board:\n%s"%(self.curPlayer, episodeStep, board.reshape(6,6)))
+            a=input() 
+
 
             r = self.game.getGameEnded(board, self.curPlayer) #return 0 if game continue, 1 if player1 win, -1 if player 2 win
             if r!=0:
