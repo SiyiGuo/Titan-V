@@ -68,23 +68,24 @@ class Coach():
                 # (canonicalBoard,player, polivy vector)
                 trainExamples.append([b, self.curPlayer, policyVector, None])
             
-            #DEBUG: 
-            probs_display = [round(x,2) for x in pi]
-            print("curr_player:%s turn:%s, probs:\n%s"%(self.curPlayer, episodeStep, np.array(probs_display).reshape(8,8)))
+            # #DEBUG: 
+            # probs_display = [round(x,2) for x in pi]
+            # print("curr_player:%s turn:%s, probs:\n%s"%(self.curPlayer, episodeStep, np.array(probs_display).reshape(8,8)))
 
             #choose action with highest winning probability
             action = np.random.choice(len(pi), p=pi)
 
-            # print("player %s take action %s in turn %s"%(self.curPlayer, action, episodeStep))
+            #DEBUG
+            # print("in player point of view \n player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
 
             #self.curPlayer turn to next player, objective board update, turn update
-            print("in player point of view \n player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action) #regardless of friendly or enemy, show objective
             episodeStep += 1
 
-            print("after action, objective board \n ")
-            print( board.reshape(8,8))
-            print("next player %s next turn %s"%(self.curPlayer, episodeStep))
+            #DEBUG
+            # print("after action, objective board \n ")
+            # print( board.reshape(8,8))
+            # print("next player %s next turn %s"%(self.curPlayer, episodeStep))
             
             #check the new board status
             #return 0 if game continue, 1 if WHITE win, -1 if BLACK win. 
@@ -96,8 +97,8 @@ class Coach():
 
             if r!=0: 
                 #DEBUG
-                print("Objective board")
-                print("game has ended, player %s result %s board:\n%s"%(self.curPlayer, r, board.reshape(8,8)))
+                # print("Objective board")
+                # print("game has ended, player %s result %s board:\n%s"%(self.curPlayer, r, board.reshape(8,8)))
 
                 #return board winning result, who won it 
                 #(canonicalBoard,policyVector,v)
@@ -109,9 +110,9 @@ class Coach():
 
 
                 #DEBUG
-                lastResult = generatedTraining[-1]
-                print("Input to trainExample")
-                print("result:%s, cannonicalboard:\n%s "%(lastResult[2], lastResult[0].reshape(8,8)))
+                # lastResult = generatedTraining[-1]
+                # print("Input to trainExample")
+                # print("result:%s, cannonicalboard:\n%s "%(lastResult[2], lastResult[0].reshape(8,8)))
 
                 # a = input()
                 return generatedTraining
@@ -139,11 +140,11 @@ class Coach():
                 for eps in range(self.args.numEps): #for each self-play of this rounds
                     self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
 
-                    print("\n-----------game "+str(eps)+" start-----------")
-                    selfPlayResult = self.executeEpisode() #reutrn [(canonicalBoard,pi,v), (canonicalBoard,pi,v)]
-                    # a = input("do You want to continue?")
-                    iterationTrainExamples +=  selfPlayResult#play one game, adding the gaming history
-                    print("\n-----------game "+str(eps)+" end-----------")
+                     #reutrn [(canonicalBoard,pi,v), (canonicalBoard,pi,v)]
+                     # v is the result
+                    selfPlayResult = self.executeEpisode()
+                    #play one game, adding the gaming history
+                    iterationTrainExamples +=  selfPlayResult
     
                     # bookkeeping + plot progress
                     eps_time.update(time.time() - end)
