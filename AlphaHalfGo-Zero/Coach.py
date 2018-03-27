@@ -54,14 +54,20 @@ class Coach():
             for board,policyVector in sym:
                 trainExamples.append([board, self.curPlayer, policyVector, None])
             
+            probs_display = [round(x,2) for x in pi]
+            print("curr_player:%s turn:%s, probs:\n%s"%(self.curPlayer, episodeStep, np.array(probs_display).reshape(8,8)))
+
             action = np.random.choice(len(pi), p=pi)
 
             # print("player %s take action %s in turn %s"%(self.curPlayer, action, episodeStep))
 
             #self.curPlayer turn to next player, board update, turn update
-            # print("player %s take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
-            board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action) 
+            print("player %s take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
+            board, self.curPlayer = self.game.getNextState(board, 1, action) #here 1 means friendly unit, as black appear to be white here
             episodeStep += 1
+            print("player %s turn %s board:\n%s"%(self.curPlayer, episodeStep, board.reshape(8,8)))
+            # a = input()
+            
             
             # print(board)
             

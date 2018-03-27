@@ -59,7 +59,14 @@ class MCTS():
             return probs #return the action to make sure we only go this move
 
         counts = [x**(1./temp) for x in counts]
+
+        curr_player =  WHITE if turn % 2 == 0 else BLACK
+        valids = self.game.getValidMoves(canonicalBoard, curr_player)
         probs = [x/float(sum(counts)) for x in counts]
+        # probs_display = [round(x,2) for x in probs]
+        # # print("curr_player:%s probs:\n%s"%(curr_player, np.array(probs_display).reshape(8,8)))
+        # # a = input()
+
         return probs
 
 
