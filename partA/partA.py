@@ -156,10 +156,12 @@ class Board(object):
         """ 
         x_orig, y_orig = piecePosition
         x_dest, y_dest = pieceDestination
+
+        #return if piece position is empty
         if self.pieces[x_orig][y_orig] == EMPTY:
-            print("its empty")
             return
 
+        #make the move
         self.pieces[x_dest][y_dest] = self.pieces[x_orig][y_orig]
         self.pieces[x_orig][y_orig] = EMPTY
         
@@ -194,7 +196,7 @@ class Board(object):
         
     def checkEaten(self, pieceDestination):     
         """ 
-        make the move from orginal position to target position 
+        check if moving to this position will result in be eaten 
           
         """  
         x_dest, y_dest = pieceDestination
@@ -217,6 +219,11 @@ class Board(object):
 class Masscare(object):
     totalMove = 0
     def __init__(self, board):
+        """ 
+        find positions of enemies and friends
+        excute killBlacks
+          
+        """  
         self.board = board
         enemys = []
         friends = []
@@ -229,11 +236,14 @@ class Masscare(object):
         self.killBlacks(enemys, friends)
     
     def killBlacks(self, enemys, friends):
-        
-        while(enemys != []):
-            for index, x in enumerate(enemys):
-                if self.kill(x, friends):
-                    enemys.pop(index)
+        """ 
+        kill all black pieces recorded
+          
+        """  
+        while(enemys != []): #while there is still enemy
+            for index, x in enumerate(enemys): #for every enemy
+                if self.kill(x, friends):# kill this enemy if killable
+                    #refresh the pieces positions stored
                     enemys = []
                     friends = []
                     for x in range(len(self.board.pieces)):
@@ -245,22 +255,32 @@ class Masscare(object):
                     break
     
     def kill(self, location, friends):
+        """ 
+        return true if successfully kill the black piece on the location 
+        reutrn false if fail  
+        """  
         x_enemy, y_enemy = location
-        closeFriends = self.closestFriend(location,friends)
-        killPos = self.killPosition(location)
+        closeFriends = self.closestFriend(location,friends) # return a list of friends in the order of distance
+        killPos = self.killPosition(location) #get the positions required to fill to kill the black piece
+
+        #try to fill those positions
         for posPair in killPos:
             for pos in posPair:
                 for friend in closeFriends:
-                    if self.moveable(friend, pos):
+                    if self.moveable(friend, pos):#if moveable, move to that position
                         self.move(friend, pos)
                         closeFriends.remove(friend)
                         break
-                if self.board.pieces[x_enemy][y_enemy] == EMPTY:
+                if self.board.pieces[x_enemy][y_enemy] == EMPTY:#if black piece is eaten, reutrn true
                     return True
         return False
         
     def moveable(self,origLocation, destLocation):
-        if (origLocation == destLocation):
+        """ 
+        if there is a path from origLocation to destLocation using bi-directional bfs
+          
+        """  
+        if (origLocation == destLocation):#if no need to move, return true
             return True
         o_visited = []
         d_visited = []
@@ -274,7 +294,7 @@ class Masscare(object):
         o_toVisit.append(origLocation)
         d_toVisit.append(destLocation)
 
-        while (len(o_toVisit) > 0 or len(d_toVisit)> 0): 
+        while (len(o_toVisit) > 0 or len(d_toVisit)> 0): # bi-directional bfs on path finding
             if d_distance < o_distance and len(d_toVisit) != 0:
                 loc = d_toVisit.pop(0)
                 d_visited.append(loc)
@@ -297,16 +317,18 @@ class Masscare(object):
             for x in o_visited:
                 if x in d_visited:
                     return True
-
         return False 
     
     def move(self,origLocation, destLocation):
-        print(str(origLocation) + " -------> " + str(destLocation))
+        """ 
+        let white piece move from origLocation to destLocation using dijkstra
+          
+        """  
         if origLocation == destLocation:
             return
         toVisit = [origLocation]
         shortestPath = {origLocation: [origLocation]}
-        while destLocation not in shortestPath.keys():
+        while destLocation not in shortestPath.keys():#dijkstra to find a path
             loc = toVisit.pop(0)
             for x in self.board.getValidMoveForPiece(loc):
                 if x != destLocation and self.board.checkEaten(x):
@@ -322,18 +344,21 @@ class Masscare(object):
         
         lastLoc = origLocation
         i = 0
-        for path in shortestPath[destLocation]: 
+        for path in shortestPath[destLocation]: #let piece move following the path
             if i == 0:
                 i+=1
                 continue
-            print(self.board.pieces)
             self.board.executeMove(lastLoc,path)
             self.totalMove += 1
-            print(str(lastLoc) + " --> " + str(path))
+            print(str(lastLoc) + " -> " + str(path))
             lastLoc = path
 
 
     def closestFriend(self, enemyLocation, friends):
+        """ 
+        return a list of friends location in the order of distance between them and enemyLocation
+          
+        """  
         distances = {}
         for x in friends:
             distances[x] = self.distance(enemyLocation, x)
@@ -342,11 +367,19 @@ class Masscare(object):
         
 
     def distance(self, enenyLocation, myLocation):
+        """ 
+        compute the straight line distance between enemy and self
+          
+        """  
         x_enemy, y_enemy = enenyLocation
         x_me, y_me = myLocation
         return ((x_enemy-x_me)**2 + (y_enemy-y_me)**2)        
     
     def killPosition(self, enemyLocation):
+        """ 
+        return a list of positions needed to fill to kill eneny
+          
+        """  
         __killDirections = {
             "vertical": (1,0),
             "horizontal": (0,1),
@@ -380,18 +413,12 @@ boardReader = BoardReader()
 canoicalBoard, mode = boardReader.readInput()
 
 board = Board(8, canoicalBoard)
-if mode == "move":
-    
-    start = time.time()
+if mode == "Moves":
     print(len(board.getAllLegalMoves(WHITE)))
     print(len(board.getAllLegalMoves(BLACK)))
-    end = time.time()
-    print(end)
-    print(start)
-else:
+elif mode == "Massacre":
     mass = Masscare(board)
-    print(mass.board.pieces)
-    print(mass.totalMove)
+    
 
 
 
