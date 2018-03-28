@@ -53,15 +53,41 @@ class Board():
 
 
     def countDiff(self, color):
-        """Counts the # pieces of the given color
-        (1 for white, -1 for black, 0 for empty spaces)"""
+        """
+        Counts the # pieces of the given color
+        (1 for white, -1 for black, 0 for empty spaces)
+        (row, column)
+        """
         count = 0
+        #normal count
         for y in range(self.n):
             for x in range(self.n):
                 if self.pieces[x][y]==color:
                     count += 1
                 if self.pieces[x][y]==-color:
                     count -= 1
+        
+        #check the middle 4 gold point
+        if self.pieces[3][3] == color:
+                count += 3
+        elif self.pieces[3][3] == -color:
+                count -= 3
+        
+        if self.pieces[4][3] == color:
+                count += 3
+        elif self.pieces[4][3] == color:
+                count -= 3 
+
+        if self.pieces[3][4] == color:
+                count += 3
+        elif self.pieces[3][4] == -color:
+                count -= 3
+        
+        if self.pieces[4][4] == color:
+                count += 3
+        elif self.pieces[4][4] == color:
+                count -= 3 
+
         return count
 
     def get_legal_moves(self, color):
