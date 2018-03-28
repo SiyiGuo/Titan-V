@@ -44,8 +44,8 @@ class MCTS():
         if (float(sum(counts)) ==0):
             print("\nerror in MCTS.getActionProb, before deciding action")
             print("turnindex:%s"%turn)
-            print(canonicalBoard.reshape(8,8))
-            print("non existing pattern: \n %s"%np.fromstring(s, dtype=int).reshape(8,8)) #could add reshape here
+            print(canonicalBoard.reshape(6,6))
+            print("non existing pattern: \n %s"%np.fromstring(s, dtype=int).reshape(6,6)) #could add reshape here
             exit()
         
         if temp==0:
@@ -133,8 +133,10 @@ class MCTS():
                 # NB! All valid moves may be masked if either your NNet architecture is insufficient or you've get overfitting or something else.
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
                 print("All valid moves were masked, do workaround.")
+                print(np.array(self.Ps[s]).reshape(6,6))
                 self.Ps[s] = self.Ps[s] + valids
                 self.Ps[s] /= np.sum(self.Ps[s])
+                
 
             # record valid move, so that we do not need to re calculate
             self.Vs[s] = valids
@@ -162,15 +164,15 @@ class MCTS():
         #assert invalid move
         if curr_player == WHITE:
             try:
-                assert a<48 #index of first column, sixth row
+                assert a<24 #index of first column, sixth row
             except:
-                print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+                print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(6,6)))
                 exit()
         elif curr_player == BLACK:
             try:
-                assert a > 15 #index of last column, second row
+                assert a > 11 #index of last column, second row
             except:
-                print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+                print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(6,6)))
                 exit()
 
         # 1 = friendly, as this is self-play on each turn
