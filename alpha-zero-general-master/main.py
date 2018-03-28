@@ -10,7 +10,7 @@ args = dotdict({
     'updateThreshold': 0.6, #if new nnet beat wins old nnet above this ration, update to new nnet
     'maxlenOfQueue': 200000, #TODO: maximum length of the history in memory??
     'numMCTSSims': 25, #number of MCTS simulation rounds
-    'arenaCompare': 40,
+    'arenaCompare': 40, #number of games between old and new
     'cpuct': 1,
 
     'checkpoint': './temp/',
