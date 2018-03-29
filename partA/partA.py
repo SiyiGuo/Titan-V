@@ -132,15 +132,15 @@ class Board(object):
         """
         Given a color, return all the legal moves
         """
-        moves = set()
+        moves = []
 
         for x in range(self.n):
             for y in range(self.n):
                 if self.pieces[x][y] == color:
                     newMoves = self.getValidMoveForPiece((x,y))
-                    moves.update(newMoves)
+                    moves += newMoves
             
-        return list(moves)
+        return moves
 
     def opposite(self,color):
         return{

@@ -1,0 +1,11 @@
+For calculating the number of available moves, we first calculate the available move for single pieces. For each piece, we check 4 directions of move, and 4 directions of jump, then add up the valid move. Therefore, to get the available move for one color, the time and space complexity are both O(8n) -> O(n), where n is the number of pieces for that color. 
+
+For calculating the sequence of moves to eliminate all enemy pieces, we modeled the position as the node and valid moves as the connections between the nodes. Thus finding a way to eliminate a piece is equivalent to the problem of moving two white pieces towards two certain locations. Then the problem becomes a problem on finding shortest path which is a simple search problem. 
+
+In partA, we used two search algorithms, one is bi-directional breath first search on finding if there is a path to for piece to move from location A to location B. And a Dijkstra algorithm, to find the shortest path from location A to location B for a piece. The reason for not using Dijkstra on as path finding is that we want to practice on using bi-directional bfs. 
+
+We haven’t use any branching factor for my search tree since searching on 8*8 board is not complex or time consuming.
+
+For both bi-directional bfs and Dijkstra, the maximum search depth is 12 steps as the longest possible distance from the bottom left corner to right top corner.
+
+It is able to return a sequence that eliminate all enemy pieces but not the shortest possible. This program has no ability on forward planning such as able to eliminate two pieces in one move. And the order of eliminating pieces is not optimized by the lowest number of move, the order is just the order for piece to be recorded in the memory. 
