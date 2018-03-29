@@ -47,6 +47,7 @@ class Board(object):
         """coordinate system: (row, column)"""
 
         self.n = n
+
         if canoicalBoard is None:
             self.pieces = [[EMPTY]*self.n]*self.n
             self.pieces[0][0] = BANNED #top left 
@@ -204,14 +205,19 @@ class Board(object):
         enemy = BLACK
 
         for x_dir, y_dir in self.__directions.values():
-            
+
+            #if both directions are enemy/banned return true
             try:
+
                 p1 = self.pieces[x_dest + x_dir][y_dest + y_dir]
                 p2 = self.pieces[x_dest - x_dir][y_dest - y_dir]
+
                 if (p1 == BANNED or p1 == enemy) and (p2 == BANNED or p2 == enemy):
                     return True
+
             except:
                 continue
+
         return False
 
         
@@ -227,12 +233,17 @@ class Masscare(object):
         self.board = board
         enemys = []
         friends = []
+        
+        #record location of white and black pieces
         for x in range(len(self.board.pieces)):
             for y in range(len(self.board.pieces[x])):
+
                 if self.board.pieces[x][y] == BLACK:
                     enemys.append((x,y))
                 elif self.board.pieces[x][y] == WHITE:
                     friends.append((x,y))
+        
+        #kill all enemies
         self.killBlacks(enemys, friends)
     
     def killBlacks(self, enemys, friends):
@@ -242,7 +253,9 @@ class Masscare(object):
         """  
         while(enemys != []): #while there is still enemy
             for index, x in enumerate(enemys): #for every enemy
+
                 if self.kill(x, friends):# kill this enemy if killable
+                    
                     #refresh the pieces positions stored
                     enemys = []
                     friends = []
@@ -267,12 +280,15 @@ class Masscare(object):
         for posPair in killPos:
             for pos in posPair:
                 for friend in closeFriends:
+
                     if self.moveable(friend, pos):#if moveable, move to that position
                         self.move(friend, pos)
                         closeFriends.remove(friend)
                         break
+
                 if self.board.pieces[x_enemy][y_enemy] == EMPTY:#if black piece is eaten, reutrn true
                     return True
+
         return False
         
     def moveable(self,origLocation, destLocation):
@@ -282,6 +298,7 @@ class Masscare(object):
         """  
         if (origLocation == destLocation):#if no need to move, return true
             return True
+
         o_visited = []
         d_visited = []
 
@@ -295,6 +312,7 @@ class Masscare(object):
         d_toVisit.append(destLocation)
 
         while (len(o_toVisit) > 0 or len(d_toVisit)> 0): # bi-directional bfs on path finding
+
             if d_distance < o_distance and len(d_toVisit) != 0:
                 loc = d_toVisit.pop(0)
                 d_visited.append(loc)
@@ -317,6 +335,7 @@ class Masscare(object):
             for x in o_visited:
                 if x in d_visited:
                     return True
+
         return False 
     
     def move(self,origLocation, destLocation):
@@ -326,13 +345,18 @@ class Masscare(object):
         """  
         if origLocation == destLocation:
             return
+
         toVisit = [origLocation]
         shortestPath = {origLocation: [origLocation]}
+
         while destLocation not in shortestPath.keys():#dijkstra to find a path
+
             loc = toVisit.pop(0)
+
             for x in self.board.getValidMoveForPiece(loc):
                 if x != destLocation and self.board.checkEaten(x):
                     continue
+
                 if x in shortestPath.keys():
                     if len(shortestPath[loc])+1 < len(shortestPath[x]):
                         shortestPath[x] = shortestPath[loc]
@@ -344,13 +368,19 @@ class Masscare(object):
         
         lastLoc = origLocation
         i = 0
+    
         for path in shortestPath[destLocation]: #let piece move following the path
+
             if i == 0:
                 i+=1
                 continue
+
             self.board.executeMove(lastLoc,path)
             self.totalMove += 1
-            print(str(lastLoc) + " -> " + str(path))
+            lastx, lasty = lastLoc
+            pathx, pathy = path
+            print(str((lasty,lastx)) + " -> " + str((pathy,pathx))) #the output
+
             lastLoc = path
 
 
@@ -360,9 +390,14 @@ class Masscare(object):
           
         """  
         distances = {}
+
+        #compute all the distance
         for x in friends:
             distances[x] = self.distance(enemyLocation, x)
+
+        #sort by the distance
         distances = sorted(distances, key = distances.get)
+
         return distances
         
 
@@ -373,6 +408,7 @@ class Masscare(object):
         """  
         x_enemy, y_enemy = enenyLocation
         x_me, y_me = myLocation
+
         return ((x_enemy-x_me)**2 + (y_enemy-y_me)**2)        
     
     def killPosition(self, enemyLocation):
@@ -388,24 +424,39 @@ class Masscare(object):
         result = []
         x_enemy,y_enemy = enemyLocation
 
+        #loop through the __killDirections
         for x_dir,y_dir in __killDirections.values():
+
+            #position 1
             x1 = x_enemy + x_dir
             y1 = y_enemy + y_dir
+
+            #position 2
             x2 = x_enemy - x_dir
             y2 = y_enemy - y_dir
+
             positions = []
+
+            #if one position is unable to reach, check next direction
             if x1 > 7 or y1 > 7 or self.board.pieces[x1][y1] == BLACK or self.board.pieces[x2][y2] == BLACK:
                 continue
+
+            #if reachable add to position
             if x1 < 8 and y1 < 8 and self.board.pieces[x1][y1] != BANNED:
                 positions.append((x1, y1))
-            if self.board.pieces[x2][y2] != BANNED:
+            if x1 < 8 and y1 < 8 and self.board.pieces[x2][y2] != BANNED:
                 positions.append((x2, y2))
+
+            #if first position is a trap, change the order
             if len(positions) == 2 and self.board.checkEaten(positions[0]):
                 temp = positions[0]
                 positions[0] = positions[1]
                 positions[1] = temp
-            elif len(positions) == 2 and self.board.checkEaten(positions[0]) and self.board.checkEaten(positions[1]):
+
+            #if both positions are traps, dont go
+            if len(positions) == 2 and self.board.checkEaten(positions[0]) and self.board.checkEaten(positions[1]):
                 continue
+
             result.append(positions)
         return result   
     
