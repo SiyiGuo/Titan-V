@@ -16,7 +16,7 @@ from .HalfGoNNet import HalfGoNNet as hnnet
 args = dotdict({
     'lr': 0.001,
     'dropout': 0.3,
-    'epochs': 10, #rounds of training
+    'epochs': 30, #rounds of training
     'batch_size': 64, #the size of the board?
     'num_channels': 512,
 })

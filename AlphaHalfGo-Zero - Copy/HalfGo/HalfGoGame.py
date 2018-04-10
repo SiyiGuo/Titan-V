@@ -33,7 +33,7 @@ class HalfGoGame(Game):
                 this is why return self.n*self.n + 1
         """
 
-        return self.n*self.n
+        return self.n*self.n + 1
 
     def getNextState(self, board, player, action):
         # if player takes action on board, return next (board,player)
@@ -119,7 +119,8 @@ class HalfGoGame(Game):
         """
         # mirror, rotational
         # assert(len(pi) == self.n**2+1)  # 1 for pass as action size is 64
-        pi_board = np.reshape(pi, (self.n, self.n)) #turn pi vector into board form
+        assert(len(pi) == self.n**2 + 1)  # 1 for pass
+        pi_board = np.reshape(pi[:-1], (self.n, self.n))
         l = []
 
         for j in [True, False]:
@@ -131,7 +132,7 @@ class HalfGoGame(Game):
                 newPi = np.fliplr(newPi)
             
             #np.ravel: turn matrix into one row
-            l += [(newB, list(newPi.ravel()))] 
+            l += [(newB, list(newPi.ravel()) + [pi[-1]])] 
         return l
 
     def stringRepresentation(self, board):

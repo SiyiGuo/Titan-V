@@ -123,6 +123,7 @@ class MCTS():
             valids = self.game.getValidMoves(canonicalBoard, curr_player)
             
             # remove all the invalid move
+            tmp = np.array(self.Ps[s][:-1])
             self.Ps[s] = self.Ps[s]*valids
 
             sum_Ps_s = np.sum(self.Ps[s])
@@ -135,8 +136,9 @@ class MCTS():
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
                 print("All valid moves were masked, do workaround.")
                 print(np.array(canonicalBoard).reshape(8,8))
-                print(np.array(valids).reshape(8,8))
-                print(np.array(self.Ps[s]).reshape(8,8))
+                print(np.array(valids[:-1]).reshape(8,8))
+                print(np.array(self.Ps[s][:-1]).reshape(8,8))
+                print(tmp.reshape(8,8))
                 print(v)
             
                 self.Ps[s] = self.Ps[s] + valids
