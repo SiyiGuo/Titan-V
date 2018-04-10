@@ -69,24 +69,24 @@ class Board():
         
         #check the middle 4 gold point
         if self.pieces[3][3] == color:
-                count += 3
+                count += 1
         elif self.pieces[3][3] == -color:
-                count -= 3
+                count -= 1
         
         if self.pieces[4][3] == color:
-                count += 3
+                count += 1
         elif self.pieces[4][3] == color:
-                count -= 3 
+                count -= 1 
 
         if self.pieces[3][4] == color:
-                count += 3
+                count += 1
         elif self.pieces[3][4] == -color:
-                count -= 3
+                count -= 1
         
         if self.pieces[4][4] == color:
-                count += 3
+                count += 1
         elif self.pieces[4][4] == color:
-                count -= 3 
+                count -= 1 
 
         return count
 

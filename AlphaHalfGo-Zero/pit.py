@@ -7,6 +7,11 @@ from HalfGo.tensorflow.NNet import NNetWrapper as NNet
 import numpy as np
 from utils import *
 
+import os
+#0 is gpu with 16 pcie slots
+#1 is gpu with 4 pcie slots
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 """
 use this script to play any two agents against each other, or play manually with
 any agent.

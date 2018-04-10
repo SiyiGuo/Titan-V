@@ -57,7 +57,9 @@ class Coach():
             temp = int(episodeStep < self.args.tempThreshold) 
 
             # create probability of winning for each action on board for self.currPlayer's POV
+            
             pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) 
+            
 
             # one board situation can generate two tranining example # as symmetric does not matter
             sym = self.game.getSymmetries(canonicalBoard, pi)
@@ -66,7 +68,7 @@ class Coach():
             #BUG: not showing correctly
             for b,policyVector in sym: 
                 # (canonicalBoard,player, polivy vector)
-                trainExamples.append([b, self.curPlayer, policyVector, None])
+                trainExamples.append([b, self.curPlayer, policyVector, episodeStep])
             
             # #DEBUG: 
             # probs_display = [round(x,2) for x in pi]
@@ -105,7 +107,11 @@ class Coach():
                 # x[0] cannonical board, x[2] policy vector x[1] self.curlPlayer of cannonical board
                 # x[1] is BLACK, return -result as -result is in BLACK's POV
                 # x[1] is WHITE, return result, as result is in WHITE's POV
-                generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE))) for x in trainExamples]
+                # x[2] policyVector from mcts
+                # x[3] turn
+                #TODO do I need to add turn for poliicy vector as well?
+                generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE)), x[3]) for x in trainExamples] #add turn as a input, no need to make change for pi
+                # generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE))) for x in trainExamples]
                 # generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
 
 

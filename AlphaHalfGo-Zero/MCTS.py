@@ -1,6 +1,7 @@
 import math
 import numpy as np
 from HalfGo.HalfGoLogic import BLACK, WHITE
+import time
 class MCTS():
     """
     This class handles the MCTS tree.
@@ -33,8 +34,11 @@ class MCTS():
         """
         
         # perform exploring first
+        
         for i in range(self.args.numMCTSSims):
             self.search(canonicalBoard, turn)
+            
+        
         
         # find the prob of action we take
         s = self.game.stringRepresentation(canonicalBoard)
@@ -116,7 +120,7 @@ class MCTS():
             #       with higher change leads to win
             #   V:
             #       the winning rate of current board, betweem -1 to 1 
-            self.Ps[s], v = self.nnet.predict(canonicalBoard)
+            self.Ps[s], v = self.nnet.predict(canonicalBoard, turn)
 
             # find all valid move for current player
             valids = self.game.getValidMoves(canonicalBoard, curr_player)
@@ -134,7 +138,8 @@ class MCTS():
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
                 print("All valid moves were masked, do workaround.")
                 print(np.array(canonicalBoard).reshape(8,8))
-                print(np.array(self.Ps[s]).reshape(8,8))
+                print(np.array(self.Ps[s][:-1]).reshape(8,8))
+                print(v)
                 self.Ps[s] = self.Ps[s] + valids
                 self.Ps[s] /= np.sum(self.Ps[s])
 
