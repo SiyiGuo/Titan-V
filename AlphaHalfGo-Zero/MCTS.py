@@ -126,6 +126,7 @@ class MCTS():
             valids = self.game.getValidMoves(canonicalBoard, curr_player)
 
             # remove all the invalid move
+            before_mask = np.array(self.Ps[s][:-1])
             self.Ps[s] = self.Ps[s]*valids
 
             sum_Ps_s = np.sum(self.Ps[s])
@@ -139,6 +140,7 @@ class MCTS():
                 print("All valid moves were masked, do workaround.")
                 print(np.array(canonicalBoard).reshape(8,8))
                 print(np.array(self.Ps[s][:-1]).reshape(8,8))
+                print(before_mask.reshape(8,8))
                 print(v)
                 self.Ps[s] = self.Ps[s] + valids
                 self.Ps[s] /= np.sum(self.Ps[s])
