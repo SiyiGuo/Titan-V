@@ -15,13 +15,10 @@ class PubgGame(Game):
     
     def getActionSize(self, color):
         """
-        ？？？
-        Input:
-            color: the color of current player
-        Returns:
-            actionSize: number of all possible actions
+        64 piece each with 8 direction
+        +1 for the bias of pi vector
         """
-        return self.board.getAllLegalMoves(color);
+        return 8*8*8 + 1;
     
     def getNextState(self, board, player, action):
         """
@@ -50,14 +47,14 @@ class PubgGame(Game):
                         moves that are valid from the current board and player,
                         0 for invalid moves
         """
-        board = Board(self.n, np.copy(board))
-        return board.getAllLegalMoves(player);
+        
+        return a vector of 8*8*8+1
 
     def getGameEnded(self, board, player):
         """
         Input:
             board: current board
-            player: current player (1 or -1)
+            player: current player (1(WHITE) or -1(BLACK))
 
         Returns:
             r: 0 if game has not ended. 1 if player won, -1 if player lost,
@@ -73,8 +70,6 @@ class PubgGame(Game):
             return BLACK*player
         if blackCount < 2:
             return WHITE*player
-
-
 
     def getCanonicalForm(self, board, player):
         """
@@ -105,17 +100,10 @@ class PubgGame(Game):
         """
         assert(len(pi) == self.n**2+1)  # 1 for pass
         pi_board = np.reshape(pi[:-1], (self.n, self.n))
+        """
+        need to do some smart trick here for pi
+        """
         l = []
-
-        for i in range(1, 5):
-            for j in [True, False]:
-                newB = np.rot90(board, i)
-                newPi = np.rot90(pi_board, i)
-                if j:
-                    newB = np.fliplr(newB)
-                    newPi = np.fliplr(newPi)
-                l += [(newB, list(newPi.ravel()) + [pi[-1]])]
-        return l
 
     def stringRepresentation(self, board):
         """
