@@ -122,11 +122,17 @@ class PubgGame(Game):
                        is used when training the neural network from examples.
         """
         assert(len(pi) == self.n**2+1)  # 1 for pass
-        pi_board = np.reshape(pi[:-1], (self.n, self.n))
-        """
-        need to do some smart trick here for pi
-        """
+        pi_board = np.reshape(pi[:-1], (8, 8, 8))
         l = []
+        for j in [True, False]:
+            newB = board
+            newPi = pi_board
+            if j:
+                newB = np.fliplr(newB)
+                newPi = np.fliplr(newPi)
+
+            l+= [(newB, list(newPi.ravel())+[pi[-1]])]
+        return l
 
     def stringRepresentation(self, board):
         """
