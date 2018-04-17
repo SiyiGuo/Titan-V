@@ -2,12 +2,14 @@ from PubgLogic import Board, WHITE, BLACK, EMPTY
 from Game import Game
 import numpy as np
 
+
+#coordinate system: (column, row)
 class PubgGame(Game):
     def __init__(self, n):
         self.n = n
 
-    def getInitBoard(self, cannoicalBoard = None):
-        board = Board(self.n, cannoicalBoard)
+    def getInitBoard(self, obBoard = None):
+        board = Board(self.n, obBoard)
         return np.array(board.pieces)
     
     def getBoardSize(self):
@@ -18,37 +20,58 @@ class PubgGame(Game):
         64 piece each with 8 direction
         +1 for the bias of pi vector
         """
-        return 8*8*8 + 1;
+        return 8*8*8 + 1
     
-    def getNextState(self, board, player, action):
+    def getNextState(self, board, player, action, turn):
         """
         Input:
-            board: current board
+            board: current board as np array
             player: current player (1 or -1)
-            action: action taken by current player ()
+            action: an Integer Number
 
         Returns:
-            nextBoard: board after applying action
+            nextBoard: board after applying action,
             nextPlayer: player who plays in the next turn (should be -player)
+        
+        Turn1: turn = 0
+        Turn 128: turn = 127
+        First Shrink
+        Turn 129: turn = 128
+        Turn 192: turn = 191
+        Second Srhink
+        Turn 193: turn = 192
         """
         board = Board(self.n, np.copy(board))
+        if turn == 128:
+            board.shrink(turn)
+        if turn == 192:
+            #can be optimized here
+            board.shrink(turn)
+            board.shrink(turn)
         board.executeMove(action["orig"], action["dest"])
         return (np.copy(board.pieces), -player)
 
     def getValidMoves(self, board, player):
         """
-        ？？？
         Input:
             board: current board
-            player: current player
+            player: current player's color
 
         Returns:
             validMoves: a binary vector of length self.getActionSize(), 1 for
                         moves that are valid from the current board and player,
                         0 for invalid moves
         """
-        
-        return a vector of 8*8*8+1
+        moves = []
+        board = Board(self.n, np.copy(board))
+        for x in range(self.n):
+            for y in range(self.n):
+                if self.board[y][x] == player:
+                    moves += board.getValidMoveForPiece(x,y)
+        #for bias vector
+        moves += [0]
+        assert(len(moves) = 8*8*8+1)
+        return moves
 
     def getGameEnded(self, board, player):
         """

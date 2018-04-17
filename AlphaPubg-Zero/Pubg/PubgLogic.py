@@ -10,7 +10,7 @@ Coordinate system:
 6
 7
 y
-Coordinate represented as (x,y) = (column, row)
+Coordinate represented as (x,y) = (row, column)
 WHITE goes first
 """
 
@@ -25,53 +25,45 @@ BLACK = -1
 
 class Board(object):
     
-    __directions = {
-        "left": (-1,0),
-        "right": (1,0),
-        "top": (0,-1),
-        "bot": (0,1)
-    }
+    __directions = [(-1,0), (1,0), (0,-1), (0,1)]
+        # "left": (0,-1),
+        # "right": (0,1),
+        # "top": (-1,0),
+        # "bot": (1,0)
 
-    __jumpDirections = {
-        "left": (-2,0),
-        "right": (2,0),
-        "top": (0,-2),
-        "bot": (0,2)
-    }
+    __jumpDirections = [(-2,0), (0,-2), (0,-2), (0,2)]
+    # {
+    #     "left": (0,-2),
+    #     "right": (0,2),
+    #     "top": (-2,0),
+    #     "bot": (0,-2)
+    # }
 
-    def __init__(self, n, canonicalBoard = None):
+    def __init__(self, n, obBoard):
         """board setup"""
         """coordinate system: (row, column)"""
-
         self.n = n
-        if canoicalBoard is None:
-            self.pieces = [[EMPTY]*self.n]*self.n
-            self.pieces[0][0] = BANNED #top left 
-            self.pieces[0][self.n - 1] = BANNED #top right
-            self.pieces[self.n - 2][0] = BANNED #bottom left
-            self.pieces[self.n - 2][self.n - 2] = BANNED #bottom right corner
-        else:
-            self.pieces = canonicalBoard
+        self.pieces = np.array(obBoard).reshape(8,8) #temporally hold for PUBgGame Function. Renew every time
     
     def _check_valid_jump(self, piecePosition, direction):
         """
         Given a jump direction
         return Valid, move
         """
-        x_orig, y_orig = piecePosition
+        y_orig, x_orig = piecePosition
 
-        x_dir, y_dir = direction #find the direction
-        x_next, y_next = (x_orig + x_dir // 2, y_orig + y_dir // 2) #find the piece next to this piece
+        y_dir, x_dir = direction #find the direction
+        y_next, x_next = (y_orig + y_dir // 2, x_orig + x_dir // 2) #find the piece next to this piece
         
-        x_dest, y_dest = (x_orig + x_dir,y_orig + y_dir)
+        y_dest, x_dest = (y_orig + y_dir,x_orig + x_dir)
         try:
             #check whether there is a piece next to it
-            if self.pieces[x_next][y_next] is EMPTY or self.pieces[x_next][y_next] is BANNED:
+            if self.pieces[y_next][x_next] is EMPTY or self.pieces[y_next][x_next] is BANNED:
                 return False, None
             else:
                 #the case white of black piece is next to it
-                if self.pieces[x_dest][y_dest] is EMPTY:
-                    return True, (x_dest, y_dest)
+                if self.pieces[y_dest][x_dest] is EMPTY:
+                    return True, (y_dest, x_dest)
                 else:
                     return False, None
         except:
@@ -84,14 +76,14 @@ class Board(object):
         valid: True of False
         move: if valid return the destination
         """ 
-        x_orig, y_orig = piecePosition
-        x_dir, y_dir = direction
-        x_dest, y_dest = (x_orig + x_dir,y_orig + y_dir)
+        y_orig, x_orig = piecePosition
+        y_dir, x_dir = direction
+        y_dest, x_dest = (y_orig + y_dir,x_orig + x_dir)
 
         try:
-            if self.pieces[x_dest][y_dest] is EMPTY:
+            if self.pieces[y_dest][x_dest] is EMPTY:
                 # empty place, can move
-                return True, (x_dest, y_dest)
+                return True, (y_dest, x_dest)
             else:
                 #cover other case
                 return False, None
@@ -101,41 +93,35 @@ class Board(object):
 
     def getValidMoveForPiece(self,piecePosition):
         """
-        take a piece's (row, col) coordinate,
-        return all valid move around this pieces
+        take a piece's (col, row) coordinate,
+        return a 1*8 vector
+        [up down left right, upJump, downJump, leftJump, rightJump]
         """
         (x,y) =piecePosition
+        
+        #conver to row, column
+        piecePosition = (y, x)
 
-        if self.pieces[x][y] is EMPTY:
+        if self.pieces[y][x] is not WHITE and self.pieces[y][x] is not BLACK:
             """this is an empty piece, skip"""
             return None
 
         # to be returned
-        moves = []
-        for direction in self.__directions.values():
+        moves = [0] * 8
+
+        count = 0
+        for direction in self.__directions:
             valid, move = self._check_valid_move(piecePosition, direction)
             if valid:
-                moves.append(move)
+                moves[count] = 1
+            count += 1
         
         for jumpDirection in self.__jumpDirections.values():
             valid,move = self._check_valid_jump(piecePosition, jumpDirection)
             if valid:
-                moves.append(move)
+                moves[count] = 1
+            count += 1
         
-        return moves
-    
-    def getAllLegalMoves(self, color):
-        """
-        Given a color, return all the legal moves
-        """
-        moves = []
-
-        for x in range(self.n):
-            for y in range(self.n):
-                if self.pieces[x][y] == color:
-                    newMoves = self.getValidMoveForPiece((x,y))
-                    moves += newMoves
-            
         return moves
 
     def opposite(self,color):
@@ -149,36 +135,87 @@ class Board(object):
             BANNED:None
         }[color]
 
+    def shrink(turn):
+        #self.n will be
+        #8 
+        #7
+        #6
+        #set all banned area
+        self.pieces[8 - self.n] = [BANNED] * 8
+        self.pieces[self.n - 1] = [BANNED] * 8
+        self.pieces[:, 8-self.n] = [BANNED] * 8
+        self.pieces[:, self.n - 1] = BANNED * 8
+
+        #shringk dimension
+        self.n -= 1
+
+        #Adding new corner
+        #slowly set the top four corner, and take out pieces
+        #Top left, bot let, bot right, top right
+        top = 8 - self.n
+        left = top
+        bot = self.n
+        right = bot
+
+        #Top Left
+        self.pieces[top][left] = BLACK
+        if self.pieces[top][left + 1] == WHITE and self.pieces[top][left+2] == BLACK
+            self.pieces[top][left + 1] = EMPTY
+        if self.pieces[top+1][left] == WHITE and self.pieces[top+2][left] == BLACK
+            self.pieces[top+1][left] = EMPTY and self.pieces
+
+        #Bot Left
+        self.pieces[bot][left] = WHITE
+        if self.pieces[bot - 1][left] == BLACK and self.pieces[bot - 2][left] == WHITE:
+            self.pieces[bot - 1][left] = EMPTY
+        if self.pieces[bot][left+1] == BLACK and self.pieces[bot][left+2] == WHITE
+            self.pieces[bot][left+1] == EMPTY
+        
+        #Bot right
+        self.pieces[bot][right] = WHITE
+        if self.pieces[bot-1][right] == BLACK and self.pieces[bot - 2][right] == WHITE:
+            self.pieces[bot-1][right] == EMPTY
+        if self.pieces[bot][right-1] == BLACK and self.pieces[bot][right-2] == WHITE:
+            self.pieces[bot][right-1] == EMPTY
+
+        #Top right
+        self.pieces[top][right] = BLACK
+        if self.pieces[top+1][right] == WHITE and self.pieces[top+2][right] == BLACK:
+            self.pieces[top][right] = EMPTY
+        if self.pieces[top][right-1] == WHITE and self.pieces[top][right-2] == BLACK:
+            self.pieces[top][right-1] == EMPTY
+
     def executeMove(self, piecePosition, pieceDestination):    
         """
-        Perform moving on the board
-        Eat enemy pieces as necessary
+        in the form: (column, row)
         """ 
+        #(column, row) -> (row, column)
         x_orig, y_orig = piecePosition
         x_dest, y_dest = pieceDestination
-        if self.pieces[x_orig][y_orig] == EMPTY:
-            self.pieces[x_dest][y_dest] = self.pieces[x_orig][y_orig]
-            self.pieces[x_orig][y_orig] = EMPTY
+
+        if self.pieces[y_orig][x_orig] == EMPTY:
+            self.pieces[y_dest][x_dest] = self.pieces[y_orig][x_orig]
+            self.pieces[y_orig][x_orig] = EMPTY
         
         #Checking the eat now
-        friend = self.pieces[x_dest][y_dest]
-        enemy = self.opposite(self.pieces[x_dest][y_dest])
+        friend = self.pieces[y_dest][x_dest]
+        enemy = self.opposite(self.pieces[y_dest][x_dest])
 
-        for direction in self.__directions.values():
-            x_dir, y_dir = direction
+        for direction in self.__directions:
+            y_dir, x_dir = direction
 
-            #case Friend Enemy Friend
+            #Case: Friend Enemy Friend
             #then Enemy will be Eat
-            if self.pieces[x_dest + 2*x_dir][y_dest + 2*y_dir] == friend and self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy:
-                self.pieces[x_dest + x_dir][y_dest + y_dir] = EMPTY
+            if self.pieces[y_dest + 2*y_dir][x_dest + 2*x_dir] == friend and self.pieces[y_dest + y_dir][x_dest + x_dir] == enemy:
+                self.pieces[y_dest + y_dir][x_dest + x_dir] = EMPTY
 
-        for direction in self.__directions.values():
-            x_dir, y_dir = direction
+        for direction in self.__directions:
+            y_dir, x_dir = direction
 
-            #ase Enemy Friend Enemy
+            #Case: Enemy Friend Enemy
             #i am eaten
-            if self.pieces[x_dest + x_dir][y_dest + y_dir] == enemy and self.pieces[x_dest - x_dir][y_dest - y_dir] == enemy:
-                self.pieces[x_dest][y_dest] = EMPTY
+            if self.pieces[y_dest + y_dir][x_dest + x_dir] == enemy and self.pieces[y_dest - y_dir][x_dest - x_dir] == enemy:
+                self.pieces[y_dest][x_dest] = EMPTY
 
     def countPieces(self):
         """
@@ -195,6 +232,9 @@ class Board(object):
                 elif self.pieces[x][y] == BLACK:
                     blackCount += 1
 
-        return (blackCount, whiteCount)
+        #rmove 2 as they are corner piece
+        assert(blackCount - 2 < 0, "blackCount shoulnt be negative")
+        assert(whiteCount - 2 < 0, "white count shouldnt be negative")
+        return (blackCount - 2, whiteCount - 2)
 
 
