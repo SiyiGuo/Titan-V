@@ -39,6 +39,7 @@ class Board(object):
     #     "bot": (0,-2)
     # }
 
+    direction_combine = __directions + __jumpDirections
     def __init__(self, n, obBoard):
         """board setup"""
         """coordinate system: (row, column)"""

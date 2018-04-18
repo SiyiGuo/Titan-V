@@ -99,10 +99,7 @@ class MCTS():
         curr_player =  WHITE if turn % 2 == 0 else BLACK #read player
 
         # turn does not end until 24
-        if turn < 24:
-            self.Es[s] = 0
-        else:
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn)
+        self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn)
         
         # if game has result
         if self.Es[s]!=0:
@@ -139,7 +136,7 @@ class MCTS():
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
                 print("All valid moves were masked, do workaround.")
                 print(np.array(canonicalBoard).reshape(8,8))
-                print(np.array(self.Ps[s][:-1]).reshape(8,8))
+                print(np.array(self.Ps[s][:-1]).reshape(8,8, 8))
                 print(before_mask.reshape(8,8))
                 print(v)
                 self.Ps[s] = self.Ps[s] + valids
@@ -168,26 +165,14 @@ class MCTS():
                     best_act = a
         a = best_act
 
-        #assert invalid move
-        if curr_player == WHITE:
-            try:
-                assert a<48 #index of first column, sixth row
-            except:
-                print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
-                exit()
-        elif curr_player == BLACK:
-            try:
-                assert a > 15 #index of last column, second row
-            except:
-                print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
-                exit()
-
         # 1 = friendly, as this is self-play on each turn
         # so: next_player is always -1
         # -1 means enemy, not BLACK
-        next_s, next_player = self.game.getNextState(canonicalBoard, 1, a) 
+        next_s, next_player = self.game.getNextState(canonicalBoard, 1, a, turn) 
 
         # substitute ourself to another player, 
+        
+        #TODO change banned
         next_s = self.game.getCanonicalForm(next_s, next_player) 
         
         # search for it

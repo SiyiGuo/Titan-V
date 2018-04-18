@@ -54,6 +54,8 @@ class Coach():
             #       two kinds of board:
             #           1: Objective board: Black and White
             #           2: CanonicalBoard:  Friendly and Enemy
+
+            #TODO: Resolve BAnned AREA
             canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer)
 
             # if episodes > tempThreshold, MCTS will stop updating probs, and just return best move
@@ -61,7 +63,7 @@ class Coach():
             temp = int(episodeStep < self.args.tempThreshold) 
 
             # create probability of winning for each action on board for self.currPlayer's POV
-            
+            # return a vector of 512 + 1
             pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) 
             
 
@@ -85,7 +87,7 @@ class Coach():
             # print("in player point of view \n player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
 
             #self.curPlayer turn to next player, objective board update, turn update
-            board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action) #regardless of friendly or enemy, show objective
+            board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action, episodeStep) #regardless of friendly or enemy, show objective
             episodeStep += 1
 
             #DEBUG

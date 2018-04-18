@@ -48,6 +48,17 @@ class PubgGame(Game):
             #can be optimized here
             board.shrink(turn)
             board.shrink(turn)
+        
+        piece_index = action // 8
+        direction_index = action % 8
+        direction = board.direction_combine[direction_index] #note in board, it is row, column
+        y_dir, x_dir = direction
+
+        piece_column, piece_row = piece_index //8, piece_index % 8
+        action["orig"] = (piece_column, piece_row)
+        action["dest"] = (piece_column + x_dir, piece_column + y_dir)
+        
+
         board.executeMove(action["orig"], action["dest"])
         return (np.copy(board.pieces), -player)
 
@@ -108,6 +119,8 @@ class PubgGame(Game):
                             board as is. When the player is black, we can invert
                             the colors and return the board.
         """
+
+        #TODO: Resolve the BANNED Place
         return player*board
 
     def getSymmetries(self, board, pi):
