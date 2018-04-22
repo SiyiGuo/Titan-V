@@ -11,7 +11,7 @@ from pytorch_classification.utils import Bar, AverageMeter
 from NeuralNet import NeuralNet
 
 import tensorflow as tf
-from .PubgNNet import HalfGoNNet as pnnet
+from .PubgNNet import PubgNNet as pnnet
 
 args = dotdict({
     'lr': 0.001,
@@ -23,7 +23,7 @@ args = dotdict({
 
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
-        self.nnet = hnnet(game, args) #Core Algorithm Part
+        self.nnet = pnnet(game, args) #Core Algorithm Part
         self.board_x, self.board_y = game.getBoardSize() #Board Dimension
         self.action_size = game.getActionSize() #number of possible actions
 

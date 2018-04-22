@@ -1,6 +1,6 @@
 from Coach import Coach
 from Pubg.PubgGame import PubgGame as Game
-from HalfGo.tensorflow.NNet import NNetWrapper as nn
+from Pubg.tensorflow.NNet import NNetWrapper as nn
 from utils import *
 
 import os

@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from HalfGo.HalfGoLogic import BLACK, WHITE
+from Pubg.PubgLogic import BLACK, WHITE
 import time
 class MCTS():
     """
@@ -99,7 +99,7 @@ class MCTS():
         curr_player =  WHITE if turn % 2 == 0 else BLACK #read player
 
         # turn does not end until 24
-        self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn)
+        self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
         
         # if game has result
         if self.Es[s]!=0:
@@ -120,11 +120,13 @@ class MCTS():
             self.Ps[s], v = self.nnet.predict(canonicalBoard, turn)
 
             # find all valid move for current player
-            valids = self.game.getValidMoves(canonicalBoard, curr_player)
+            valids = self.game.getValidMoves(canonicalBoard, curr_player) #as it is cannonical board
+            print("MCTS for player:%s at turn:%s : %s"%(curr_player, turn, valids))
 
             # remove all the invalid move
             before_mask = np.array(self.Ps[s][:-1])
             self.Ps[s] = self.Ps[s]*valids
+            print(np.array(valids).shape)
 
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
@@ -136,8 +138,8 @@ class MCTS():
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
                 print("All valid moves were masked, do workaround.")
                 print(np.array(canonicalBoard).reshape(8,8))
-                print(np.array(self.Ps[s][:-1]).reshape(8,8, 8))
-                print(before_mask.reshape(8,8))
+                print(np.array(valids[:-1]).reshape(8,8,8))
+                print(before_mask.reshape(8,8,8))
                 print(v)
                 self.Ps[s] = self.Ps[s] + valids
                 self.Ps[s] /= np.sum(self.Ps[s])
@@ -168,6 +170,7 @@ class MCTS():
         # 1 = friendly, as this is self-play on each turn
         # so: next_player is always -1
         # -1 means enemy, not BLACK
+        print(a)
         next_s, next_player = self.game.getNextState(canonicalBoard, 1, a, turn) 
 
         # substitute ourself to another player, 

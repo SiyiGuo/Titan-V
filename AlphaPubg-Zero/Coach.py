@@ -6,7 +6,7 @@ from pytorch_classification.utils import Bar, AverageMeter
 import time, os, sys
 from pickle import Pickler, Unpickler
 from random import shuffle
-from HalfGo.HalfGoLogic import WHITE, BLACK
+from Pubg.PubgLogic import WHITE, BLACK
 
 
 class Coach():
@@ -42,8 +42,17 @@ class Coach():
         trainExamples = [] #move history of this single episode
 
         #TODO: a Board Generator Here!
-        board = self.game.getInitBoard() #load the gam setup
-
+        test = np.array([
+            [9,0,0,0,0,0,0,9],
+            [0,0,0,0,0,0,0,0],
+            [0,-1,0,0,0,0,0,0],
+            [0,-1,0,0,0,1,0,0],
+            [0,0,1,0,-1,0,0,0],
+            [0,0,0,0,1,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [9,0,0,0,0,0,0,9],
+        ])
+        board = self.game.getInitBoard(obBoard = test) #load the gam setup
 
         self.curPlayer = WHITE #WHITE goes first
         episodeStep = 0 #record the truns of self play
@@ -101,7 +110,7 @@ class Coach():
             #so we judge result in WHITE's POV
             # the last turn after black does not added to the trainExample, as we already know who won
             # we add winning result in next if Statement
-            r = self.game.getGameEnded(board, self.curPlayer, episodeStep) #in WHITE's POV
+            r = self.game.getGameEnded(board, self.curPlayer) #in WHITE's POV
 
             if r!=0: 
                 #DEBUG

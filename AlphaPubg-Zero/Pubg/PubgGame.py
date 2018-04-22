@@ -1,4 +1,4 @@
-from PubgLogic import Board, WHITE, BLACK, EMPTY
+from Pubg.PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED
 from Game import Game
 import numpy as np
 
@@ -15,7 +15,7 @@ class PubgGame(Game):
     def getBoardSize(self):
         return (self.n, self.n)
     
-    def getActionSize(self, color):
+    def getActionSize(self):
         """
         64 piece each with 8 direction
         +1 for the bias of pi vector
@@ -42,24 +42,35 @@ class PubgGame(Game):
         Turn 193: turn = 192
         """
         board = Board(self.n, np.copy(board))
-        if turn == 128:
-            board.shrink(turn)
-        if turn == 192:
-            #can be optimized here
-            board.shrink(turn)
-            board.shrink(turn)
+        # if turn == 128:
+        #     board.shrink(turn)
+        # if turn == 192:
+        #     #can be optimized here
+        #     board.shrink(turn)
+        #     board.shrink(turn)
         
+        #Move piece first
         piece_index = action // 8
         direction_index = action % 8
         direction = board.direction_combine[direction_index] #note in board, it is row, column
         y_dir, x_dir = direction
 
         piece_column, piece_row = piece_index //8, piece_index % 8
+        print("Pubg Game, turn:%s, action:%s, piece_index:%s, piece_cor:%s, %s, direction_index:%s, direction:%s"%(turn, action, piece_index, piece_column, piece_row, direction_index, direction))
+        action = {}
         action["orig"] = (piece_column, piece_row)
-        action["dest"] = (piece_column + x_dir, piece_column + y_dir)
-        
-
+        action["dest"] = (piece_column + x_dir, piece_row + y_dir)
+        print("Pubg Game Piece:%s, %s, From:%s to :%s"%(piece_column, piece_row, action["orig"], action["dest"]))
+        print("PubgGame (column, row): \n%s"%board.pieces)
         board.executeMove(action["orig"], action["dest"])
+
+        #After turn 127 has made move, shrink baord now
+        if turn == 127:
+            board.shrink(turn)
+        if turn == 191:
+            #can be optimized here
+            board.shrink(turn)
+            board.shrink(turn)
         return (np.copy(board.pieces), -player)
 
     def getValidMoves(self, board, player):
@@ -74,14 +85,20 @@ class PubgGame(Game):
                         0 for invalid moves
         """
         moves = []
+        print("getValidMoves:\n%s"%board.reshape(8,8))
         board = Board(self.n, np.copy(board))
         for x in range(self.n):
             for y in range(self.n):
-                if self.board[y][x] == player:
-                    moves += board.getValidMoveForPiece(x,y)
+                if board.pieces[y][x] == player: #column, row -> row, column, as board.pieces is in PubgLogic
+                    print("getValidMoves: place:%s, %s, player:%s"%(x,y, player))
+                    pieceMove = board.getValidMoveForPiece((x,y))
+                    moves += pieceMove #pass in column, row index
+                    print("getValidMoves: moves:%s"%pieceMove)
+                else:
+                    moves += [0] * 8
         #for bias vector
         moves += [0]
-        assert(len(moves) = 8*8*8+1)
+        assert(len(moves) == 8*8*8+1)
         return moves
 
     def getGameEnded(self, board, player):
@@ -96,7 +113,7 @@ class PubgGame(Game):
                
         """
         board = Board(self.n, np.copy(board))
-        blackCount, whiteCount = board.countPieces
+        blackCount, whiteCount = board.countPieces()
         
         if whiteCount < 2 and blackCount < 2:
             return 0
@@ -104,6 +121,8 @@ class PubgGame(Game):
             return BLACK*player
         if blackCount < 2:
             return WHITE*player
+        
+        return 0
 
     def getCanonicalForm(self, board, player):
         """
@@ -121,7 +140,9 @@ class PubgGame(Game):
         """
 
         #TODO: Resolve the BANNED Place
-        return player*board
+        result = player*board
+        result[result == -9] = BANNED
+        return result
 
     def getSymmetries(self, board, pi):
         """
@@ -134,7 +155,7 @@ class PubgGame(Game):
                        form of the board and the corresponding pi vector. This
                        is used when training the neural network from examples.
         """
-        assert(len(pi) == self.n**2+1)  # 1 for pass
+        assert(len(pi) == 8*8*8+1)  # 1 for pass
         pi_board = np.reshape(pi[:-1], (8, 8, 8))
         l = []
         for j in [True, False]:
