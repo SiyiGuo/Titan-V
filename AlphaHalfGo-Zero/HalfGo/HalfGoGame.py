@@ -77,13 +77,10 @@ class HalfGoGame(Game):
         """
         b = Board(self.n)
         b.pieces = np.copy(board)
-        if turn < 24:
+        if b.countDiff(player) > 3:
+            return 1
+        elif b.countDiff == 0:
             return 0
-        else:
-            if b.countDiff(player) > 0:
-                return 1
-            elif b.countDiff == 0:
-                return 0
         
         return -1
 
