@@ -56,12 +56,12 @@ class NNetWrapper(NeuralNet):
 
                 # predict and compute gradient and do SGD step
                 input_dict = {self.nnet.input_boards: boards, #input X
-                                    #   self.nnet.turn: turn, 
+                                   self.nnet.turn: turn, 
                                 self.nnet.target_pis: pis,  #for calculating loss
                                  self.nnet.target_vs: vs, #for calculating loss
                                    self.nnet.dropout: args.dropout, 
                                 self.nnet.isTraining: True}
-
+                #print(input_dict)
                 # measure data loading time
                 data_time.update(time.time() - end)
 
@@ -107,7 +107,7 @@ class NNetWrapper(NeuralNet):
 
         # run
         prob, v = self.sess.run([self.nnet.prob, self.nnet.v], feed_dict={self.nnet.input_boards: board, 
-                                                                            # self.nnet.turn: turn,
+                                                                             #self.nnet.turn: turn,
                                                                             self.nnet.dropout: 0, 
                                                                             self.nnet.isTraining: False})
 
