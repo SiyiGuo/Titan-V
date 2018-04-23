@@ -142,7 +142,6 @@ class Board(object):
         #7
         #6
         #set all banned area
-        print("before shrink:\n%s"%np.array(self.pieces).reshape(8,8))
         self.pieces[8 - self.n] = BANNED
         self.pieces[self.n - 1] = BANNED
         self.pieces[:, 8-self.n] = BANNED
@@ -189,7 +188,7 @@ class Board(object):
         if self.pieces[top][right-1] == WHITE and self.pieces[top][right-2] == BLACK:
             self.pieces[top][right-1] == EMPTY
 
-        print("Shringk at turn:%s, top:%s, bot:%s, after self.n -= 1:%s, board:\n%s"%(turn, top, bot, self.n, np.array(self.pieces).reshape(8,8)))
+        # print("Shringk at turn:%s, top:%s, bot:%s, after self.n -= 1:%s, board:\n%s"%(turn, top, bot, self.n, np.array(self.pieces).reshape(8,8)))
 
     def executeMove(self, piecePosition, pieceDestination):    
         """

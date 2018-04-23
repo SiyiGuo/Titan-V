@@ -112,7 +112,7 @@ class Coach():
             # we add winning result in next if Statement
             r = self.game.getGameEnded(board, self.curPlayer) #in WHITE's POV
 
-            if r!=0: 
+            if r!=0 or episodeStep == 192: 
                 #DEBUG
                 # print("Objective board")
                 # print("game has ended, player %s result %s board:\n%s"%(self.curPlayer, r, board.reshape(8,8)))

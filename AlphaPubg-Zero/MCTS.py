@@ -99,10 +99,11 @@ class MCTS():
         curr_player =  WHITE if turn % 2 == 0 else BLACK #read player
 
         # turn does not end until 24
-        self.Es[s] = self.game.getGameEnded(canonicalBoard, 1)
+        if s not in self.Es: # situation s's result not known
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
         
         # if game has result
-        if self.Es[s]!=0:
+        if self.Es[s]!=0 or turn == 192:
             # terminal node
             # print("turn: %s, self.Es[s]:%s board:\n %s"%(turn, self.Es[s], canonicalBoard.reshape(8,8)))
             return -self.Es[s] #NOTE: return the state of the other player
@@ -126,7 +127,6 @@ class MCTS():
             # remove all the invalid move
             before_mask = np.array(self.Ps[s][:-1])
             self.Ps[s] = self.Ps[s]*valids
-            print(np.array(valids).shape)
 
             sum_Ps_s = np.sum(self.Ps[s])
             if sum_Ps_s > 0:
@@ -170,7 +170,6 @@ class MCTS():
         # 1 = friendly, as this is self-play on each turn
         # so: next_player is always -1
         # -1 means enemy, not BLACK
-        print(a)
         next_s, next_player = self.game.getNextState(canonicalBoard, 1, a, turn) 
 
         # substitute ourself to another player, 
