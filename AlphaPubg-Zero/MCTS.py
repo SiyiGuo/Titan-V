@@ -121,7 +121,7 @@ class MCTS():
 
             # find all valid move for current player
             valids = self.game.getValidMoves(canonicalBoard, curr_player) #as it is cannonical board
-            print("MCTS for player:%s at turn:%s : %s"%(curr_player, turn, valids))
+            # print("MCTS for player:%s at turn:%s : %s"%(curr_player, turn, valids))
 
             # remove all the invalid move
             before_mask = np.array(self.Ps[s][:-1])

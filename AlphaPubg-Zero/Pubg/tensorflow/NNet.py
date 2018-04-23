@@ -92,7 +92,6 @@ class NNetWrapper(NeuralNet):
                 bar.next()
             bar.finish()
 
-
     def predict(self, board, turn):
         """
         board: np array with board

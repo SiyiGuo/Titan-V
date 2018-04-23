@@ -205,9 +205,9 @@ class Board(object):
             
             #Checking the eat now
             friend = self.pieces[y_dest][x_dest]
-            print("Friend:%s, place:%s"%(friend, self.pieces[y_dest][x_dest]))
+            # print("Friend:%s, place:%s"%(friend, self.pieces[y_dest][x_dest]))
             enemy = self.opposite(self.pieces[y_dest][x_dest])
-            print("Enemy:%s, place:%s"%(enemy, self.pieces[y_dest][x_dest]))
+            # print("Enemy:%s, place:%s"%(enemy, self.pieces[y_dest][x_dest]))
 
             for direction in self.__directions:
                 y_dir, x_dir = direction

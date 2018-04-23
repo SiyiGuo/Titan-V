@@ -56,12 +56,12 @@ class PubgGame(Game):
         y_dir, x_dir = direction
 
         piece_column, piece_row = piece_index //8, piece_index % 8
-        print("Pubg Game, turn:%s, action:%s, piece_index:%s, piece_cor:%s, %s, direction_index:%s, direction:%s"%(turn, action, piece_index, piece_column, piece_row, direction_index, direction))
+        # print("Pubg Game, turn:%s, action:%s, piece_index:%s, piece_cor:%s, %s, direction_index:%s, direction:%s"%(turn, action, piece_index, piece_column, piece_row, direction_index, direction))
         action = {}
         action["orig"] = (piece_column, piece_row)
         action["dest"] = (piece_column + x_dir, piece_row + y_dir)
-        print("Pubg Game Piece:%s, %s, From:%s to :%s"%(piece_column, piece_row, action["orig"], action["dest"]))
-        print("PubgGame (column, row): \n%s"%board.pieces)
+        # print("Pubg Game Piece:%s, %s, From:%s to :%s"%(piece_column, piece_row, action["orig"], action["dest"]))
+        # print("PubgGame (column, row): \n%s"%board.pieces)
         board.executeMove(action["orig"], action["dest"])
 
         #After turn 127 has made move, shrink baord now
@@ -85,15 +85,15 @@ class PubgGame(Game):
                         0 for invalid moves
         """
         moves = []
-        print("getValidMoves:\n%s"%board.reshape(8,8))
+        # print("getValidMoves:\n%s"%board.reshape(8,8))
         board = Board(self.n, np.copy(board))
         for x in range(self.n):
             for y in range(self.n):
                 if board.pieces[y][x] == player: #column, row -> row, column, as board.pieces is in PubgLogic
-                    print("getValidMoves: place:%s, %s, player:%s"%(x,y, player))
+                    # print("getValidMoves: place:%s, %s, player:%s"%(x,y, player))
                     pieceMove = board.getValidMoveForPiece((x,y))
                     moves += pieceMove #pass in column, row index
-                    print("getValidMoves: moves:%s"%pieceMove)
+                    # print("getValidMoves: moves:%s"%pieceMove)
                 else:
                     moves += [0] * 8
         #for bias vector
