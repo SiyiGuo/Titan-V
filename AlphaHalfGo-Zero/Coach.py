@@ -96,7 +96,7 @@ class Coach():
             # the last turn after black does not added to the trainExample, as we already know who won
             # we add winning result in next if Statement
             r = self.game.getGameEnded(board, self.curPlayer, episodeStep) #in WHITE's POV
-
+            # print(r, episodeStep)
             if r!=0: 
                 #DEBUG
                 # print("Objective board")

@@ -26,7 +26,8 @@ class HalfGoNNet():
         with self.graph.as_default(): 
             #input board
             self.input_boards = tf.placeholder(tf.float32, shape=[None, self.board_x, self.board_y])    # s: batch_size x board_x x board_y
-            self.turn = tf.placeholder(tf.float32, shape=[self.board_x * self.board_y,]) #batch size x*y 1
+            #self.turn = tf.placeholder(tf.float32, shape=[self.board_x * self.board_y,]) #batch size x*y 1
+            
             self.dropout = tf.placeholder(tf.float32) #prevent overfitting
             self.isTraining = tf.placeholder(tf.bool, name="is_training") #indicate whether we are training or not
 
