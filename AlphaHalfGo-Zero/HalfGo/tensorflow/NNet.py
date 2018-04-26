@@ -52,10 +52,14 @@ class NNetWrapper(NeuralNet):
             # self.sess.run(tf.local_variables_initializer())
             while batch_idx < int(len(examples)/args.batch_size):
                 sample_ids = np.random.randint(len(examples), size=args.batch_size)
-                boards, pis, vs , turn= list(zip(*[examples[i] for i in sample_ids])) #boards,possible winning on each position, winning result
-
+                boards, pis, vs , turns= list(zip(*[examples[i] for i in sample_ids])) #boards,possible winning on each position, winning result
+                
+                boards_turn = []
+                for i in range(len(boards)):
+                    boards_turn.append(boards[i] * (turns[i]+1))
+                
                 # predict and compute gradient and do SGD step
-                input_dict = {self.nnet.input_boards: boards, #input X
+                input_dict = {self.nnet.input_boards: boards_turn, #input X
                                     #   self.nnet.turn: turn, 
                                 self.nnet.target_pis: pis,  #for calculating loss
                                  self.nnet.target_vs: vs, #for calculating loss
@@ -101,6 +105,11 @@ class NNetWrapper(NeuralNet):
         # timing
         start = time.time()
 
+        # print("Predict")
+        # print(board)
+        board = board*(turn + 1)
+        # print("board at turn+1;%s"%(turn+1))
+        # print(board)
         # preparing input
         board = board[np.newaxis, :, :]
         # turn = [[turn]]
