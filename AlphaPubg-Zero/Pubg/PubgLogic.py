@@ -238,12 +238,6 @@ class Board(object):
                     self.pieces[y_dest][x_dest] = EMPTY
 
     def countPieces(self):
-        """
-        input:
-            the color which you want to count pieces
-        return:
-            {"black"}
-        """
         whiteCount, blackCount = 0,0
         for x in range(self.n):
             for y in range(self.n):

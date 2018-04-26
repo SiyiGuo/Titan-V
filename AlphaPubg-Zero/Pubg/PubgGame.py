@@ -1,4 +1,4 @@
-from Pubg.PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED
+from PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED
 from Game import Game
 import numpy as np
 
@@ -109,20 +109,20 @@ class PubgGame(Game):
 
         Returns:
             r: 0 if game has not ended. 1 if player won, -1 if player lost,
-               small non-zero value for draw.
+               small non-zero value for draw. (eg: 1e-4)
                
         """
         board = Board(self.n, np.copy(board))
         blackCount, whiteCount = board.countPieces()
         
         if whiteCount < 2 and blackCount < 2:
-            return 0
+            return 1e-4 #tie
         if whiteCount < 2:
             return BLACK*player
         if blackCount < 2:
             return WHITE*player
         
-        return 0
+        return 0 #not ended
 
     def getCanonicalForm(self, board, player):
         """

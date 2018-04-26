@@ -41,7 +41,7 @@ class Arena():
         turn = 0 #turn indicator
 
         #game start
-        while self.game.getGameEnded(board, curPlayer, turn)==0: #this should == trun < 24
+        while self.game.getGameEnded(board, curPlayer, turn)==0 :# or turn < 256: #this should == trun < 24
             if verbose:
                 assert(self.display)
                 print("Turn ", str(turn), "Player ", str(curPlayer))
@@ -51,16 +51,18 @@ class Arena():
             #curPlayer = Black = -1, curPlayer + 1 = 0 -> players[0] = self.player2
             action = players[curPlayer+1](self.game.getCanonicalForm(board, curPlayer), turn)
 
-            valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), curPlayer)
+            # valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), curPlayer)
+            valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), 1) #as cannonical board convert to white
+
 
             if valids[action]==0:
                 print("\n player: %s"%curPlayer)
                 print(action)
-                print(board.reshape(8,8))
-                assert valids[action] >0
+                print(board)
+                a = input()
 
             #update board, curPlayer, turn at the end, as developmet guide indeicated
-            board, curPlayer = self.game.getNextState(board, curPlayer, action)
+            board, curPlayer = self.game.getNextState(board, curPlayer, action, turn)
             turn+=1
 
         if verbose:
