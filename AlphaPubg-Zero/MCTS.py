@@ -121,7 +121,7 @@ class MCTS():
             self.Ps[s], v = self.nnet.predict(canonicalBoard, turn)
 
             # find all valid move for current player
-            valids = self.game.getValidMoves(canonicalBoard, curr_player) #as it is cannonical board
+            valids = self.game.getValidMoves(canonicalBoard, 1) #as it is cannonical board
             # print("MCTS for player:%s at turn:%s : %s"%(curr_player, turn, valids))
 
             # remove all the invalid move
