@@ -1,4 +1,4 @@
-from PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED
+from .PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED
 from Game import Game
 import numpy as np
 

@@ -30,6 +30,8 @@ print(b1.getValidMoveForPiece((4,2))) #row, column
 #get Valid Moves
 print("valid move fo white, column by column")
 print(np.array(g.getValidMoves(board, 1)[:-1]).reshape(8,8,8))
+print("valid move fo Black, column by column")
+print(np.array(g.getValidMoves(board, -1)[:-1]).reshape(8,8,8))
 
 print("game ended")
 print(g.getGameEnded(board, 1))
