@@ -1,3 +1,4 @@
+import time
 from collections import deque
 from Arena import Arena
 from MCTS import MCTS
@@ -96,8 +97,17 @@ class Coach():
             # print("in player point of view \n player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
 
             #self.curPlayer turn to next player, objective board update, turn update
+            piece_index = action // 8
+            direction_index = action % 8
+            direction = [(-1,0), (1,0), (0,-1), (0,1), (-2,0), (0,-2), (0,-2), (0,2)][direction_index] #note in board, it is row, column
+            y_dir, x_dir = direction
+            piece_column, piece_row = piece_index //8, piece_index % 8
+            # print("\nTurn:%s, Player:%s, Object Board:\n%s\n choose action:%s"%(episodeStep, self.curPlayer, board.reshape(8,8), action))
+            # print("Move piece from:%s, %s to: %s, %s"%(piece_column, piece_row, piece_column+x_dir, piece_row+y_dir))
+
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action, episodeStep) #regardless of friendly or enemy, show objective
             episodeStep += 1
+            # time.sleep(1)
 
             #DEBUG
             # print("after action, objective board \n ")
@@ -112,19 +122,21 @@ class Coach():
             # we add winning result in next if Statement
             r = self.game.getGameEnded(board, self.curPlayer) #in WHITE's POV
 
-            if r!=0 or episodeStep == 192: 
+            if r!=0: 
                 #DEBUG
                 # print("Objective board")
                 # print("game has ended, player %s result %s board:\n%s"%(self.curPlayer, r, board.reshape(8,8)))
 
                 #return board winning result, who won it 
                 #(canonicalBoard,policyVector,v)
-                # x[0] cannonical board, x[2] policy vector x[1] self.curlPlayer of cannonical board
+                # x[0] cannonical board, x[2] policy vector x[1] self.curPlayer of cannonical board
                 # x[1] is BLACK, return -result as -result is in BLACK's POV
                 # x[1] is WHITE, return result, as result is in WHITE's POV
                 # x[2] policyVector from mcts
                 # x[3] turn
                 #TODO do I need to add turn for poliicy vector as well?
+                print("At turn:%s, game ended, objectBoard:\n%s\n, Player:%s, result:%s"%(episodeStep, board.reshape(8,8), self.curPlayer, r))
+                # a = input()
                 generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE)), x[3]) for x in trainExamples] #add turn as a input, no need to make change for pi
                 # generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE))) for x in trainExamples]
                 # generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
