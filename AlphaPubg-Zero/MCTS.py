@@ -103,6 +103,9 @@ class MCTS():
             self.Es[s] = self.game.getGameEnded(canonicalBoard, 1) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
         
         # if game has result
+        if turn >= 256:
+            return -1e-4 #tie
+            
         if self.Es[s]!=0: # or turn >= 256:
             # terminal node
             # print("turn: %s, self.Es[s]:%s board:\n %s"%(turn, self.Es[s], canonicalBoard.reshape(8,8)))
