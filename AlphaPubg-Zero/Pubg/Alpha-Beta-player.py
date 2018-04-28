@@ -10,7 +10,7 @@ def test_player():
     def getConicalBoard(self,board, turn):
         for i,row in enumerate(board):
             for j,x in enumerate(row):
-                if board[i][j] != 9:
+                if board[i][j] != 3:
                    board[i][j] = self.player * board[i][j]
         return board                  
 
