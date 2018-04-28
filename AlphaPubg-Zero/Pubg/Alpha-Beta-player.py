@@ -23,7 +23,7 @@ def test_player():
         currentP = 1 if maximizingPlayer else -1
         result = this.game.getGameEnded(board, currentP)
         if result != 0:
-            return 100 if result*currentP == self.player then -100
+            return (1 if result*currentP == self.player then -1)
         if depth == 0:
             return boardValue(board, turn, currentP)
         valids = self.game.getValidMoves(board, self.player)
@@ -44,4 +44,30 @@ def test_player():
                     break
             return v       
 
-    def boardValue(self,board,turn, currentP):                  
+    def boardValue(self,board,turn, currentP):
+        friend = []
+        enemy = []
+
+        for i,row in enumerate(board):
+            for j,x in enumerate(row):
+                if x == currentP:
+                    friend.append((i,j))
+                elif x == -currentP:
+                    enemy.append((i,j))
+        diff = len(friend) - len(enemy)
+        friendD = distancesBetween(friend)
+        return np.tanh((0.1*diff+0.01*friendD))       
+
+    def distancesBetween(self, pieces):
+        current = pieces[0]
+        distances = 0
+        for x in pieces[1:]:
+            distances+=distance(current,x)
+        return distances
+    
+    def distance(self, current, target):
+        x1,y1 = current
+        x2,y2 = target
+        return math.sqrt((x1-x2)**2 + (y1-y2)**2)
+        
+
