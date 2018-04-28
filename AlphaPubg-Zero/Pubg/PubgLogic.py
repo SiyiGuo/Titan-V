@@ -21,6 +21,7 @@ hacked to run first
 import numpy as np
 EMPTY = 0
 BANNED = 9
+CORNER = 3
 WHITE = 1
 BLACK = -1
 
@@ -32,12 +33,12 @@ class Board(object):
         # "top": (-1,0),
         # "bot": (1,0)
 
-    __jumpDirections = [(-2,0), (0,-2), (0,-2), (0,2)]
+    __jumpDirections = [(-2,0), (2,0), (0,-2), (0,2)]
     # {
     #     "left": (0,-2),
     #     "right": (0,2),
     #     "top": (-2,0),
-    #     "bot": (0,-2)
+    #     "bot": (2,0)
     # }
 
     direction_combine = __directions + __jumpDirections
@@ -63,7 +64,7 @@ class Board(object):
             return False, None
         else:
             #check whether there is a piece next to it
-            if self.pieces[y_next][x_next] == EMPTY or self.pieces[y_next][x_next] == BANNED:
+            if self.pieces[y_next][x_next] == EMPTY or self.pieces[y_next][x_next] == BANNED or self.pieces[y_next][x_next] == CORNER:
                 return False, None
             else:
                 #the case white of black piece is next to it
@@ -128,12 +129,12 @@ class Board(object):
         """
         return the notation of opposite color
         """
-        assert(color == BLACK or color == WHITE)
         return{
             WHITE:BLACK,
             BLACK:WHITE,
             EMPTY:None,
-            BANNED:None
+            BANNED:None,
+            CORNER:None
         }[color]
 
     def shrink(self, turn):
@@ -161,31 +162,35 @@ class Board(object):
         right = bot
 
         #Top Left
-        self.pieces[top][left] = BLACK
-        if self.pieces[top][left + 1] == WHITE and self.pieces[top][left+2] == BLACK:
+        self.pieces[top][left] = CORNER
+        if self.opposite(self.pieces[top][left + 1]) == self.pieces[top][left+2]:
             self.pieces[top][left + 1] = EMPTY
-        if self.pieces[top+1][left] == WHITE and self.pieces[top+2][left] == BLACK:
-            self.pieces[top+1][left] = EMPTY and self.pieces
+        # if self.pieces[top][left + 1] == BLACK and self.pieces[top][left+2] == WHITE:
+        #     self.pieces[top][left + 1] = EMPTY
+
+        if self.opposite(self.pieces[top+1][left]) == self.pieces[top+2][left]:
+            self.pieces[top+1][left] = EMPTY 
+
 
         #Bot Left
-        self.pieces[bot][left] = WHITE
-        if self.pieces[bot - 1][left] == BLACK and self.pieces[bot - 2][left] == WHITE:
+        self.pieces[bot][left] = CORNER
+        if self.opposite(self.pieces[bot - 1][left]) == self.pieces[bot - 2][left]:
             self.pieces[bot - 1][left] = EMPTY
-        if self.pieces[bot][left+1] == BLACK and self.pieces[bot][left+2] == WHITE:
+        if self.opposite(self.pieces[bot][left+1]) == self.pieces[bot][left+2]:
             self.pieces[bot][left+1] == EMPTY
         
         #Bot right
-        self.pieces[bot][right] = WHITE
+        self.pieces[bot][right] = CORNER
         if self.pieces[bot-1][right] == BLACK and self.pieces[bot - 2][right] == WHITE:
             self.pieces[bot-1][right] == EMPTY
         if self.pieces[bot][right-1] == BLACK and self.pieces[bot][right-2] == WHITE:
             self.pieces[bot][right-1] == EMPTY
 
         #Top right
-        self.pieces[top][right] = BLACK
-        if self.pieces[top+1][right] == WHITE and self.pieces[top+2][right] == BLACK:
+        self.pieces[top][right] = CORNER
+        if self.opposite(self.pieces[top+1][right]) == self.pieces[top+2][right]:
             self.pieces[top][right] = EMPTY
-        if self.pieces[top][right-1] == WHITE and self.pieces[top][right-2] == BLACK:
+        if self.opposite(self.pieces[top][right-1]) == self.pieces[top][right-2]:
             self.pieces[top][right-1] == EMPTY
 
         # print("Shringk at turn:%s, top:%s, bot:%s, after self.n -= 1:%s, board:\n%s"%(turn, top, bot, self.n, np.array(self.pieces).reshape(8,8)))
@@ -219,7 +224,7 @@ class Board(object):
                 d = x_dest + x_dir
                 if  (a < 0 or b < 0 or c < 0 or d < 0) or (a >= self.n or b >= self.n or c >= self.n or d >= self.n):
                     continue
-                elif self.pieces[a][b] == friend and self.pieces[c][d] == enemy:
+                elif self.pieces[a][b] == friend and (self.pieces[c][d] == enemy or self.pieces[c][d] == CORNER):
                     self.pieces[c][d] = EMPTY
 
             for direction in self.__directions:
@@ -234,7 +239,7 @@ class Board(object):
 
                 if  (a < 0 or b < 0 or c < 0 or d < 0) or (a >= self.n or b >= self.n or c >= self.n or d >= self.n):
                     continue
-                elif self.pieces[a][b] == enemy and self.pieces[c][d] == enemy:
+                elif self.pieces[a][b] == enemy and (self.pieces[c][d] == enemy or self.pieces[c][d] == CORNER):
                     self.pieces[y_dest][x_dest] = EMPTY
 
     def countPieces(self):
@@ -247,8 +252,6 @@ class Board(object):
                     blackCount += 1
 
         #rmove 2 as they are corner piece
-        assert(blackCount - 2 < 0, "blackCount shoulnt be negative")
-        assert(whiteCount - 2 < 0, "white count shouldnt be negative")
-        return (blackCount - 2, whiteCount - 2)
+        return (blackCount, whiteCount)
 
 

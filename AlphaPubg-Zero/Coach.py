@@ -44,14 +44,14 @@ class Coach():
 
         #TODO: a Board Generator Here!
         test = np.array([
-            [-1,0,0,0,0,0,0,-1],
+            [3,0,0,0,0,0,0,3],
             [0,0,0,0,0,0,0,0],
-            [0,-1,0,0,0,0,0,0],
-            [0,-1,0,0,0,1,0,0],
+            [0,-1,0,0,1,0,0,0],
+            [0,-1,0,1,0,1,0,0],
             [0,0,1,0,-1,0,0,0],
             [0,0,0,0,1,0,0,0],
             [0,0,0,0,0,0,0,0],
-            [1,0,0,0,0,0,0,1],
+            [3,0,0,0,0,0,0,3],
         ])
         board = self.game.getInitBoard(obBoard = test) #load the gam setup
 
@@ -102,12 +102,11 @@ class Coach():
             direction = [(-1,0), (1,0), (0,-1), (0,1), (-2,0), (0,-2), (0,-2), (0,2)][direction_index] #note in board, it is row, column
             y_dir, x_dir = direction
             piece_column, piece_row = piece_index //8, piece_index % 8
-            # print("\nTurn:%s, Player:%s, Object Board:\n%s\n choose action:%s"%(episodeStep, self.curPlayer, board.reshape(8,8), action))
-            # print("Move piece from:%s, %s to: %s, %s"%(piece_column, piece_row, piece_column+x_dir, piece_row+y_dir))
+            print("\nTurn:%s, Player:%s, Object Board:\n%s\n choose action:%s"%(episodeStep, self.curPlayer, board.reshape(8,8), action))
+            print("Move piece from:%s, %s to: %s, %s"%(piece_column, piece_row, piece_column+x_dir, piece_row+y_dir))
 
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action, episodeStep) #regardless of friendly or enemy, show objective
             episodeStep += 1
-            # time.sleep(1)
 
             #DEBUG
             # print("after action, objective board \n ")
@@ -120,7 +119,7 @@ class Coach():
             #so we judge result in WHITE's POV
             # the last turn after black does not added to the trainExample, as we already know who won
             # we add winning result in next if Statement
-            r = self.game.getGameEnded(board, self.curPlayer) #in WHITE's POV
+            r = self.game.getGameEnded(board, self.curPlayer, episodeStep) #in WHITE's POV
 
             if r!=0: 
                 #DEBUG

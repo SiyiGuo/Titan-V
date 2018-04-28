@@ -100,7 +100,7 @@ class MCTS():
 
         # turn does not end until 24
         if s not in self.Es: # situation s's result not known
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
+            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
         
         # if game has result
         if turn >= 256:

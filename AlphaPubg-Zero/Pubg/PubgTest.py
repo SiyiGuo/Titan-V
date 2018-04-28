@@ -3,14 +3,14 @@ from PubgLogic import Board as Board
 import numpy as np
 g = Game(8)
 test = np.array([
-            [-1,0,0,0,0,0,0,-1],
+            [3,0,0,0,0,0,0,3],
             [0,0,0,0,0,0,0,0],
             [0,-1,0,0,0,0,0,0],
             [0,-1,0,1,0,0,0,0],
             [0,0,1,0,-1,0,0,0],
             [0,0,0,0,1,0,0,0],
             [0,0,0,0,0,0,0,0],
-            [1,0,0,0,0,0,0,1],
+            [3,0,0,0,0,0,0,3],
         ])
 board = g.getInitBoard(obBoard = test) #load the gam setup
 b1 = Board(8, board)
@@ -28,8 +28,8 @@ print("valid move for 4,2 column, row")
 print(b1.getValidMoveForPiece((4,2))) #row, column
 
 #get Valid Moves
-print("valid move fo white, column by column")
-print(np.array(g.getValidMoves(board, 1)[:-1]).reshape(8,8,8))
+# print("valid move fo white, column by column")
+# print(np.array(g.getValidMoves(board, 1)[:-1]).reshape(8,8,8))
 print("valid move fo Black, column by column")
 print(np.array(g.getValidMoves(board, -1)[:-1]).reshape(8,8,8))
 

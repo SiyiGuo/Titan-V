@@ -1,4 +1,4 @@
-from .PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED
+from .PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED, CORNER
 from Game import Game
 import numpy as np
 
@@ -101,7 +101,7 @@ class PubgGame(Game):
         assert(len(moves) == 8*8*8+1)
         return moves
 
-    def getGameEnded(self, board, player):
+    def getGameEnded(self, board, player, turn):
         """
         Input:
             board: current board
@@ -115,6 +115,8 @@ class PubgGame(Game):
         board = Board(self.n, np.copy(board))
         blackCount, whiteCount = board.countPieces()
         
+        if turn >= 256:
+            return 1e-4 #tie
         if whiteCount < 2 and blackCount < 2:
             return 1e-4 #tie
         if whiteCount < 2:
@@ -142,6 +144,7 @@ class PubgGame(Game):
         #TODO: Resolve the BANNED Place
         result = player*board
         result[result == -9] = BANNED
+        result[result == -3] = CORNER
         return result
 
     def getSymmetries(self, board, pi):
