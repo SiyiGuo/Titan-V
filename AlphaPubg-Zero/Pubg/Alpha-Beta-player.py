@@ -15,9 +15,8 @@ def test_player():
         return board                  
 
     def play(self, board, turn):
-        valids = self.game.getValidMoves(board, self.player)
-        for move in valids:
-            print(1)
+        alphaBetaSearch(board, turn, 4, 0, 0, True)
+        return self.bestMove
 
     def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer):
         currentP = 1 if maximizingPlayer else -1
@@ -30,7 +29,10 @@ def test_player():
         if maximizingPlayer:
             v = -infinity 
             for move in valids: 
-                v = max(v, alphaBetaSearch(self.game.getNextState(board, currentP, move, turn), turn+1, depth-1, a,b,False))
+                search = alphaBetaSearch(self.game.getNextState(board, currentP, move, turn), turn+1, depth-1, a,b,False)
+                if search > v:
+                    v = search
+                    self.bestMove = move
                 a = max(a,v)
                 if b <= a:
                     break
