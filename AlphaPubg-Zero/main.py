@@ -6,7 +6,7 @@ from utils import *
 import os
 #0 is gpu with 16 pcie slots
 #1 is gpu with 4 pcie slots
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
  
 
 args = dotdict({

@@ -16,7 +16,7 @@ from .PubgNNet import PubgNNet as pnnet
 args = dotdict({
     'lr': 0.001,
     'dropout': 0.3,
-    'epochs': 20, #rounds of training
+    'epochs': 10, #rounds of training
     'batch_size': 64, # take 2 games as input
     'num_channels': 512,
 })

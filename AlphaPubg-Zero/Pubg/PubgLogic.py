@@ -165,12 +165,8 @@ class Board(object):
         self.pieces[top][left] = CORNER
         if self.opposite(self.pieces[top][left + 1]) == self.pieces[top][left+2]:
             self.pieces[top][left + 1] = EMPTY
-        # if self.pieces[top][left + 1] == BLACK and self.pieces[top][left+2] == WHITE:
-        #     self.pieces[top][left + 1] = EMPTY
-
         if self.opposite(self.pieces[top+1][left]) == self.pieces[top+2][left]:
             self.pieces[top+1][left] = EMPTY 
-
 
         #Bot Left
         self.pieces[bot][left] = CORNER
@@ -181,9 +177,9 @@ class Board(object):
         
         #Bot right
         self.pieces[bot][right] = CORNER
-        if self.pieces[bot-1][right] == BLACK and self.pieces[bot - 2][right] == WHITE:
+        if self.opposite(self.pieces[bot-1][right]) == self.pieces[bot - 2][right]:
             self.pieces[bot-1][right] == EMPTY
-        if self.pieces[bot][right-1] == BLACK and self.pieces[bot][right-2] == WHITE:
+        if self.opposite(self.pieces[bot][right-1]) == self.pieces[bot][right-2]:
             self.pieces[bot][right-1] == EMPTY
 
         #Top right

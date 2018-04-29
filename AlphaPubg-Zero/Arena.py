@@ -37,7 +37,17 @@ class Arena():
         players = [self.player2, None, self.player1]
 
         curPlayer = 1 #WHite first
-        board = self.game.getInitBoard()
+        test = np.array([
+            [3,0,0,0,0,0,0,3],
+            [0,0,0,0,0,0,0,0],
+            [0,-1,0,0,1,0,0,0],
+            [0,-1,0,1,0,1,0,0],
+            [0,0,1,0,-1,0,0,0],
+            [0,0,0,0,1,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [3,0,0,0,0,0,0,3],
+        ])
+        board = self.game.getInitBoard(obBoard = test)
         turn = 0 #turn indicator
 
         #game start
