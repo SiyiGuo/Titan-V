@@ -185,7 +185,7 @@ class Board(object):
         #Top right
         self.pieces[top][right] = CORNER
         if self.opposite(self.pieces[top+1][right]) == self.pieces[top+2][right]:
-            self.pieces[top][right] = EMPTY
+            self.pieces[top+1][right] = EMPTY
         if self.opposite(self.pieces[top][right-1]) == self.pieces[top][right-2]:
             self.pieces[top][right-1] == EMPTY
 

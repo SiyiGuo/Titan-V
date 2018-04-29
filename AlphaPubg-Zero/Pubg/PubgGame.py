@@ -116,13 +116,18 @@ class PubgGame(Game):
         blackCount, whiteCount = board.countPieces()
         
         if turn >= 256:
-            return 1e-4 #tie
+            if whiteCount == blackCount:
+                return 1e-4 #tie
+            elif whiteCount > blackCount:
+                return WHITE*player #white wwin
+            elif blackCount > whiteCount:
+                return BLACK*player #black win
         if whiteCount < 2 and blackCount < 2:
             return 1e-4 #tie
         if whiteCount < 2:
-            return BLACK*player
+            return BLACK*player #black win
         if blackCount < 2:
-            return WHITE*player
+            return WHITE*player #white wwin
         
         return 0 #not ended
 
