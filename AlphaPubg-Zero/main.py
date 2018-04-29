@@ -6,7 +6,7 @@ from utils import *
 import os
 #0 is gpu with 16 pcie slots
 #1 is gpu with 4 pcie slots
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
  
 
 args = dotdict({
@@ -20,7 +20,7 @@ args = dotdict({
     'cpuct': 1,
 
     'checkpoint': './temp/',
-    'load_model': True,
+    'load_model': False,
     'load_folder_file': ('./temp/','checkpoint_3.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 
