@@ -15,13 +15,13 @@ args = dotdict({
     'tempThreshold': 25,
     'updateThreshold': 0.525, #if new nnet beat wins old nnet above this ration, update to new nnet 21 out of 40
     'maxlenOfQueue': 200000, #TODO: maximum length of the history in memory??
-    'numMCTSSims': 25, #number of MCTS simulation rounds
+    'numMCTSSims': 10, #number of MCTS simulation rounds
     'arenaCompare': 40, #num of game New Model VS Old Model will play
     'cpuct': 1,
 
     'checkpoint': './temp/',
-    'load_model': False,
-    'load_folder_file': ('./temp/','checkpoint_322.pth.tar'),
+    'load_model': True,
+    'load_folder_file': ('./temp/','checkpoint_3.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 
 })

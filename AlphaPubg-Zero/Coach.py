@@ -74,6 +74,7 @@ class Coach():
 
             # create probability of winning for each action on board for self.currPlayer's POV
             # return a vector of 512 + 1
+            print("before search")
             pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) 
             
 
@@ -102,8 +103,8 @@ class Coach():
             direction = [(-1,0), (1,0), (0,-1), (0,1), (-2,0), (0,-2), (0,-2), (0,2)][direction_index] #note in board, it is row, column
             y_dir, x_dir = direction
             piece_column, piece_row = piece_index //8, piece_index % 8
-            # print("\nTurn:%s, Player:%s, Object Board:\n%s\n choose action:%s"%(episodeStep, self.curPlayer, board.reshape(8,8), action))
-            # print("Move piece from:%s, %s to: %s, %s"%(piece_column, piece_row, piece_column+x_dir, piece_row+y_dir))
+            print("\nTurn:%s, Player:%s, Object Board:\n%s\n choose action:%s"%(episodeStep, self.curPlayer, board.reshape(8,8), action))
+            print("Move piece from:%s, %s to: %s, %s"%(piece_column, piece_row, piece_column+x_dir, piece_row+y_dir))
 
             board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action, episodeStep) #regardless of friendly or enemy, show objective
             episodeStep += 1
