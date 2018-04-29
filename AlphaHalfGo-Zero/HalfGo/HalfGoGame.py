@@ -83,7 +83,7 @@ class HalfGoGame(Game):
             if b.countDiff(player) > 0:
                 return 1
             elif b.countDiff == 0:
-                return 0
+                return 1e-4 #tie condiitiion
         
         return -1
 
