@@ -7,22 +7,22 @@ def test_player():
         self.game = game
         self.player = player
 
-    def getConicalBoard(self,board, turn):
+    def getConicalBoard(self,board):
         for i,row in enumerate(board):
             for j,x in enumerate(row):
-                if board[i][j] != 3:
+                if board[i][j] != 3 or board[i][j] != 9:
                    board[i][j] = self.player * board[i][j]
         return board                  
 
     def play(self, board, turn):
-        alphaBetaSearch(board, turn, 4, 0, 0, True)
+        alphaBetaSearch(getConicalBoard(board), turn, 4, 0, 0, True)
         return self.bestMove
 
     def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer):
         currentP = 1 if maximizingPlayer else -1
         result = this.game.getGameEnded(board, currentP)
         if result != 0:
-            return (1 if result*currentP == self.player then -1)
+            return (1 if result*currentP == self.player else (-1))
         if depth == 0:
             return boardValue(board, turn, currentP)
         valids = self.game.getValidMoves(board, self.player)
@@ -73,3 +73,4 @@ def test_player():
         return math.sqrt((x1-x2)**2 + (y1-y2)**2)
         
 
+player = test_player()
