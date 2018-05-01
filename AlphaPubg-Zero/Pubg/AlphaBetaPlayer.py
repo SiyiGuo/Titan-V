@@ -61,7 +61,7 @@ class TestPlayer():
                     enemy.append((i,j))
         diff = len(friend) - len(enemy)
         friendD = self.distancesBetween(friend)
-        return np.tanh((0.1*diff+0.01*friendD))       
+        return np.tanh((10*diff+0.01*friendD))       
 
     def distancesBetween(self, pieces):
         distances = 0
