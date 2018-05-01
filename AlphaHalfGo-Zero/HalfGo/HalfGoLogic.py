@@ -88,6 +88,15 @@ class Board():
         elif self.pieces[4][4] == -1*color:
                 count -= 1 
 
+         #outside score 2
+        for y in range(2, self.n - 2):
+            for x in range(2, self.n - 2):
+                if self.pieces[x][y]==color:
+                    count += 1
+                elif self.pieces[x][y]==-1*color:
+                    count -= 1
+
+
         return count
 
     def get_legal_moves(self, color):
