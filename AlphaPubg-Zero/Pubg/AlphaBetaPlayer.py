@@ -3,6 +3,9 @@ import Pubg.PubgGame as pubg
 import math
 
 infinity = 9999999999999
+__directions = [(-1,0), (1,0), (0,-1), (0,1)]
+__jumpDirections = [(-2,0), (2,0), (0,-2), (0,2)]
+direction_combine = __directions + __jumpDirections
 class TestPlayer():
 
     def __init__(self, game, player):
@@ -10,22 +13,24 @@ class TestPlayer():
         self.player = player
                 
 
-    def play(self, board, turn):
-        
+    def play(self, board, turn):      
         self.alphaBetaSearch(self.game.getCanonicalForm(board, self.player), turn, 4, 0, 0, True)
         return self.bestMove
 
     def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer):
         currentP = 1 if maximizingPlayer else -1
+
+        if len(board) == 2:
+            board = board[0]
         result = self.game.getGameEnded(board, currentP, turn)
         if result != 0:
             return (1 if result*currentP == self.player else (-1))
         if depth == 0:
             return self.boardValue(board, turn, currentP)
-        valids = self.game.getValidMoves(board, self.player)
+        valids = self.game.getValidMoves(board, self.player) #8*8*8+1 vector
         if maximizingPlayer:
             v = -infinity 
-            for move in valids: 
+            for move in range(len(valids)): 
                 search = self.alphaBetaSearch(self.game.getNextState(board, currentP, move, turn), turn+1, depth-1, a,b,False)
                 if search > v:
                     v = search

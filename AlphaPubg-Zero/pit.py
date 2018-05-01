@@ -40,5 +40,5 @@ args2 = dotdict({'numMCTSSims': 25, 'cpuct':1.0})
 mcts2 = MCTS(g, n2, args2)
 n2p = lambda x, turn: np.argmax(mcts2.getActionProb(x, turn, temp=0))
 
-arena = Arena.Arena(n2p, rp, g, display=display)
+arena = Arena.Arena(n2p, abp, g, display=display)
 print(arena.playGames(2, verbose=True))
