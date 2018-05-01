@@ -54,7 +54,7 @@ class GreedyPubgPlayer():
     def __init__(self, game):
         self.game = game
 
-    def play(self, board):
+    def play(self, board,turn):
         valids = self.game.getValidMoves(board, 1)
         candidates = []
         for a in range(self.game.getActionSize()):

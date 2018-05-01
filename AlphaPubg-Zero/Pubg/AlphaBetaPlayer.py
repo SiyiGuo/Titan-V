@@ -14,6 +14,7 @@ class TestPlayer():
 
     def play(self, board, turn):
         results = {}   
+
         valids = self.game.getValidMoves(board, self.player)
         for i in range(len(valids)):
             if valids[i]:
@@ -77,6 +78,6 @@ class TestPlayer():
     
     def distance(self, current):
         x1,y1 = current
-        x2,y2 = 4,4
+        x2,y2 = 3.5,3.5
         return math.sqrt((x1-x2)**2 + (y1-y2)**2)
         

@@ -36,17 +36,8 @@ class Arena():
 
         players = [self.player2, None, self.player1]
 
-        curPlayer = 1 #WHite first
-        test = np.array([
-            [3,0,0,0,0,0,0,3],
-            [0,0,0,0,0,0,0,0],
-            [0,-1,1,1,1,1,1,0],
-            [0,-1,1,1,1,1,1,0],
-            [0,1,-1,-1,-1,-1,0,0],
-            [0,0,-1,-1,-1,-1,0,0],
-            [0,0,0,-1,0,0,0,0],
-            [3,0,0,0,0,0,0,3],
-        ])
+        test = self.generateRandomBoard()
+        
         board = self.game.getInitBoard(obBoard = test)
         turn = 0 #turn indicator
 
@@ -142,3 +133,35 @@ class Arena():
         bar.finish()
 
         return oneWon, twoWon, draws
+
+    def generateRandomBoard():
+        test = [
+            [3,0,0,0,0,0,0,3],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [3,0,0,0,0,0,0,3],
+        ]
+
+        curPlayer = 1 #WHite first
+        white,black = np.random.randint(low = 6, high = 13, size = 2)
+        i = 0
+        while i <= white:
+            pos = np.random.randint(low = 2, high = 64)
+            x = pos // 8
+            y = pos % 8
+            if test[x][y] == 0:
+                test[x][y] = 1
+                i += 1
+        i = 0
+        while i <= black:
+            pos = np.random.randint(low = 2, high = 64)
+            x = pos // 8
+            y = pos % 8
+            if test[x][y] == 0:
+                test[x][y] = -1
+                i += 1
+        return test
