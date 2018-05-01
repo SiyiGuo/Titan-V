@@ -1,8 +1,9 @@
 import numpy as np
 import Pubg.PubgGame as pubg
 import math
+import operator
 
-infinity = 9999999999999
+infinity = 999999
 
 class TestPlayer():
 
@@ -11,9 +12,14 @@ class TestPlayer():
         self.player = player
                 
 
-    def play(self, board, turn):      
-        self.alphaBetaSearch(self.game.getCanonicalForm(board, self.player), turn, 4, 0, 0, True)
-        return self.bestMove
+    def play(self, board, turn):
+        results = {}   
+        valids = self.game.getValidMoves(board, self.player)
+        for i in range(len(valids)):
+            if valids[i]:
+                print(i)
+                results[i] = self.alphaBetaSearch(self.game.getNextState(board, 1, i, turn), turn+1, 3, 0,0,False)        
+        return max(results, key=results.get)
 
     def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer):
         currentP = 1 if maximizingPlayer else -1
@@ -22,19 +28,19 @@ class TestPlayer():
             board = board[0]
         result = self.game.getGameEnded(board, currentP, turn)
         if result != 0:
-            return (1 if result*currentP == self.player else (-1))
+            return (1 if result*currentP == self.player else (-1)) * 10000
         if depth == 0:
             return self.boardValue(board, turn, currentP)
         valids = self.game.getValidMoves(board, self.player) #8*8*8+1 vector
         if maximizingPlayer:
             v = -infinity 
             for i in range(len(valids)):
-                a = i
                 if valids[i]:
                     search = self.alphaBetaSearch(self.game.getNextState(board, currentP, i, turn), turn+1, depth-1, a,b,False)
-                    if search > v:
-                        v = search
-                        self.bestMove = a
+                    #print(search, v)
+                    if search >= v:
+                        v = max(v,search)
+                        self.bestMove = i
                     a = max(a,v)
                     if b <= a:
                         break
@@ -61,7 +67,7 @@ class TestPlayer():
                     enemy.append((i,j))
         diff = len(friend) - len(enemy)
         friendD = self.distancesBetween(friend)
-        return np.tanh((0.1*diff+0.01*friendD))       
+        return (10*diff-0.01*friendD)  
 
     def distancesBetween(self, pieces):
         distances = 0
@@ -71,6 +77,6 @@ class TestPlayer():
     
     def distance(self, current):
         x1,y1 = current
-        x2,y2 = 3,3
+        x2,y2 = 4,4
         return math.sqrt((x1-x2)**2 + (y1-y2)**2)
         

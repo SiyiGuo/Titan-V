@@ -24,7 +24,7 @@ g = PubgGame(8)
 rp = RandomPlayer(g).play
 gp = GreedyPubgPlayer(g).play
 hp = HumanPubgPlayer(g).play
-abp = TestPlayer(g, -1).play
+abp = TestPlayer(g, 1).play
 
 # nnet players
 # n1 = NNet(g)
