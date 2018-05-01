@@ -83,7 +83,6 @@ class Arena():
         #return single game result
         result = self.game.getGameEnded(board, curPlayer, turn)
         print("Result:%s for player:%s"%(result, curPlayer))
-        a = input()
         return result
 
     def playGames(self, num, verbose=False):
