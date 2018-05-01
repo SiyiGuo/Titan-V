@@ -3,9 +3,7 @@ import Pubg.PubgGame as pubg
 import math
 
 infinity = 9999999999999
-__directions = [(-1,0), (1,0), (0,-1), (0,1)]
-__jumpDirections = [(-2,0), (2,0), (0,-2), (0,2)]
-direction_combine = __directions + __jumpDirections
+
 class TestPlayer():
 
     def __init__(self, game, player):
@@ -30,22 +28,25 @@ class TestPlayer():
         valids = self.game.getValidMoves(board, self.player) #8*8*8+1 vector
         if maximizingPlayer:
             v = -infinity 
-            for move in range(len(valids)): 
-                search = self.alphaBetaSearch(self.game.getNextState(board, currentP, move, turn), turn+1, depth-1, a,b,False)
-                if search > v:
-                    v = search
-                    self.bestMove = move
-                a = max(a,v)
-                if b <= a:
-                    break
+            for i in range(len(valids)):
+                a = i
+                if valids[i]:
+                    search = self.alphaBetaSearch(self.game.getNextState(board, currentP, i, turn), turn+1, depth-1, a,b,False)
+                    if search > v:
+                        v = search
+                        self.bestMove = a
+                    a = max(a,v)
+                    if b <= a:
+                        break
             return v   
         else:
             v = infinity 
-            for move in valids: 
-                v = min(v, self.alphaBetaSearch(self.game.getNextState(board, currentP, move, turn), turn+1, depth-1, a,b,True))
-                a = min(a,v)
-                if b <= a:
-                    break
+            for i in range(len(valids)):
+                if valids[i]:
+                    v = min(v, self.alphaBetaSearch(self.game.getNextState(board, currentP, i, turn), turn+1, depth-1, a,b,True))
+                    a = min(a,v)
+                    if b <= a:
+                        break
             return v       
 
     def boardValue(self,board,turn, currentP):
