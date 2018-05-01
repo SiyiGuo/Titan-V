@@ -98,13 +98,17 @@ class MCTS():
         # if 0,2,...22 than White else 1,3,5.....23 = Black
         curr_player =  WHITE if turn % 2 == 0 else BLACK #read player
 
+
+        """
+        Since turn parameter is not included
+        """
         # turn does not end until 24
-        if s not in self.Es: # situation s's result not known
-            self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
+        # if s not in self.Es: # situation s's result not known
+        self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
         
-        # if game has result
-        if turn >= 256:
-            return -1e-4 #tie
+        # # if game has result
+        # if turn >= 256:
+        #     return -1e-4 #tie
             
         if self.Es[s]!=0: # or turn >= 256:
             # terminal node
