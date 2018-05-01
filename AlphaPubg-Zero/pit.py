@@ -1,8 +1,8 @@
 import Arena
 from MCTS import MCTS
-from Pubg.PubgGame import HalfGoGame, display
+from Pubg.PubgGame import PubgGame, display
 from Pubg.PubgPlayer import *
-from Pubg.AlphaBetaPlayer import test_player
+from Pubg.AlphaBetaPlayer import TestPlayer
 from Pubg.tensorflow.NNet import NNetWrapper as NNet
 
 import numpy as np
@@ -18,13 +18,13 @@ use this script to play any two agents against each other, or play manually with
 any agent.
 """
 
-g = HalfGoGame(8)
+g = PubgGame(8)
 
 # all players
 rp = RandomPlayer(g).play
-gp = GreedyHalfGoPlayer(g).play
-hp = HumanHalfGoPlayer(g).play
-abp = test_player(g).play
+gp = GreedyPubgPlayer(g).play
+hp = HumanPubgPlayer(g).play
+abp = TestPlayer(g, -1).play
 
 # nnet players
 # n1 = NNet(g)
@@ -40,5 +40,5 @@ args2 = dotdict({'numMCTSSims': 25, 'cpuct':1.0})
 mcts2 = MCTS(g, n2, args2)
 n2p = lambda x, turn: np.argmax(mcts2.getActionProb(x, turn, temp=0))
 
-arena = Arena.Arena(n2p, hp, g, display=display)
+arena = Arena.Arena(n2p, rp, g, display=display)
 print(arena.playGames(2, verbose=True))

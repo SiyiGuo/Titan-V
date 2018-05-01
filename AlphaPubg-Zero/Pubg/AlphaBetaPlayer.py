@@ -1,35 +1,32 @@
 import numpy as np
-import PubgGame as pubg
+import Pubg.PubgGame as pubg
+import math
 
-def test_player():
+infinity = 9999999999999
+class TestPlayer():
 
     def __init__(self, game, player):
         self.game = game
         self.player = player
-
-    def getConicalBoard(self,board):
-        for i,row in enumerate(board):
-            for j,x in enumerate(row):
-                if board[i][j] != 3 or board[i][j] != 9:
-                   board[i][j] = self.player * board[i][j]
-        return board                  
+                
 
     def play(self, board, turn):
-        alphaBetaSearch(getConicalBoard(board), turn, 4, 0, 0, True)
+        
+        self.alphaBetaSearch(self.game.getCanonicalForm(board, self.player), turn, 4, 0, 0, True)
         return self.bestMove
 
     def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer):
         currentP = 1 if maximizingPlayer else -1
-        result = this.game.getGameEnded(board, currentP)
+        result = self.game.getGameEnded(board, currentP, turn)
         if result != 0:
             return (1 if result*currentP == self.player else (-1))
         if depth == 0:
-            return boardValue(board, turn, currentP)
+            return self.boardValue(board, turn, currentP)
         valids = self.game.getValidMoves(board, self.player)
         if maximizingPlayer:
             v = -infinity 
             for move in valids: 
-                search = alphaBetaSearch(self.game.getNextState(board, currentP, move, turn), turn+1, depth-1, a,b,False)
+                search = self.alphaBetaSearch(self.game.getNextState(board, currentP, move, turn), turn+1, depth-1, a,b,False)
                 if search > v:
                     v = search
                     self.bestMove = move
@@ -40,7 +37,7 @@ def test_player():
         else:
             v = infinity 
             for move in valids: 
-                v = min(v, alphaBetaSearch(self.game.getNextState(board, currentP, move, turn), turn+1, depth-1, a,b,True))
+                v = min(v, self.alphaBetaSearch(self.game.getNextState(board, currentP, move, turn), turn+1, depth-1, a,b,True))
                 a = min(a,v)
                 if b <= a:
                     break
@@ -57,13 +54,13 @@ def test_player():
                 elif x == -currentP:
                     enemy.append((i,j))
         diff = len(friend) - len(enemy)
-        friendD = distancesBetween(friend)
+        friendD = self.distancesBetween(friend)
         return np.tanh((0.1*diff+0.01*friendD))       
 
     def distancesBetween(self, pieces):
         distances = 0
         for x in pieces:
-            distances+=distance(current,x)
+            distances+=self.distance(x)
         return distances
     
     def distance(self, current):
@@ -71,5 +68,3 @@ def test_player():
         x2,y2 = 3,3
         return math.sqrt((x1-x2)**2 + (y1-y2)**2)
         
-
-player = test_player()
