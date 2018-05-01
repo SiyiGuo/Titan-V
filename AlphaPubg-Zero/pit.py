@@ -1,8 +1,9 @@
 import Arena
 from MCTS import MCTS
-from HalfGo.HalfGoGame import HalfGoGame, display
-from HalfGo.HalfGoPlayer import *
-from HalfGo.tensorflow.NNet import NNetWrapper as NNet
+from Pubg.PubgGame import HalfGoGame, display
+from Pubg.PubgPlayer import *
+from Pubg.AlphaBetaPlayer import test_player
+from Pubg.tensorflow.NNet import NNetWrapper as NNet
 
 import numpy as np
 from utils import *
@@ -23,6 +24,7 @@ g = HalfGoGame(8)
 rp = RandomPlayer(g).play
 gp = GreedyHalfGoPlayer(g).play
 hp = HumanHalfGoPlayer(g).play
+abp = test_player(g).play
 
 # nnet players
 # n1 = NNet(g)
