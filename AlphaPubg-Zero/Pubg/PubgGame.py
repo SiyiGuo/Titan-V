@@ -216,6 +216,9 @@ class PubgGame(Game):
             if test[x][y] == 0:
                 test[x][y] = -1
                 i += 1
+        print("\nrandom board has been generated:\n")
+        test = np.array(test)
+        print(test.reshape(8,8))
         return test
     
 def display(board):
