@@ -9,6 +9,7 @@ from pickle import Pickler, Unpickler
 from random import shuffle
 from Pubg.PubgLogic import WHITE, BLACK
 
+from Pubg.PubgPlayer import *
 
 class Coach():
     """
@@ -206,8 +207,11 @@ class Coach():
 
             #OLD VS NEW
             print('PITTING AGAINST PREVIOUS VERSION')
+            rp = RandomPlayer(self.game).play
+            # arena = Arena(lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)),
+            #               lambda board, turn: np.argmax(nmcts.getActionProb(board, turn, temp=0)), self.game)
             arena = Arena(lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)),
-                          lambda board, turn: np.argmax(nmcts.getActionProb(board, turn, temp=0)), self.game)
+                          rp, self.game)
             pwins, nwins, draws = arena.playGames(self.args.arenaCompare) #playing new mode against old models
 
             print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
