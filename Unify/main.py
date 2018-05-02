@@ -21,7 +21,7 @@ Half_Go_args = dotdict({
     'arenaCompare': 40, #num of game New Model VS Old Model will play
     'cpuct': 1,
 
-    'load_model': True,
+    'load_model': False,
     'checkpoint': './temp_Half_Go/',
     'load_folder_file': ('./temp_Half_Go/','checkpoint_103.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
@@ -38,7 +38,7 @@ Pubg_args = dotdict({
     'arenaCompare': 10, #num of game New Model VS Old Model will play
     'cpuct': 1,
 
-    'load_model': True,
+    'load_model': False,
     'checkpoint': './temp_Pubg/',
     'load_folder_file': ('./temp_Pubg/','checkpoint_103.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
@@ -50,12 +50,12 @@ Pubg_args = dotdict({
 
 if __name__=="__main__":
     halfGo = HalfGoGame(8)
-    half_go_nnet = hnn(g)
+    half_go_nnet = hnn(halfGo)
     if Half_Go_args.load_model:
         half_go_nnet.load_checkpoint(Half_Go_args.load_folder_file[0], Half_Go_args.load_folder_file[1])
 
     pubG = PubgGame(8)
-    pubg_nnet = pnn(g)
+    pubg_nnet = pnn(pubG)
     if Pubg_args.load_model:
         pubg_nnet.load_checkpoint(Pubg_args.load_folder_file[0], Pubg_args.load_folder_file[1])
 
@@ -64,7 +64,7 @@ if __name__=="__main__":
     c = Coach(halfGo, half_go_nnet, Half_Go_args,
                 pubG, pubg_nnet, Pubg_args)
 
-    if args.load_model:
+    if Half_Go_args.load_model:
         print("Load trainExamples from file")
         c.loadTrainExamples()
     c.learn()

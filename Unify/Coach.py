@@ -13,8 +13,8 @@ from MCTS import MCTS
 from HalfGo.HalfGoLogic import WHITE, BLACK
 
 #Pubg Input
-from PubgArenaCoach import Arean as Arena2
-from PubgArenaCoach import MCTS as MCTS2
+from PubgArenaCoach.Arena import Arena as Arena2
+from PubgArenaCoach.MCTS import MCTS as MCTS2
 
 
 class Coach():
@@ -109,7 +109,10 @@ class Coach():
             # print("in player point of view \n player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
 
             #self.curPlayer turn to next player, objective board update, turn update
-            board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action) #regardless of friendly or enemy, show objective
+            if not pubg_now:
+                board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action) #regardless of friendly or enemy, show objective
+            else:
+                board, self.curPlayer = self.game.getNextState(board, self.curPlayer, action, episodeStep)
             episodeStep += 1
 
             #DEBUG
@@ -137,7 +140,7 @@ class Coach():
 
                 episodeStep = 0
                 print("restarted turn:%s, End board is:\n%s"%(episodeStep, np.array(board).reshape(8,8)))
-                board = self.game.getInitBoard(obBoard = test)
+                board = self.game.getInitBoard(obBoard = board)
                 pubg_now = True
                 a = input()
 
@@ -147,14 +150,14 @@ class Coach():
                 #The real exit point
                 generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE)), x[3]) for x in trainExamples] #add turn as a input, no need to make change for pi
                 generatedTraining2 = [(x[0],x[2],r*((-1)**(x[1]!=WHITE)), x[3]) for x in trainExamples2]
-                
+
                 #Set things back
                 self.game, self.game2 = self.game2, self.game
                 self.nnet, self.nnet2 = self.nnet2, self.nnet
                 self.pnet, self.pnet2 = self.pnet2, self.pnet
                 self.args, self.args2 = self.args2, self.args
                 self.mcts, self.mcts2 = self.mcts2, self.mcts
-
+                print("Episode ended:%s,result:%s, board:%s"%(episode, r, np.array(board).reshape(8,8)))
                 return generatedTraining, generatedTraining2
 
     def learn(self):
