@@ -60,8 +60,8 @@ class Board():
         """
         count = 0
         #normal count
-        for y in range(self.n):
-            for x in range(self.n):
+        for y in range(1, self.n - 1):
+            for x in range(1, self.n - 1):
                 if self.pieces[x][y]==color:
                     count += 1
                 if self.pieces[x][y]==-1*color:

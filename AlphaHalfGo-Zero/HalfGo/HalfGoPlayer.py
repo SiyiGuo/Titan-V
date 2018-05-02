@@ -4,9 +4,10 @@ class RandomPlayer():
     def __init__(self, game):
         self.game = game
 
-    def play(self, board):
+    def play(self, board, turn):
+        curPlayer = 1 if turn %2 ==0 else -1
         a = np.random.randint(self.game.getActionSize())
-        valids = self.game.getValidMoves(board, 1)
+        valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), curPlayer)
         while valids[a]!=1:
             a = np.random.randint(self.game.getActionSize())
         return a
