@@ -1,12 +1,20 @@
 from collections import deque
-from Arena import Arena
-from MCTS import MCTS
 import numpy as np
-from pytorch_classification.utils import Bar, AverageMeter
 import time, os, sys
 from pickle import Pickler, Unpickler
 from random import shuffle
+
+#Util input
+from pytorch_classification.utils import Bar, AverageMeter
+
+#Half Go Input
+from Arena import Arena
+from MCTS import MCTS
 from HalfGo.HalfGoLogic import WHITE, BLACK
+
+#Pubg Input
+from PubgArenaCoach import Arean as Arena2
+from PubgArenaCoach import MCTS as MCTS2
 
 
 class Coach():
@@ -14,7 +22,8 @@ class Coach():
     This class executes the self-play + learning. It uses the functions defined
     in Game and NeuralNet. args are specified in main.py.
     """
-    def __init__(self, game, nnet, args):
+    def __init__(self, game, nnet, args, game2, nnet2, args2):
+        #For half go
         self.game = game
         self.nnet = nnet
         self.pnet = self.nnet.__class__(self.game)  # the competitor network
@@ -22,6 +31,15 @@ class Coach():
         self.mcts = MCTS(self.game, self.nnet, self.args)
         self.trainExamplesHistory = []    # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.skipFirstSelfPlay = False # can be overriden in loadTrainExamples()
+
+        #For pubg
+        self.game2 = game2
+        self.nnet2 = nnet2
+        self.pnet2 = self.nnet2.__class__(self.game2)  # the competitor network
+        self.args2 = args2
+        self.mcts2 = MCTS2(self.game2, self.nnet2, self.args2)
+        self.trainExamplesHistory2 = []    # history of examples from args.numItersForTrainExamplesHistory latest iterations
+        self.skipFirstSelfPlay2 = False # can be overriden in loadTrainExamples()
 
     def executeEpisode(self):
         """
@@ -39,11 +57,17 @@ class Coach():
                            pi is the MCTS informed policy vector, v is +1 if
                            the player eventually won the game, else -1.
         """
+        #HalfGo Setup
         trainExamples = [] #move history of this single episode
         board = self.game.getInitBoard() #load the gam setup
         self.curPlayer = WHITE #WHITE goes first
         episodeStep = 0 #record the truns of self play
+
+        #Pubg Setup
+        trainExamples2 = []
         
+        #Flag change
+        pubg_now = False
         #star playing the game
         while True:
             # turn objective board into self.curlPlayer POV's board. Ie: black, white -> friend, enemy
@@ -58,6 +82,7 @@ class Coach():
 
             # create probability of winning for each action on board for self.currPlayer's POV
             
+            print("turn:%s"%episodeStep, end="\r")
             pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) 
             
 
@@ -68,7 +93,10 @@ class Coach():
             #BUG: not showing correctly
             for b,policyVector in sym: 
                 # (canonicalBoard,player, polivy vector)
-                trainExamples.append([b, self.curPlayer, policyVector, episodeStep])
+                if pubg_now:
+                    trainExamples2.append([b, self.curPlayer, policyVector, episodeStep])
+                else:
+                    trainExamples.append([b, self.curPlayer, policyVector, episodeStep])
             
             # #DEBUG: 
             # probs_display = [round(x,2) for x in pi]
@@ -97,31 +125,37 @@ class Coach():
             # we add winning result in next if Statement
             r = self.game.getGameEnded(board, self.curPlayer, episodeStep) #in WHITE's POV
 
-            if r!=0: 
-                #DEBUG
-                # print("Objective board")
-                # print("game has ended, player %s result %s board:\n%s"%(self.curPlayer, r, board.reshape(8,8)))
+            if r!=0 and not pubg_now: 
+                print("Time to switch the game at turn:%s"%episodeStep)
+                
+                
+                self.game, self.game2 = self.game2, self.game
+                self.nnet, self.nnet2 = self.nnet2, self.nnet
+                self.pnet, self.pnet2 = self.pnet2, self.pnet
+                self.args, self.args2 = self.args2, self.args
+                self.mcts, self.mcts2 = self.mcts2, self.mcts
 
-                #return board winning result, who won it 
-                #(canonicalBoard,policyVector,v)
-                # x[0] cannonical board, x[2] policy vector x[1] self.curlPlayer of cannonical board
-                # x[1] is BLACK, return -result as -result is in BLACK's POV
-                # x[1] is WHITE, return result, as result is in WHITE's POV
-                # x[2] policyVector from mcts
-                # x[3] turn
-                #TODO do I need to add turn for poliicy vector as well?
+                episodeStep = 0
+                print("restarted turn:%s, End board is:\n%s"%(episodeStep, np.array(board).reshape(8,8)))
+                board = self.game.getInitBoard(obBoard = test)
+                pubg_now = True
+                a = input()
+
+            
+                
+            elif r != 0 and pubg_now:
+                #The real exit point
                 generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE)), x[3]) for x in trainExamples] #add turn as a input, no need to make change for pi
-                # generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE))) for x in trainExamples]
-                # generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
+                generatedTraining2 = [(x[0],x[2],r*((-1)**(x[1]!=WHITE)), x[3]) for x in trainExamples2]
+                
+                #Set things back
+                self.game, self.game2 = self.game2, self.game
+                self.nnet, self.nnet2 = self.nnet2, self.nnet
+                self.pnet, self.pnet2 = self.pnet2, self.pnet
+                self.args, self.args2 = self.args2, self.args
+                self.mcts, self.mcts2 = self.mcts2, self.mcts
 
-
-                #DEBUG
-                # lastResult = generatedTraining[-1]
-                # print("Input to trainExample")
-                # print("result:%s, cannonicalboard:\n%s "%(lastResult[2], lastResult[0].reshape(8,8)))
-
-                # a = input()
-                return generatedTraining
+                return generatedTraining, generatedTraining2
 
     def learn(self):
         """
@@ -138,19 +172,32 @@ class Coach():
             # examples of the iteration
             if not self.skipFirstSelfPlay or i>1:
                 iterationTrainExamples = deque([], maxlen=self.args.maxlenOfQueue)  #remove the previous training example
-    
+                """
+                Pubg
+                """
+                iterationTrainExamples2 = deque([], maxlen=self.args2.maxlenOfQueue) 
+
                 eps_time = AverageMeter()
                 bar = Bar('Self Play', max=self.args.numEps)
                 end = time.time()
     
                 for eps in range(self.args.numEps): #for each self-play of this rounds
                     self.mcts = MCTS(self.game, self.nnet, self.args)   # reset search tree
+                    """
+                    pubg
+                    """
+                    self.mcts2 = MCTS2(self.game2, self.nnet2, self.args2)
 
                      #reutrn [(canonicalBoard,pi,v), (canonicalBoard,pi,v)]
                      # v is the result
-                    selfPlayResult = self.executeEpisode()
+                    selfPlayResult, selfPlayResult2 = self.executeEpisode()
                     #play one game, adding the gaming history
                     iterationTrainExamples +=  selfPlayResult
+                    """
+                    Pubg
+                    """
+                    iterationTrainExamples2 +=  selfPlayResult2
+                    
     
                     # bookkeeping + plot progress
                     eps_time.update(time.time() - end)
@@ -162,7 +209,15 @@ class Coach():
 
                 # save the iteration examples to the history 
                 self.trainExamplesHistory.append(iterationTrainExamples)
+                self.trainExamplesHistory2.append(iterationTrainExamples2)
             
+            """
+            Work Continueeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+            """
+
+
+
+
             #self-play finished, updating the move history
             if len(self.trainExamplesHistory) > self.args.numItersForTrainExamplesHistory:
                 print("len(trainExamplesHistory) =", len(self.trainExamplesHistory), " => remove the oldest trainExamples")
