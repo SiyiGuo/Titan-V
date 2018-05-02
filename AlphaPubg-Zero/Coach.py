@@ -43,16 +43,7 @@ class Coach():
         trainExamples = [] #move history of this single episode
 
         #TODO: a Board Generator Here!
-        test = np.array([
-            [3,0,0,0,0,0,0,3],
-            [0,0,0,0,0,0,0,0],
-            [0,-1,1,1,1,1,1,0],
-            [0,-1,1,1,1,1,1,0],
-            [0,1,-1,-1,-1,-1,0,0],
-            [0,0,-1,-1,-1,-1,0,0],
-            [0,0,0,-1,0,0,0,0],
-            [3,0,0,0,0,0,0,3],
-        ])
+        test = self.game.generateRandomBoard()
         board = self.game.getInitBoard(obBoard = test) #load the gam setup
 
         self.curPlayer = WHITE #WHITE goes first
