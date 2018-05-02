@@ -40,6 +40,14 @@ args2 = dotdict({'numMCTSSims': 25, 'cpuct':1.0})
 mcts2 = MCTS(g, n2, args2)
 n2p = lambda x, turn: np.argmax(mcts2.getActionProb(x, turn, temp=0))
 
+#Against random player
+print("Against random player")
+arena = Arena.Arena(n2p, rp, g, display=display)
+oneWon, twoWon, draws = arena.playGames(6, verbose=True)
+print("\n1st player win:%s, 2nd player win:%s, draw:%s"%(oneWon, twoWon, draws))
+
+print("Against alphabet player")
+#Against alphabet player
 arena = Arena.Arena(n2p, abp, g, display=display)
-oneWon, twoWon, draws = arena.playGames(3, verbose=True)
+oneWon, twoWon, draws = arena.playGames(6, verbose=True)
 print("\n1st player win:%s, 2nd player win:%s, draw:%s"%(oneWon, twoWon, draws))

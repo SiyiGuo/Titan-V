@@ -18,7 +18,7 @@ class TestPlayer():
         valids = self.game.getValidMoves(board, self.player)
         for i in range(len(valids)):
             if valids[i]:
-                print(i)
+                # print(i)
                 results[i] = self.alphaBetaSearch(self.game.getNextState(board, 1, i, turn), turn+1, 3, 0,0,False)        
         return max(results, key=results.get)
 
