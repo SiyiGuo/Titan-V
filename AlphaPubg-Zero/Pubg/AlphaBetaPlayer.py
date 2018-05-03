@@ -6,8 +6,9 @@ import operator
 infinity = 999999
 
 class TestPlayer():
-    totalWhite = 0
-    totalBlack = 0
+
+    self.abpDepth = 2 # actual depth +1
+
     def __init__(self, game, player):
         self.game = game
         self.player = player
@@ -15,12 +16,19 @@ class TestPlayer():
 
     def play(self, board, turn):
         results = {}
+        v = - infinity
+        a = -infinity
+        b = infinity
         valids = self.game.getValidMoves(board, self.player)
         for i in range(len(valids)):
             if valids[i]:
-                # print(i)
-                results[i] = self.alphaBetaSearch(self.game.getNextState(board, 1, i, turn), turn+1, 3, 0,0,False)   
-        # a = input()     
+                
+                results[i] = self.alphaBetaSearch(self.game.getNextState(board, 1, i, turn), turn+1, self.abpDepth, a,b,False)   
+                v = max(v,results[i])
+                a = max(a,v)     
+                if b <= a:
+                    break
+        
         return max(results, key=results.get)
 
     def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer):
@@ -38,9 +46,7 @@ class TestPlayer():
                 if valids[i]:
                     search = self.alphaBetaSearch(self.game.getNextState(board, currentP, i, turn), turn+1, depth-1, a,b,False)
                     #print(search, v)
-                    if search >= v:
-                        v = max(v,search)
-                        self.bestMove = i
+                    v = max(v,search)
                     a = max(a,v)
                     if b <= a:
                         break
@@ -78,5 +84,5 @@ class TestPlayer():
     def distance(self, current):
         x1,y1 = current
         x2,y2 = 3.5,3.5
-        return math.sqrt((2*x1-x2)**2 + (2*y1-y2)**2)
+        return math.sqrt((x1-x2)**2 + (y1-y2)**2)
         
