@@ -138,11 +138,19 @@ class Coach():
                 self.args, self.args2 = self.args2, self.args
                 self.mcts, self.mcts2 = self.mcts2, self.mcts
 
+                #Restarting
                 episodeStep = 0
+                # Add corner stuff
+                board[0][0] = 3
+                board[7][7] = 3
+                board[0][7] = 3
+                board[7][0] = 3
                 print("restarted turn:%s, End board is:\n%s"%(episodeStep, np.array(board).reshape(8,8)))
+
                 board = self.game.getInitBoard(obBoard = board)
+
                 pubg_now = True
-                a = input()
+                # a = input()
 
             
                 
@@ -157,7 +165,7 @@ class Coach():
                 self.pnet, self.pnet2 = self.pnet2, self.pnet
                 self.args, self.args2 = self.args2, self.args
                 self.mcts, self.mcts2 = self.mcts2, self.mcts
-                print("Episode ended:%s,result:%s, board:%s"%(episode, r, np.array(board).reshape(8,8)))
+                print("Episode ended:%s,result:%s, board:%s"%(episodeStep, r, np.array(board).reshape(8,8)))
                 return generatedTraining, generatedTraining2
 
     def learn(self):
@@ -213,13 +221,6 @@ class Coach():
                 # save the iteration examples to the history 
                 self.trainExamplesHistory.append(iterationTrainExamples)
                 self.trainExamplesHistory2.append(iterationTrainExamples2)
-            
-            """
-            Work Continueeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-            """
-
-
-
 
             #self-play finished, updating the move history
             if len(self.trainExamplesHistory) > self.args.numItersForTrainExamplesHistory:
@@ -228,12 +229,31 @@ class Coach():
             # backup history to a file
             # NB! the examples were collected using the model from the previous iteration, so (i-1)  
             self.saveTrainExamples(i-1)
-            
+
+            """
+            pubg
+            """
+            if len(self.trainExamplesHistory2) > self.args2.numItersForTrainExamplesHistory:
+                print("len(trainExamplesHistory) =", len(self.trainExamplesHistory2), " => remove the oldest trainExamples")
+                self.trainExamplesHistory2.pop(0) #remove the oldest gaming history
+            # backup history to a file
+            # NB! the examples were collected using the model from the previous iteration, so (i-1)
+            self.saveTrainExamples2(i-1)
+
+
             # shuffle examlpes before training
             trainExamples = []
             for e in self.trainExamplesHistory:
                 trainExamples.extend(e) #adding new move record
             shuffle(trainExamples)
+            """
+            PUBG
+            """
+            trainExamples2 = []
+            for e in self.trainExamplesHistory2:
+                trainExamples2.extend(e)  # adding new move record
+            shuffle(trainExamples2)
+
 
             # training new network, keeping a copy of the old one
             self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='temp.pth.tar') #save the previous net
@@ -261,11 +281,54 @@ class Coach():
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename=self.getCheckpointFile(i))
                 self.nnet.save_checkpoint(folder=self.args.checkpoint, filename='best.pth.tar') #save the new model, as this is the best
 
+            """
+            pubg
+            """
+            # training new network, keeping a copy of the old one
+            self.nnet2.save_checkpoint(folder=self.args2.checkpoint, filename='temp.pth.tar')  # save the previous net
+            self.pnet2.load_checkpoint(folder=self.args2.checkpoint, filename='temp.pth.tar')  # read the previous net
+            pmcts2 = MCTS2(self.game2, self.pnet2, self.args2)  # reset previous models' mcts
+
+            # using new data to train the new model
+            self.nnet2.train(trainExamples2)  # trin the network with new move record
+            nmcts2 = MCTS2(self.game2, self.nnet2, self.args2)  # rest new models' mcts
+
+            # OLD VS NEW
+            print('PITTING AGAINST PREVIOUS VERSION')
+            arena = Arena2(lambda board, turn: np.argmax(pmcts2.getActionProb(board, turn, temp=0)),
+                          lambda board, turn: np.argmax(nmcts2.getActionProb(board, turn, temp=0)), self.game2)
+            pwins, nwins, draws = arena.playGames(self.args2.arenaCompare)  # playing new mode against old models
+
+            print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
+            if pwins + nwins > 0 and float(nwins) / (pwins + nwins) < self.args.updateThreshold:
+                # OLD WIN!
+                print('REJECTING NEW MODEL')
+                self.nnet2.load_checkpoint(folder=self.args2.checkpoint,
+                                          filename='temp.pth.tar')  # using previous mode, as it beat new model
+            else:
+                # NEW WIN!
+                print('ACCEPTING NEW MODEL')
+                self.nnet2.save_checkpoint(folder=self.args2.checkpoint, filename=self.getCheckpointFile(i))
+                self.nnet2.save_checkpoint(folder=self.args2.checkpoint,
+                                          filename='best.pth.tar')  # save the new model, as this is the best
+
     def getCheckpointFile(self, iteration): #reading the tranined network
         return 'checkpoint_' + str(iteration) + '.pth.tar'
 
     def saveTrainExamples(self, iteration):
         folder = self.args.checkpoint
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        filename = os.path.join(folder, self.getCheckpointFile(iteration)+".examples")
+        with open(filename, "wb+") as f:
+            Pickler(f).dump(self.trainExamplesHistory)
+        f.closed
+
+    """
+    pubg
+    """
+    def saveTrainExamples2(self, iteration):
+        folder = self.args2.checkpoint
         if not os.path.exists(folder):
             os.makedirs(folder)
         filename = os.path.join(folder, self.getCheckpointFile(iteration)+".examples")
@@ -288,3 +351,22 @@ class Coach():
             f.closed
             # examples based on the model were already collected (loaded)
             self.skipFirstSelfPlay = True
+
+    """
+    Pubg
+    """
+    def loadTrainExamples2(self):
+        modelFile = os.path.join(self.args2.load_folder_file[0], self.args2.load_folder_file[1])
+        examplesFile = modelFile+".examples"
+        if not os.path.isfile(examplesFile):
+            print(examplesFile)
+            r = input("File with trainExamples not found. Continue? [y|n]")
+            if r != "y":
+                sys.exit()
+        else:
+            print("File with trainExamples found. Read it.")
+            with open(examplesFile, "rb") as f:
+                self.trainExamplesHistory = Unpickler(f).load()
+            f.closed
+            # examples based on the model were already collected (loaded)
+            self.skipFirstSelfPlay2 = True
