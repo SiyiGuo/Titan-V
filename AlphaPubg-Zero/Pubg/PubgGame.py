@@ -187,6 +187,40 @@ class PubgGame(Game):
         """
         return board.tostring()
     
+    def generateRandomBoard(self):
+        test = [
+            [3,0,0,0,0,0,0,3],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [3,0,0,0,0,0,0,3],
+        ]
+
+        white,black = np.random.randint(low = 6, high = 13, size = 2)
+        i = 0
+        while i <= white:
+            pos = np.random.randint(low = 2, high = 64)
+            x = pos // 8
+            y = pos % 8
+            if test[x][y] == 0:
+                test[x][y] = 1
+                i += 1
+        i = 0
+        while i <= black:
+            pos = np.random.randint(low = 2, high = 64)
+            x = pos // 8
+            y = pos % 8
+            if test[x][y] == 0:
+                test[x][y] = -1
+                i += 1
+        print("\nrandom board has been generated:\n")
+        test = np.array(test)
+        print(test.reshape(8,8))
+        return test
+    
 def display(board):
     n = board.shape[0]
 

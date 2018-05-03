@@ -41,6 +41,7 @@ class Arena():
         board = self.game.getInitBoard(obBoard = test)
         turn = 0 #turn indicator
 
+        curPlayer = 1 #WHite first
         #game start
         while self.game.getGameEnded(board, curPlayer, turn)==0 :# or turn < 256: #this should == trun < 24
             if verbose:
@@ -146,7 +147,6 @@ class Arena():
             [3,0,0,0,0,0,0,3],
         ]
 
-        curPlayer = 1 #WHite first
         white,black = np.random.randint(low = 6, high = 13, size = 2)
         i = 0
         while i <= white:

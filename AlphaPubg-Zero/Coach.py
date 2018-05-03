@@ -9,6 +9,7 @@ from pickle import Pickler, Unpickler
 from random import shuffle
 from Pubg.PubgLogic import WHITE, BLACK
 
+from Pubg.PubgPlayer import *
 
 class Coach():
     """
@@ -43,16 +44,7 @@ class Coach():
         trainExamples = [] #move history of this single episode
 
         #TODO: a Board Generator Here!
-        test = np.array([
-            [3,0,0,0,0,0,0,3],
-            [0,0,0,0,0,0,0,0],
-            [0,-1,1,1,1,1,1,0],
-            [0,-1,1,1,1,1,1,0],
-            [0,1,-1,-1,-1,-1,0,0],
-            [0,0,-1,-1,-1,-1,0,0],
-            [0,0,0,-1,0,0,0,0],
-            [3,0,0,0,0,0,0,3],
-        ])
+        test = self.game.generateRandomBoard()
         board = self.game.getInitBoard(obBoard = test) #load the gam setup
 
         self.curPlayer = WHITE #WHITE goes first
@@ -215,8 +207,11 @@ class Coach():
 
             #OLD VS NEW
             print('PITTING AGAINST PREVIOUS VERSION')
+            rp = RandomPlayer(self.game).play
+            # arena = Arena(lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)),
+            #               lambda board, turn: np.argmax(nmcts.getActionProb(board, turn, temp=0)), self.game)
             arena = Arena(lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)),
-                          lambda board, turn: np.argmax(nmcts.getActionProb(board, turn, temp=0)), self.game)
+                          rp, self.game)
             pwins, nwins, draws = arena.playGames(self.args.arenaCompare) #playing new mode against old models
 
             print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
