@@ -35,7 +35,7 @@ class Arena():
         """
 
         players = [self.player2, None, self.player1]
-
+        curPlayer = 1
         test = self.generateRandomBoard()
         
         board = self.game.getInitBoard(obBoard = test)
@@ -134,7 +134,7 @@ class Arena():
 
         return oneWon, twoWon, draws
 
-    def generateRandomBoard():
+    def generateRandomBoard(self):
         test = [
             [3,0,0,0,0,0,0,3],
             [0,0,0,0,0,0,0,0],
