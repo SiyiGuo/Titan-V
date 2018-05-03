@@ -2,19 +2,21 @@ import numpy as np
 import Pubg.PubgGame as pubg
 import math
 import operator
+import time
 
 infinity = 999999
 
 class TestPlayer():
 
-    self.abpDepth = 2 # actual depth +1
+    abpDepth = 2 # actual depth
 
-    def __init__(self, game, player):
+    def __init__(self, game, player, abpDepth = 2):
         self.game = game
         self.player = player
-                
+        self.abpDepth = abpDepth        
 
     def play(self, board, turn):
+        s = time.time()
         results = {}
         v = - infinity
         a = -infinity
@@ -22,13 +24,14 @@ class TestPlayer():
         valids = self.game.getValidMoves(board, self.player)
         for i in range(len(valids)):
             if valids[i]:
-                
+                print(i)
                 results[i] = self.alphaBetaSearch(self.game.getNextState(board, 1, i, turn), turn+1, self.abpDepth, a,b,False)   
                 v = max(v,results[i])
                 a = max(a,v)     
                 if b <= a:
                     break
-        
+        e = time.time()
+        print(s-e)
         return max(results, key=results.get)
 
     def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer):
