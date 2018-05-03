@@ -1,5 +1,6 @@
 import tensorflow as tf
 import os
+import numpy as np
 
 # read Graph + Checkpoint
 with tf.Session() as sess:
@@ -28,9 +29,9 @@ with tf.Session() as sess:
     Global_Variables = tf.GraphKeys.GLOBAL_VARIABLES
     ##
     all_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    # print (all_vars)
     for i in all_vars:
         print ("Name:%s"%i)
-        print("Params:\n%s"%i.eval())
+        name = str(i).split("'")[1].replace("/","")
+        np.save(str(name)+".npy" ,i.eval())
 
     
