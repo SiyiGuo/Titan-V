@@ -52,15 +52,16 @@ class NNetWrapper(NeuralNet):
             # self.sess.run(tf.local_variables_initializer())
             while batch_idx < int(len(examples)/args.batch_size):
                 sample_ids = np.random.randint(len(examples), size=args.batch_size)
-                boards, pis, vs , turns= list(zip(*[examples[i] for i in sample_ids])) #boards,possible winning on each position, winning result
-                
-                boards_turn = []
-                for i in range(len(boards)):
-                    boards_turn.append(boards[i] * (turns[i]+1))
-                
+                boards, pis, vs , turns = list(zip(*[examples[i] for i in sample_ids])) #boards,possible winning on each position, winning result
+                turns = [[turn] for turn in turns]
+
+                # boards_turn = []
+                # for i in range(len(boards)):
+                #     boards_turn.append(boards[i] * (turns[i]+1))
+
                 # predict and compute gradient and do SGD step
-                input_dict = {self.nnet.input_boards: boards_turn, #input X
-                                    #   self.nnet.turn: turn, 
+                train_input_dict = {self.nnet.input_boards: boards, #input X
+                                      self.nnet.turn: turns,
                                 self.nnet.target_pis: pis,  #for calculating loss
                                  self.nnet.target_vs: vs, #for calculating loss
                                    self.nnet.dropout: args.dropout, 
@@ -71,9 +72,9 @@ class NNetWrapper(NeuralNet):
 
                 # record loss and do the training
                 #training
-                self.sess.run(self.nnet.train_step, feed_dict=input_dict)
+                self.sess.run(self.nnet.train_step, feed_dict=train_input_dict)
                 #record loss value
-                pi_loss, v_loss = self.sess.run([self.nnet.loss_pi, self.nnet.loss_v], feed_dict=input_dict)
+                pi_loss, v_loss = self.sess.run([self.nnet.loss_pi, self.nnet.loss_v], feed_dict=train_input_dict)
                 pi_losses.update(pi_loss, len(boards))
                 v_losses.update(v_loss, len(boards))
 
@@ -112,11 +113,11 @@ class NNetWrapper(NeuralNet):
         # print(board)
         # preparing input
         board = board[np.newaxis, :, :]
-        # turn = [[turn]]
+        turn = [[turn]]
 
         # run
         prob, v = self.sess.run([self.nnet.prob, self.nnet.v], feed_dict={self.nnet.input_boards: board, 
-                                                                            # self.nnet.turn: turn,
+                                                                            self.nnet.turn: turn,
                                                                             self.nnet.dropout: 0, 
                                                                             self.nnet.isTraining: False})
 

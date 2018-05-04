@@ -25,7 +25,7 @@ class PubgNNet():
         with self.graph.as_default(): 
             #input board
             self.input_boards = tf.placeholder(tf.float32, shape=[None, self.board_x, self.board_y])    # s: batch_size x board_x x board_y
-            # self.turn = tf.placeholder(tf.float32, shape=[None, 1]) #batch si ze x 1
+            self.turn = tf.placeholder(tf.float32, shape=[None, 1]) #batch si ze x 1
             self.dropout = tf.placeholder(tf.float32) #prevent overfitting
             self.isTraining = tf.placeholder(tf.bool, name="is_training") #indicate whether we are training or not
 
@@ -46,14 +46,14 @@ class PubgNNet():
             s_fc1 = Dropout(Relu(BatchNormalization(Dense(h_conv5_flat, 1024), axis=1, training=self.isTraining)), rate=self.dropout) # batch_size x 1024
             s_fc2 = Dropout(Relu(BatchNormalization(Dense(s_fc1, 512), axis=1, training=self.isTraining)), rate=self.dropout)         # batch_size x 512
 
-            # s_fc2_tmp = tf.concat(axis=1, values=[self.turn, s_fc2])
-            # print(s_fc2_tmp)
+            s_fc2_tmp = tf.concat(axis=1, values=[self.turn, s_fc2])
+            print(s_fc2_tmp)
             print(s_fc2)
-            self.pi = Dense(s_fc2, self.action_size)                                                        # batch_size x self.action_size
+            self.pi = Dense(s_fc2_tmp, self.action_size)                                                        # batch_size x self.action_size
             print(self.pi)
             self.prob = tf.nn.softmax(self.pi) #fotmax function, final layer of the network
             print(self.prob)
-            self.v = Tanh(Dense(s_fc2, 1))                                                               # batch_size x 1
+            self.v = Tanh(Dense(s_fc2_tmp, 1))                                                               # batch_size x 1
             print(self.v)
 
             self.calculate_loss()
