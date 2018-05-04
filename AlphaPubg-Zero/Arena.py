@@ -175,6 +175,6 @@ class Arena():
             
         bar.finish()
 
-        records_saver(self.records)
+        # records_saver(self.records)
 
         return oneWon, twoWon, draws
