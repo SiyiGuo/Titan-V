@@ -1,6 +1,16 @@
 import numpy as np
 from pytorch_classification.utils import Bar, AverageMeter
 import time
+import pickle
+
+def records_saver(records):
+    with open ("records", 'wb') as fp:
+        pickle.dump(records, fp)
+
+def records_reader(filename):
+    with open(filename, 'rb') as fp:
+        records = pickle.load(fp)
+    return records
 
 class Arena():
     """
@@ -23,6 +33,11 @@ class Arena():
         self.game = game
         self.display = display
 
+
+
+        #For records of all these games
+        self.records = []
+
     def playGame(self, verbose=False):
         """
         Executes one episode of a game.
@@ -33,10 +48,15 @@ class Arena():
             or
                 draw result returned from the game that is neither 1, -1, nor 0.
         """
+        # For recors of a single game
+        self.boards = []
+        self.turns = []
+        self.pis = []
+        self.curPlayers = []
 
         players = [self.player2, None, self.player1]
         curPlayer = 1
-        test = self.generateRandomBoard()
+        test = self.game.generateRandomBoard()
         
         board = self.game.getInitBoard(obBoard = test)
         turn = 0 #turn indicator
@@ -51,20 +71,31 @@ class Arena():
 
             #curPlayer = White = 1, curPlayer +1 = 2 -> players[2] = self.player1
             #curPlayer = Black = -1, curPlayer + 1 = 0 -> players[0] = self.player2
-            action = players[curPlayer+1](self.game.getCanonicalForm(board, curPlayer), turn)
+            canonicalBoard = self.game.getCanonicalForm(board, curPlayer)
+            action = players[curPlayer+1](canonicalBoard, turn)
 
             # valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), curPlayer)
-            valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), 1) #as cannonical board convert to white
+            valids = self.game.getValidMoves(canonicalBoard, 1) #as cannonical board convert to white
+
+            if action != None:
+                if valids[action]==0:
+                    print("\n player: %s"%curPlayer)
+                    print(action)
+                    print(board)
+                    a = input()
 
 
-            if valids[action]==0:
-                print("\n player: %s"%curPlayer)
-                print(action)
-                print(board)
-                a = input()
+                #Recording the data
+                self.boards.append(canonicalBoard)
+                pis = [0] * self.game.getActionSize()
+                pis[action] = 1
+                self.pis.append(pis)
+                self.turns.append(turn)
+                self.curPlayers.append(curPlayer)
 
-            #update board, curPlayer, turn at the end, as developmet guide indeicated
-            board, curPlayer = self.game.getNextState(board, curPlayer, action, turn)
+                #update board, curPlayer, turn at the end, as developmet guide indeicated
+                board, curPlayer = self.game.getNextState(board, curPlayer, action, turn)
+
             turn+=1
 
         if verbose:
@@ -72,9 +103,19 @@ class Arena():
             print("Game over: Turn ", str(turn), "Result ", str(self.game.getGameEnded(board, 1, turn)))
             self.display(board)
 
-        #return single game result
+
         result = self.game.getGameEnded(board, curPlayer, turn)
-        print("Result:%s for player:%s"%(result, curPlayer))
+        # Continus
+        print("Result:%s for player:%s" % (result, curPlayer))
+
+        # recording the data
+        for i in range(len(self.turns)):
+            canonicalBoard = self.boards[i]
+            pis = self.pis[i]
+            turn = self.turns[i]
+            curPlayer = self.curPlayers[i]
+            self.records.append((canonicalBoard, pis, result*((-1)**(curPlayer!=1)), turn))
+
         return result
 
     def playGames(self, num, verbose=False):
@@ -87,6 +128,7 @@ class Arena():
             twoWon: games won by player2
             draws:  games won by nobody
         """
+
         eps_time = AverageMeter()
         bar = Bar('Arena.playGames', max=num)
         end = time.time()
@@ -133,35 +175,6 @@ class Arena():
             
         bar.finish()
 
+        records_saver(self.records)
+
         return oneWon, twoWon, draws
-
-    def generateRandomBoard(self):
-        test = [
-            [3,0,0,0,0,0,0,3],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [3,0,0,0,0,0,0,3],
-        ]
-
-        white,black = np.random.randint(low = 6, high = 13, size = 2)
-        i = 0
-        while i <= white:
-            pos = np.random.randint(low = 2, high = 64)
-            x = pos // 8
-            y = pos % 8
-            if test[x][y] == 0:
-                test[x][y] = 1
-                i += 1
-        i = 0
-        while i <= black:
-            pos = np.random.randint(low = 2, high = 64)
-            x = pos // 8
-            y = pos % 8
-            if test[x][y] == 0:
-                test[x][y] = -1
-                i += 1
-        return test

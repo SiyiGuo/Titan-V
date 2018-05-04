@@ -33,13 +33,21 @@ class AbpPlayer():
                     break
         e = time.time()
         print(s-e)
-        return max(results, key=results.get)
+        try:
+            action = max(results, key=results.get)
+        except:
+            action = None
+        return
 
-    def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer):
+    def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer = False):
         board, currentP = board
         board = self.game.getCanonicalForm(board, currentP)
+        # result = self.game.getGameEnded(board, currentP, turn)
         result = self.game.getGameEnded(board, 1, turn)
         if result != 0:
+            print("Board:\n%s"%np.array(board.reshape(8,8)))
+            print("result:%s"%result)
+            print("Another result:%s"%self.game.getCanonicalForm(board, currentP))
             return (1 if result*currentP == self.player else (-1)) * 10000
         if depth == 0:
             return self.boardValue(board, turn)
@@ -48,7 +56,7 @@ class AbpPlayer():
             v = -infinity 
             for i in range(len(valids)):
                 if valids[i]:
-                    search = self.alphaBetaSearch(self.game.getNextState(board, currentP, i, turn), turn+1, depth-1, a,b,False)
+                    search = self.alphaBetaSearch(self.game.getNextState(board, currentP, i, turn), turn+1, depth-1, a, b ,False)
                     #print(search, v)
                     v = max(v,search)
                     a = max(a,v)
@@ -69,20 +77,24 @@ class AbpPlayer():
         friend = []
         enemy = []
 
-        for i,row in enumerate(board):
-            for j,x in enumerate(row):
-                if x == 1:
-                    friend.append((i,j))
-                elif x == -1:
-                    enemy.append((i,j))
+        #i is column
+        #j is row
+        #X is the piece
+        for col,row in enumerate(board):
+            for row_index,piece in enumerate(row):
+                if piece == 1:
+                    friend.append((col,row_index))
+                elif piece == -1:
+                    enemy.append((col,row_index))
+
         diff = len(friend) - len(enemy)
         friendD = self.distancesBetween(friend)
         return (100*diff-0.01*friendD)  
 
     def distancesBetween(self, pieces):
         distances = 0
-        for x in pieces:
-            distances+=self.distance(x)
+        for position in pieces:
+            distances+=self.distance(position)
         return distances
     
     def distance(self, current):

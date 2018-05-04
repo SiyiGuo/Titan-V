@@ -1,4 +1,4 @@
-from PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED, CORNER
+from Pubg.PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED, CORNER
 from Game import Game
 import numpy as np
 
@@ -202,19 +202,17 @@ class PubgGame(Game):
         white,black = np.random.randint(low = 6, high = 13, size = 2)
         i = 0
         while i <= white:
-            pos = np.random.randint(low = 2, high = 64)
-            x = pos // 8
-            y = pos % 8
-            if test[x][y] == 0:
-                test[x][y] = 1
+            col = np.random.randint(low = 1, high = 7)
+            row = np.random.randint(low = 1, high = 7)
+            if test[col][row] == 0:
+                test[col][row] = 1
                 i += 1
         i = 0
         while i <= black:
-            pos = np.random.randint(low = 2, high = 64)
-            x = pos // 8
-            y = pos % 8
-            if test[x][y] == 0:
-                test[x][y] = -1
+            col = np.random.randint(low=1, high=7)
+            row = np.random.randint(low=1, high=7)
+            if test[col][row] == 0:
+                test[col][row] = -1
                 i += 1
         print("\nrandom board has been generated:\n")
         test = np.array(test)

@@ -42,11 +42,12 @@ class Board(object):
     # }
 
     direction_combine = __directions + __jumpDirections
+
     def __init__(self, n, obBoard):
         """board setup"""
         """coordinate system: (row, column)"""
         self.n = n
-        self.pieces = np.array(obBoard).reshape(8,8) #temporally hold for PUBgGame Function. Renew every time
+        self.pieces = np.array(obBoard).reshape(8,8) # temporally hold for PUBgGame Function. Renew every time
     
     def _check_valid_jump(self, piecePosition, direction):
         """
@@ -55,19 +56,19 @@ class Board(object):
         """
         y_orig, x_orig = piecePosition
 
-        y_dir, x_dir = direction #find the direction
-        y_next, x_next = (y_orig + y_dir // 2, x_orig + x_dir // 2) #find the piece next to this piece
+        y_dir, x_dir = direction # find the direction
+        y_next, x_next = (y_orig + y_dir // 2, x_orig + x_dir // 2) # find the piece next to this piece
         
         y_dest, x_dest = (y_orig + y_dir,x_orig + x_dir)
 
         if (y_next < 8-self.n or x_next < 8-self.n or y_dest < 8-self.n or x_dest < 8-self.n) or (y_next >= self.n or x_next >= self.n or y_dest >= self.n or x_dest >= self.n):
             return False, None
         else:
-            #check whether there is a piece next to it
+            # check whether there is a piece next to it
             if self.pieces[y_next][x_next] == EMPTY or self.pieces[y_next][x_next] == BANNED or self.pieces[y_next][x_next] == CORNER:
                 return False, None
             else:
-                #the case white of black piece is next to it
+                # the case white of black piece is next to it
                 if self.pieces[y_dest][x_dest] == EMPTY:
                     return True, (y_dest, x_dest)
                 else:
@@ -90,7 +91,7 @@ class Board(object):
                 # empty place, can move
                 return True, (y_dest, x_dest)
             else:
-                #cover other case
+                # cover other case
                 return False, None
 
     def getValidMoveForPiece(self,piecePosition):
@@ -138,38 +139,38 @@ class Board(object):
         }[color]
 
     def shrink(self, turn):
-        #self.n will be
-        #8 
-        #7
-        #6
-        #set all banned area
-        print("Before shrink:\n%s"%self.pieces.reshape(8,8))
+        # self.n will be
+        # 8
+        # 7
+        # 6
+        # set all banned area
+        # print("Before shrink:\n%s"%self.pieces.reshape(8,8))
         self.pieces[8 - self.n] = BANNED
         self.pieces[self.n - 1] = BANNED
         self.pieces[:, 8-self.n] = BANNED
         self.pieces[:, self.n - 1] = BANNED
 
-        #shringk dimension
-        #8 -> 7 1st call
-        #7 -> 6 2nd call
+        # shringk dimension
+        # 8 -> 7 1st call
+        # 7 -> 6 2nd call
         self.n -= 1
 
-        #Adding new corner
-        #slowly set the top four corner, and take out pieces
-        #Top left, bot let, bot right, top right
+        # Adding new corner
+        # slowly set the top four corner, and take out pieces
+        # Top left, bot let, bot right, top right
         top = 8 - self.n
         left = top
         bot = self.n - 1
         right = bot
 
-        #Top Left
+        # Top Left
         self.pieces[top][left] = CORNER
         if self.opposite(self.pieces[top][left + 1]) == self.pieces[top][left+2]:
             self.pieces[top][left + 1] = EMPTY
         if self.opposite(self.pieces[top+1][left]) == self.pieces[top+2][left]:
             self.pieces[top+1][left] = EMPTY
 
-        #Bot Left
+        # Bot Left
         self.pieces[bot][left] = CORNER
 
         if self.opposite(self.pieces[bot - 1][left]) == self.pieces[bot - 2][left]:
@@ -177,14 +178,14 @@ class Board(object):
         if self.opposite(self.pieces[bot][left+1]) == self.pieces[bot][left+2]:
             self.pieces[bot][left+1] = EMPTY
         
-        #Bot right
+        # Bot right
         self.pieces[bot][right] = CORNER
         if self.opposite(self.pieces[bot-1][right]) == self.pieces[bot - 2][right]:
             self.pieces[bot-1][right] = EMPTY
         if self.opposite(self.pieces[bot][right-1]) == self.pieces[bot][right-2]:
             self.pieces[bot][right-1] = EMPTY
 
-        #Top right
+        # Top right
         self.pieces[top][right] = CORNER
         if self.opposite(self.pieces[top+1][right]) == self.pieces[top+2][right]:
             self.pieces[top+1][right] = EMPTY
@@ -197,7 +198,7 @@ class Board(object):
         """
         in the form: (column, row)
         """ 
-        #(column, row) -> (row, column)
+        # (column, row) -> (row, column)
         x_orig, y_orig = piecePosition
         x_dest, y_dest = pieceDestination
 
