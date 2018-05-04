@@ -2,7 +2,7 @@ import Arena
 from MCTS import MCTS
 from Pubg.PubgGame import PubgGame, display
 from Pubg.PubgPlayer import *
-from Pubg.AlphaBetaPlayer import TestPlayer
+from Pubg.AlphaBetaPlayer import AbpPlayer
 from Pubg.tensorflow.NNet import NNetWrapper as NNet
 
 import numpy as np

@@ -6,11 +6,12 @@ import time
 
 infinity = 999999
 
-class TestPlayer():
+class AbpPlayer():
 
-    abpDepth = 2 # actual depth
+    abpDepth = 2 # actual depth = abpdepth + 1
 
     def __init__(self, game, player, abpDepth = 2):
+        #Player will always be White(1/friend), as we pass in canonical board
         self.game = game
         self.player = player
         self.abpDepth = abpDepth        
@@ -24,7 +25,7 @@ class TestPlayer():
         valids = self.game.getValidMoves(board, self.player)
         for i in range(len(valids)):
             if valids[i]:
-                print(i)
+                # print(i)
                 results[i] = self.alphaBetaSearch(self.game.getNextState(board, 1, i, turn), turn+1, self.abpDepth, a,b,False)   
                 v = max(v,results[i])
                 a = max(a,v)     
@@ -42,7 +43,7 @@ class TestPlayer():
             return (1 if result*currentP == self.player else (-1)) * 10000
         if depth == 0:
             return self.boardValue(board, turn)
-        valids = self.game.getValidMoves(board, self.player) #8*8*8+1 vector
+        valids = self.game.getValidMoves(board, 1) #8*8*8+1 vector
         if maximizingPlayer:
             v = -infinity 
             for i in range(len(valids)):

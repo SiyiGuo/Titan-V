@@ -143,6 +143,7 @@ class Board(object):
         #7
         #6
         #set all banned area
+        print("Before shrink:\n%s"%self.pieces.reshape(8,8))
         self.pieces[8 - self.n] = BANNED
         self.pieces[self.n - 1] = BANNED
         self.pieces[:, 8-self.n] = BANNED
@@ -166,28 +167,29 @@ class Board(object):
         if self.opposite(self.pieces[top][left + 1]) == self.pieces[top][left+2]:
             self.pieces[top][left + 1] = EMPTY
         if self.opposite(self.pieces[top+1][left]) == self.pieces[top+2][left]:
-            self.pieces[top+1][left] = EMPTY 
+            self.pieces[top+1][left] = EMPTY
 
         #Bot Left
         self.pieces[bot][left] = CORNER
+
         if self.opposite(self.pieces[bot - 1][left]) == self.pieces[bot - 2][left]:
             self.pieces[bot - 1][left] = EMPTY
         if self.opposite(self.pieces[bot][left+1]) == self.pieces[bot][left+2]:
-            self.pieces[bot][left+1] == EMPTY
+            self.pieces[bot][left+1] = EMPTY
         
         #Bot right
         self.pieces[bot][right] = CORNER
         if self.opposite(self.pieces[bot-1][right]) == self.pieces[bot - 2][right]:
-            self.pieces[bot-1][right] == EMPTY
+            self.pieces[bot-1][right] = EMPTY
         if self.opposite(self.pieces[bot][right-1]) == self.pieces[bot][right-2]:
-            self.pieces[bot][right-1] == EMPTY
+            self.pieces[bot][right-1] = EMPTY
 
         #Top right
         self.pieces[top][right] = CORNER
         if self.opposite(self.pieces[top+1][right]) == self.pieces[top+2][right]:
             self.pieces[top+1][right] = EMPTY
         if self.opposite(self.pieces[top][right-1]) == self.pieces[top][right-2]:
-            self.pieces[top][right-1] == EMPTY
+            self.pieces[top][right-1] = EMPTY
 
         # print("Shringk at turn:%s, top:%s, bot:%s, after self.n -= 1:%s, board:\n%s"%(turn, top, bot, self.n, np.array(self.pieces).reshape(8,8)))
 

@@ -1,4 +1,4 @@
-from .PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED, CORNER
+from PubgLogic import Board, WHITE, BLACK, EMPTY, BANNED, CORNER
 from Game import Game
 import numpy as np
 
@@ -236,6 +236,8 @@ def display(board):
             piece = board[y][x]    # get the piece to print
             if piece == -1: print("b ",end="")
             elif piece == 1: print("W ",end="")
+            elif piece == 3: print("X ", end = "")
+            elif piece == 9: print("B ", end = "")
             else:
                 if x==n:
                     print("-",end="")
