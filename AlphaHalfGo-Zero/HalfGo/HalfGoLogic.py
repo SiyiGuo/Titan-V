@@ -59,13 +59,13 @@ class Board():
         (row, column)
         """
         count = 0
-        #normal count
-        for y in range(1, self.n - 1):
-            for x in range(1, self.n - 1):
-                if self.pieces[x][y]==color:
-                    count += 1
-                if self.pieces[x][y]==-1*color:
-                    count -= 1
+        # #normal count
+        # for y in range(1, self.n - 1):
+        #     for x in range(1, self.n - 1):
+        #         if self.pieces[x][y]==color:
+        #             count += 1
+        #         if self.pieces[x][y]==-1*color:
+        #             count -= 1
         
         #check the middle 4 gold point
         if self.pieces[3][3] == color:
@@ -88,7 +88,7 @@ class Board():
         elif self.pieces[4][4] == -1*color:
                 count -= 1 
 
-         #outside score 2
+        #outside score 2
         for y in range(2, self.n - 2):
             for x in range(2, self.n - 2):
                 if self.pieces[x][y]==color:
