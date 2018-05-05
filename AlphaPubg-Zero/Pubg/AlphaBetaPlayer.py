@@ -17,6 +17,9 @@ class AbpPlayer():
         self.abpDepth = abpDepth        
 
     def play(self, board, turn):
+        """
+        input: A canonical board
+        """
         s = time.time()
         results = {}
         v = - infinity
@@ -37,7 +40,7 @@ class AbpPlayer():
             action = max(results, key=results.get)
         except:
             action = None
-        return
+        return action
 
     def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer = False):
         board, currentP = board

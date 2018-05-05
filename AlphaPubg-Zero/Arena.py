@@ -93,8 +93,8 @@ class Arena():
                 self.turns.append(turn)
                 self.curPlayers.append(curPlayer)
 
-                #update board, curPlayer, turn at the end, as developmet guide indeicated
-                board, curPlayer = self.game.getNextState(board, curPlayer, action, turn)
+            #update board, curPlayer, turn at the end, as developmet guide indeicated
+            board, curPlayer = self.game.getNextState(board, curPlayer, action, turn)
 
             turn+=1
 

@@ -49,20 +49,21 @@ class PubgGame(Game):
         #     board.shrink(turn)
         #     board.shrink(turn)
         
-        #Move piece first
-        piece_index = action // 8
-        direction_index = action % 8
-        direction = board.direction_combine[direction_index] #note in board, it is row, column
-        y_dir, x_dir = direction
+        if action != None:
+            #Move piece first
+            piece_index = action // 8
+            direction_index = action % 8
+            direction = board.direction_combine[direction_index] #note in board, it is row, column
+            y_dir, x_dir = direction
 
-        piece_column, piece_row = piece_index //8, piece_index % 8
-        # print("Pubg Game, turn:%s, action:%s, piece_index:%s, piece_cor:%s, %s, direction_index:%s, direction:%s"%(turn, action, piece_index, piece_column, piece_row, direction_index, direction))
-        action = {}
-        action["orig"] = (piece_column, piece_row)
-        action["dest"] = (piece_column + x_dir, piece_row + y_dir)
-        # print("Pubg Game Piece:%s, %s, From:%s to :%s"%(piece_column, piece_row, action["orig"], action["dest"]))
-        # print("PubgGame (column, row): \n%s"%board.pieces)
-        board.executeMove(action["orig"], action["dest"])
+            piece_column, piece_row = piece_index //8, piece_index % 8
+            # print("Pubg Game, turn:%s, action:%s, piece_index:%s, piece_cor:%s, %s, direction_index:%s, direction:%s"%(turn, action, piece_index, piece_column, piece_row, direction_index, direction))
+            action = {}
+            action["orig"] = (piece_column, piece_row)
+            action["dest"] = (piece_column + x_dir, piece_row + y_dir)
+            # print("Pubg Game Piece:%s, %s, From:%s to :%s"%(piece_column, piece_row, action["orig"], action["dest"]))
+            # print("PubgGame (column, row): \n%s"%board.pieces)
+            board.executeMove(action["orig"], action["dest"])
 
         #After turn 127 has made move, shrink baord now
         if turn == 127:
@@ -208,7 +209,7 @@ class PubgGame(Game):
                 test[col][row] = 1
                 i += 1
         i = 0
-        while i <= black:
+        while i <= white:
             col = np.random.randint(low=1, high=7)
             row = np.random.randint(low=1, high=7)
             if test[col][row] == 0:
