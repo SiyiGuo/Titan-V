@@ -51,6 +51,9 @@ class Coach():
             #           1: Objective board: Black and White
             #           2: CanonicalBoard:  Friendly and Enemy
             canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer)
+            # print("Received CanonicalBoard:\n%s"%canonicalBoard.reshape(8,8))
+            # print("Current player:%s"%self.curPlayer)
+            # a = input()
 
             # if episodes > tempThreshold, MCTS will stop updating probs, and just return best move
             #NOTE: mainly for spped up I guess? currently disable, as episodeStep = 24, args.tempThreshold = 25

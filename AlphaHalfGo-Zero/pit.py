@@ -39,4 +39,4 @@ mcts2 = MCTS(g, n2, args2)
 n2p = lambda x, turn: np.argmax(mcts2.getActionProb(x, turn, temp=0))
 
 arena = Arena.Arena(n2p, rp, g, display=display)
-print(arena.playGames(4, verbose=True))
+print(arena.playGames(30, verbose=True))

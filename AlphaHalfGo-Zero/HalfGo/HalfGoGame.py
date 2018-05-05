@@ -1,9 +1,14 @@
 from __future__ import print_function
 import sys
-sys.path.append('..')
+import os
+sys.path.append("..")
 from Game import Game
-from .HalfGoLogic import Board
 import numpy as np
+try:
+    from .HalfGoLogic import Board, EMPTY, BANNED, WHITE, BLACK, CORNER
+except ImportError:
+    from HalfGoLogic import Board, EMPTY, BANNED, WHITE, BLACK, CORNER
+
 
 class HalfGoGame(Game):
     def __init__(self, n):
@@ -38,8 +43,9 @@ class HalfGoGame(Game):
     def getNextState(self, board, player, action):
         # if player takes action on board, return next (board,player)
         # action must be a valid move
+        # 2 = (2,0)
         # currently action = an Integer
-        if action == self.n*self.n:
+        if action == self.n*self.n: 
             return (board, -player)
         b = Board(self.n)
         b.pieces = np.copy(board)
@@ -52,7 +58,7 @@ class HalfGoGame(Game):
 
     def getValidMoves(self, board, player):
         # return a fixed size binary vector
-        # move on the same row are grouped together
+        # moves, on the same ROWWWWWWWWWWW are grouped together
         valids = [0]*self.getActionSize()
         b = Board(self.n)
         b.pieces = np.copy(board)
@@ -99,7 +105,12 @@ class HalfGoGame(Game):
         Yes! this is correct understanding
         """
         # return player*board
-        return player*board
+        # board = np.array(board).reshape(8,8)
+        result = player*board
+        result[result == -3] = CORNER
+        # if player == BLACK:
+        #     result = np.rot90(result, k = 2)
+        return result#.flatten()
 
     def getSymmetries(self, board, pi):
         """
@@ -119,7 +130,7 @@ class HalfGoGame(Game):
                          corresponding pi vector. 
                        This is used when training the neural network from examples.
         """
-        # mirror, rotational
+        # mirror
         assert(len(pi) == self.n**2 + 1)  # 1 for pass
         pi_board = np.reshape(pi[:-1], (self.n, self.n))
         l = []

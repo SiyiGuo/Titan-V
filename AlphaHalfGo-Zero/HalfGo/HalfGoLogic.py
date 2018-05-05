@@ -17,6 +17,7 @@ EMPTY = 0
 BANNED = 0
 WHITE = 1
 BLACK = -1
+CORNER = 3
 class Board():
 
     # direction: (row, column)
@@ -46,10 +47,10 @@ class Board():
         
         self.pieces = np.zeros((self.n, self.n), dtype=int)
 
-        self.pieces[0][0] = BLACK
-        self.pieces[0][self.n - 1] = BLACK
-        self.pieces[self.n - 1][0] = WHITE
-        self.pieces[self.n-1][self.n-1] = WHITE
+        self.pieces[0][0] = CORNER
+        self.pieces[0][self.n - 1] = CORNER
+        self.pieces[self.n - 1][0] = CORNER
+        self.pieces[self.n-1][self.n-1] = CORNER
 
 
     def countDiff(self, color):
@@ -131,7 +132,8 @@ class Board():
             WHITE:BLACK,
             BLACK:WHITE,
             EMPTY:None,
-            BANNED:None
+            BANNED:None,
+            CORNER:None
         }[color]
 
     def execute_move(self, move, color):

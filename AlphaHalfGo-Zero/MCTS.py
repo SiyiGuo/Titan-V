@@ -124,6 +124,7 @@ class MCTS():
 
             # find all valid move for current player
             valids = self.game.getValidMoves(canonicalBoard, curr_player)
+            # valids = self.game.getValidMoves(canonicalBoard, 1) #As board has been rotated
 
             # remove all the invalid move
             before_mask = np.array(self.Ps[s][:-1])
@@ -170,19 +171,19 @@ class MCTS():
                     best_act = a
         a = best_act
 
-        #assert invalid move
-        if curr_player == WHITE:
-            try:
-                assert a<48 #index of first column, sixth row
-            except:
-                print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
-                exit()
-        elif curr_player == BLACK:
-            try:
-                assert a > 15 #index of last column, second row
-            except:
-                print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
-                exit()
+        # #assert invalid move
+        # if curr_player == WHITE:
+        #     try:
+        #         assert a<48 #index of first column, sixth row
+        #     except:
+        #         print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+        #         exit()
+        # elif curr_player == BLACK:
+        #     try:
+        #         assert a > 15 #index of last column, second row
+        #     except:
+        #         print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+        #         exit()
 
         # 1 = friendly, as this is self-play on each turn
         # so: next_player is always -1
