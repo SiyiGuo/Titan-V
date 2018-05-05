@@ -28,10 +28,9 @@ class Arena():
         Executes one episode of a game.
         player: lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)
         Returns:
-            either
-                winner: player who won the game (1 if player1, -1 if player2)
-            or
-                draw result returned from the game that is neither 1, -1, nor 0.
+            1 white win
+            -1 black win
+            0.001 draw
         """
 
         players = [self.player2, None, self.player1]
@@ -69,7 +68,7 @@ class Arena():
             self.display(board)
 
         #return single game result
-        return self.game.getGameEnded(board, curPlayer, turn)
+        return self.game.getGameEnded(board, 1, turn)
 
     def playGames(self, num, verbose=False):
         """
