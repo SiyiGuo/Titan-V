@@ -35,24 +35,23 @@ class Arena():
 
 
 
-        #For records of all these games
-        self.records = []
+        # #For records of all these games
+        # self.records = []
 
     def playGame(self, verbose=False):
         """
         Executes one episode of a game.
         player: lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)
         Returns:
-            either
-                winner: player who won the game (1 if player1, -1 if player2)
-            or
-                draw result returned from the game that is neither 1, -1, nor 0.
+            1 white win
+            -1 black win
+            0.001 draw
         """
-        # For recors of a single game
-        self.boards = []
-        self.turns = []
-        self.pis = []
-        self.curPlayers = []
+        # # For recors of a single game
+        # self.boards = []
+        # self.turns = []
+        # self.pis = []
+        # self.curPlayers = []
 
         players = [self.player2, None, self.player1]
         curPlayer = 1
@@ -85,13 +84,13 @@ class Arena():
                     a = input()
 
 
-                #Recording the data
-                self.boards.append(canonicalBoard)
-                pis = [0] * self.game.getActionSize()
-                pis[action] = 1
-                self.pis.append(pis)
-                self.turns.append(turn)
-                self.curPlayers.append(curPlayer)
+                # #Recording the data
+                # self.boards.append(canonicalBoard)
+                # pis = [0] * self.game.getActionSize()
+                # pis[action] = 1
+                # self.pis.append(pis)
+                # self.turns.append(turn)
+                # self.curPlayers.append(curPlayer)
 
             #update board, curPlayer, turn at the end, as developmet guide indeicated
             board, curPlayer = self.game.getNextState(board, curPlayer, action, turn)
@@ -103,18 +102,21 @@ class Arena():
             print("Game over: Turn ", str(turn), "Result ", str(self.game.getGameEnded(board, 1, turn)))
             self.display(board)
 
-
-        result = self.game.getGameEnded(board, curPlayer, turn)
+        #As get Game wnded return a player won or not
+        #here we want white or balck wwin or not
+        #so we passs object board, with 1 as player
+        result = self.game.getGameEnded(board, 1, turn)
         # Continus
-        print("Result:%s for player:%s" % (result, curPlayer))
+        print("Object board:\n%s"%np.array(board).reshape(8,8))
+        print("Player:%s won"%result)
 
-        # recording the data
-        for i in range(len(self.turns)):
-            canonicalBoard = self.boards[i]
-            pis = self.pis[i]
-            turn = self.turns[i]
-            curPlayer = self.curPlayers[i]
-            self.records.append((canonicalBoard, pis, result*((-1)**(curPlayer!=1)), turn))
+        # # recording the data
+        # for i in range(len(self.turns)):
+        #     canonicalBoard = self.boards[i]
+        #     pis = self.pis[i]
+        #     turn = self.turns[i]
+        #     curPlayer = self.curPlayers[i]
+        #     self.records.append((canonicalBoard, pis, result*((-1)**(curPlayer!=1)), turn))
 
         return result
 

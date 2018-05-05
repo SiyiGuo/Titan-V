@@ -68,7 +68,10 @@ class Arena():
             self.display(board)
 
         #return single game result
-        return self.game.getGameEnded(board, 1, turn)
+        result = self.game.getGameEnded(board, 1, turn)
+        print("For object board:%s"%np.array(board).reshape(8,8))
+        print("The winner player is:%s"%result)
+        return result
 
     def playGames(self, num, verbose=False):
         """
