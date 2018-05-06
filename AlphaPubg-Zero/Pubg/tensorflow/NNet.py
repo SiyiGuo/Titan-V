@@ -17,7 +17,7 @@ args = dotdict({
     'lr': 0.001,
     'dropout': 0.3,
     'epochs': 10, #rounds of training
-    'batch_size': 64, # take 2 games as input
+    'batch_size': 128, # take 2 games as input
     'num_channels': 512,
 })
 

@@ -34,11 +34,11 @@ abp = AbpPlayer(g, 1, abpDepth=2).play
 # n1p = lambda x, turn: np.argmax(mcts1.getActionProb(x, turn, temp=0))
 
 
-# n2 = NNet(g)
-# n2.load_checkpoint('./temp','best.pth.tar')
-# args2 = dotdict({'numMCTSSims': 25, 'cpuct':1.0})
-# mcts2 = MCTS(g, n2, args2)
-# n2p = lambda x, turn: np.argmax(mcts2.getActionProb(x, turn, temp=0))
+n2 = NNet(g)
+n2.load_checkpoint('./temp','best.pth.tar')
+args2 = dotdict({'numMCTSSims': 25, 'cpuct':1.0})
+mcts2 = MCTS(g, n2, args2)
+n2p = lambda x, turn: np.argmax(mcts2.getActionProb(x, turn, temp=0))
 
 # #Against random player
 # print("Against random player")
@@ -48,6 +48,6 @@ abp = AbpPlayer(g, 1, abpDepth=2).play
 # a = input()
 # print("Against alphabet player")
 #Against alphabet player
-arena = Arena.Arena(rp, abp, g, display=display)
+arena = Arena.Arena(abp, n2p, g, display=display)
 oneWon, twoWon, draws = arena.playGames(6, verbose=True)
 print("\n1st player win:%s, 2nd player win:%s, draw:%s"%(oneWon, twoWon, draws))
