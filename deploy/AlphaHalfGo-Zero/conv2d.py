@@ -95,6 +95,11 @@ def batchnorm_forward(X, gamma, beta):
 def ReLU(x):
     return np.maximum(x, 0)
 
+def softmax(x):
+    e = np.exp(x / 1.0)
+    dist = e / np.sum(e)
+    return dist
+
 def conv_forward1(X, W, b, stride = 1, padding = 1):
     h_filter, w_filter, d_filter, n_filters  = W.shape
     h_x, w_x, c_x  = X.shape
@@ -151,6 +156,22 @@ def get_im2col_indices(x_shape, field_height, field_width, padding = 1, stride =
 
     return (k.astype(int),i.astype(int),j.astype(int))
     
+def dense(data, wPath, biasPath, gPath, bPath, param):
+    weight = param[wPath]
+    bias = param[biasPath]
+    g = param[gPath]
+    b = param[bPath]
+    data = np.dot(data, weight) + bias
+    data = batchnorm_forward(data,g,b)
+    data = ReLU(data)
+    return data
+
+def pure_dense(data, wPath, biasPath, param):
+    weight = param[wPath]
+    bias = param[biasPath]
+
+    data = np.dot(data, weight) + bias
+    return data
 
 def conv2d(data, pad, stride, wPath, biasPath, gPath, bPath, param):
     weight = param[wPath]
@@ -182,7 +203,11 @@ files = ["conv2dkernel:0.npy", "conv2dbias:0.npy", "batch_normalizationgamma:0.n
 "conv2d_1kernel:0.npy", "conv2d_1bias:0.npy", "batch_normalization_1gamma:0.npy", "batch_normalization_1beta:0.npy",
 "conv2d_2kernel:0.npy", "conv2d_2bias:0.npy", "batch_normalization_2gamma:0.npy", "batch_normalization_2beta:0.npy",
  "conv2d_3kernel:0.npy", "conv2d_3bias:0.npy", "batch_normalization_3gamma:0.npy", "batch_normalization_3beta:0.npy",
-  "conv2d_4kernel:0.npy", "conv2d_4bias:0.npy", "batch_normalization_4gamma:0.npy", "batch_normalization_4beta:0.npy"]
+  "conv2d_4kernel:0.npy", "conv2d_4bias:0.npy", "batch_normalization_4gamma:0.npy", "batch_normalization_4beta:0.npy",
+  "densekernel:0.npy", "densebias:0.npy", "batch_normalization_5gamma:0.npy", "batch_normalization_5beta:0.npy",
+  "dense_1kernel:0.npy", "dense_1bias:0.npy", "batch_normalization_6gamma:0.npy", "batch_normalization_6beta:0.npy",
+  "dense_2kernel:0.npy", "dense_2bias:0.npy",
+   "dense_3kernel:0.npy", "dense_3bias:0.npy",]
 for file in files:
     p = np.load(file)
     param[file] = p
@@ -190,27 +215,35 @@ for file in files:
 s = time.time()
 data = [0]+[1] * 63
 x_image = np.array(data).reshape(8,8,1)
-data = conv2d(x_image, 1, 1, "conv2dkernel:0.npy", "conv2dbias:0.npy", "batch_normalizationgamma:0.npy", "batch_normalizationbeta:0.npy", param)
-data = conv2d(data, 1, 1, "conv2d_1kernel:0.npy", "conv2d_1bias:0.npy", "batch_normalization_1gamma:0.npy", "batch_normalization_1beta:0.npy", param)
-data = conv2d(data, 1, 1, "conv2d_2kernel:0.npy", "conv2d_2bias:0.npy", "batch_normalization_2gamma:0.npy", "batch_normalization_2beta:0.npy", param)
-data = conv2d(data, 1, 1, "conv2d_3kernel:0.npy", "conv2d_3bias:0.npy", "batch_normalization_3gamma:0.npy", "batch_normalization_3beta:0.npy", param)
-data = conv2d(data, 1, 1, "conv2d_4kernel:0.npy", "conv2d_4bias:0.npy", "batch_normalization_4gamma:0.npy", "batch_normalization_4beta:0.npy", param)
+conv_1 = conv2d(x_image, 1, 1, "conv2dkernel:0.npy", "conv2dbias:0.npy", "batch_normalizationgamma:0.npy", "batch_normalizationbeta:0.npy", param)
+conv_2 = conv2d(conv_1, 1, 1, "conv2d_1kernel:0.npy", "conv2d_1bias:0.npy", "batch_normalization_1gamma:0.npy", "batch_normalization_1beta:0.npy", param)
+conv_3 = conv2d(conv_2, 1, 1, "conv2d_2kernel:0.npy", "conv2d_2bias:0.npy", "batch_normalization_2gamma:0.npy", "batch_normalization_2beta:0.npy", param)
+conv_4 = conv2d(conv_3, 1, 1, "conv2d_3kernel:0.npy", "conv2d_3bias:0.npy", "batch_normalization_3gamma:0.npy", "batch_normalization_3beta:0.npy", param)
+conv_5 = conv2d(conv_4, 1, 1, "conv2d_4kernel:0.npy", "conv2d_4bias:0.npy", "batch_normalization_4gamma:0.npy", "batch_normalization_4beta:0.npy", param)
+conv_5_reshape = conv_5.reshape(-1,2048)
+dense_1 = dense(conv_5_reshape,"densekernel:0.npy", "densebias:0.npy", "batch_normalization_5gamma:0.npy", "batch_normalization_5beta:0.npy", param)
+dense_2 = dense(dense_1,"dense_1kernel:0.npy", "dense_1bias:0.npy", "batch_normalization_6gamma:0.npy", "batch_normalization_6beta:0.npy", param)
+pi = pure_dense(dense_2, "dense_2kernel:0.npy", "dense_2bias:0.npy", param)
+prob = softmax(pi)
+v = pure_dense(dense_2, "dense_3kernel:0.npy", "dense_3bias:0.npy", param)
+v = np.tanh(v)
 e =time.time()
 print(s-e)
 
-s = time.time()
-data1 = [0]+[1] * 63
-x_image = np.array(data1).reshape(8,8,1)
-data1 = conv2d1(x_image, 1, 1, "conv2dkernel:0.npy", "conv2dbias:0.npy", "batch_normalizationgamma:0.npy", "batch_normalizationbeta:0.npy", param)
-data1 = conv2d1(data1, 1, 1, "conv2d_1kernel:0.npy", "conv2d_1bias:0.npy", "batch_normalization_1gamma:0.npy", "batch_normalization_1beta:0.npy", param)
-data1 = conv2d1(data1, 1, 1, "conv2d_2kernel:0.npy", "conv2d_2bias:0.npy", "batch_normalization_2gamma:0.npy", "batch_normalization_2beta:0.npy", param)
-data1 = conv2d1(data1, 1, 1, "conv2d_3kernel:0.npy", "conv2d_3bias:0.npy", "batch_normalization_3gamma:0.npy", "batch_normalization_3beta:0.npy", param)
-data1 = conv2d1(data1, 1, 1, "conv2d_4kernel:0.npy", "conv2d_4bias:0.npy", "batch_normalization_4gamma:0.npy", "batch_normalization_4beta:0.npy", param)
-e =time.time()
-print(s-e)
+# s = time.time()
+# data1 = [0]+[1] * 63
+# x_image = np.array(data1).reshape(8,8,1)
+# data1 = conv2d1(x_image, 1, 1, "conv2dkernel:0.npy", "conv2dbias:0.npy", "batch_normalizationgamma:0.npy", "batch_normalizationbeta:0.npy", param)
+# data1 = conv2d1(data1, 1, 1, "conv2d_1kernel:0.npy", "conv2d_1bias:0.npy", "batch_normalization_1gamma:0.npy", "batch_normalization_1beta:0.npy", param)
+# data1 = conv2d1(data1, 1, 1, "conv2d_2kernel:0.npy", "conv2d_2bias:0.npy", "batch_normalization_2gamma:0.npy", "batch_normalization_2beta:0.npy", param)
+# data1 = conv2d1(data1, 1, 1, "conv2d_3kernel:0.npy", "conv2d_3bias:0.npy", "batch_normalization_3gamma:0.npy", "batch_normalization_3beta:0.npy", param)
+# data1 = conv2d1(data1, 1, 1, "conv2d_4kernel:0.npy", "conv2d_4bias:0.npy", "batch_normalization_4gamma:0.npy", "batch_normalization_4beta:0.npy", param)
+# e =time.time()
+# print(s-e)
 
-print(data[-1][-1][-1])
-print("----------------")
-print(data1[-1][-1][-1])
-print("------------")
-print(data[-1][-1][-1] == data1[-1][-1][-1])
+print(prob.shape)
+print(v)
+# print("----------------")
+# print(data1[-1][-1][-1])
+# print("------------")
+# print(data[-1][-1][-1] == data1[-1][-1][-1])
