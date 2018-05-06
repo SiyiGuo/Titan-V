@@ -225,8 +225,8 @@ class Coach():
             rp = RandomPlayer(self.game).play
             # arena = Arena(lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)),
             #               lambda board, turn: np.argmax(nmcts.getActionProb(board, turn, temp=0)), self.game)
-            arena = Arena(lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)),
-                          rp, self.game)
+            arena = Arena(rp,
+                          lambda board, turn: np.argmax(nmcts.getActionProb(board, turn, temp=0)), self.game)
             pwins, nwins, draws = arena.playGames(self.args.arenaCompare) #playing new mode against old models
 
             print('NEW/PREV WINS : %d / %d ; DRAWS : %d' % (nwins, pwins, draws))
