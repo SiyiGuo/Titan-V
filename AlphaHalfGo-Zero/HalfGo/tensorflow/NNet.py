@@ -16,7 +16,7 @@ from .HalfGoNNet import HalfGoNNet as hnnet
 args = dotdict({
     'lr': 0.001,
     'dropout': 0.3,
-    'epochs': 10, #rounds of training
+    'epochs': 20, #rounds of training
     'batch_size': 64, # take 2 games as input
     'num_channels': 512,
 })
@@ -55,9 +55,18 @@ class NNetWrapper(NeuralNet):
                 boards, pis, vs , turns = list(zip(*[examples[i] for i in sample_ids])) #boards,possible winning on each position, winning result
                 turns = [[turn] for turn in turns]
 
-                # boards_turn = []
-                # for i in range(len(boards)):
-                #     boards_turn.append(boards[i] * (turns[i]+1))
+                boards_turn = []
+                for i in range(len(boards)):
+                    actual_turn = turns[i][0]
+                    player = 1 if actual_turn %2 ==0 else -1
+                    board = boards[i]
+                    if player == 1:
+                        board[0:2, :] = 3
+                    else:
+                        board[6:8, :] = 3
+                    # print(actual_turn)
+                    # print(np.array(boards[i]).reshape(8,8))
+                    # a = input()
 
                 # predict and compute gradient and do SGD step
                 train_input_dict = {self.nnet.input_boards: boards, #input X
@@ -106,12 +115,16 @@ class NNetWrapper(NeuralNet):
         # timing
         start = time.time()
 
-        # print("Predict")
-        # print(board)
-        board = board*(turn + 1)
-        # print("board at turn+1;%s"%(turn+1))
-        # print(board)
-        # preparing input
+        board = np.copy(board)
+
+        if turn %2 == 0:
+            #White
+            board[0:2, :] = 3
+        else:
+            #BLACK
+            board[6:8, :] = 3
+        
+
         board = board[np.newaxis, :, :]
         turn = [[turn]]
 

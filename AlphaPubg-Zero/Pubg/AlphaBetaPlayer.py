@@ -39,7 +39,7 @@ class AbpPlayer():
         try:
             action = max(results, key=results.get)
         except:
-            action = None
+            action = self.game.getActionSize()
         return action
 
     def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer = False):
