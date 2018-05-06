@@ -7,13 +7,20 @@ infinity = 999999
 
 class AbpPlayer():
 
-    abpDepth = 2 # actual depth = abpdepth + 1
+    abpDepth = 7 # actual depth = abpdepth + 1
+    max = {}
+    min = {}
 
     def __init__(self, game, player, abpDepth = 2):
         #Player will always be White(1/friend), as we pass in canonical board
         self.game = game
         self.player = player
         self.abpDepth = abpDepth        
+    
+    def timeOut(self):
+        if abs(time.time() - self.time) > 20:
+            
+            return True
 
     def play(self, board, turn):
         """
@@ -26,9 +33,12 @@ class AbpPlayer():
         a = -infinity
         b = infinity
         valids = self.game.getValidMoves(board, self.player)
+        self.time = time.time()
+        
         for i in range(len(valids)):
             if valids[i]:
                 # print(i)
+                
                 results[i] = self.alphaBetaSearch(self.game.getNextState(board, 1, i, turn), turn+1, self.abpDepth, a,b,False)   
                 v = max(v,results[i])
                 a = max(a,v)     
@@ -36,6 +46,7 @@ class AbpPlayer():
                     break
         e = time.time()
         print(s-e)
+
         try:
             action = max(results, key=results.get)
         except:
@@ -43,8 +54,11 @@ class AbpPlayer():
         return action
 
     def alphaBetaSearch(self, board, turn, depth, a, b, maximizingPlayer = False):
+        if self.timeOut():
+            return 0
         board, currentP = board
         board = self.game.getCanonicalForm(board, currentP)
+        boardString = str(self.game.stringRepresentation(board))+str(depth)
         # result = self.game.getGameEnded(board, currentP, turn)
         result = self.game.getGameEnded(board, 1, turn)
         if result != 0:
@@ -57,23 +71,35 @@ class AbpPlayer():
         valids = self.game.getValidMoves(board, 1) #8*8*8+1 vector
         if maximizingPlayer:
             v = -infinity 
+            if boardString in self.max:
+                return self.max[boardString]
             for i in range(len(valids)):
                 if valids[i]:
                     search = self.alphaBetaSearch(self.game.getNextState(board, currentP, i, turn), turn+1, depth-1, a, b ,False)
+                    
                     #print(search, v)
                     v = max(v,search)
                     a = max(a,v)
                     if b <= a:
                         break
+            self.max[boardString] = v
             return v   
         else:
             v = infinity 
+            if boardString in self.min:
+                return self.min[boardString]
             for i in range(len(valids)):
                 if valids[i]:
-                    v = min(v, self.alphaBetaSearch(self.game.getNextState(board, currentP, i, turn), turn+1, depth-1, a,b,True))
+                    if boardString in self.min:
+                        search = self.min[boardString]
+                    else:
+                        search = self.alphaBetaSearch(self.game.getNextState(board, currentP, i, turn), turn+1, depth-1, a,b,True)
+                        self.min[boardString] = search
+                    v = min(v, search)
                     a = min(a,v)
                     if b <= a:
                         break
+            self.min[boardString] = v
             return v       
 
     def boardValue(self,board,turn):
