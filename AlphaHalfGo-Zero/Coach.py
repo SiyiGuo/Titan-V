@@ -80,6 +80,9 @@ class Coach():
             #choose action with highest winning probability
             action = np.random.choice(len(pi), p=pi)
 
+            if self.curlPlayer == BLACK:
+                action = self.game.blackActionConverter(action)
+
             #DEBUG
             # print("in player point of view \n player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
 

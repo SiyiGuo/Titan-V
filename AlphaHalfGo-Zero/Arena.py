@@ -58,8 +58,10 @@ class Arena():
             #curPlayer = White = 1, curPlayer +1 = 2 -> players[2] = self.player1
             #curPlayer = Black = -1, curPlayer + 1 = 0 -> players[0] = self.player2
             action = players[curPlayer+1](self.game.getCanonicalForm(board, curPlayer), turn)
+            if curPlayer == Black:
+                action = self.game.blackActionConverter(action)
 
-            valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), curPlayer)
+            valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), 1) #curPlayer)
 
             if valids[action]==0:
                 print("\n player: %s"%curPlayer)
