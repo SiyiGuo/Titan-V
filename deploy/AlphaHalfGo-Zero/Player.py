@@ -7,7 +7,7 @@ class Player():
         self.board = np.zeros([8,8])
 
     def update(self,action):
-
+        
 
     def action(self, turn):
         
