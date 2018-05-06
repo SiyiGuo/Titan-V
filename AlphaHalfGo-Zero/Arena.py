@@ -4,7 +4,7 @@ from pytorch_classification.utils import Bar, AverageMeter
 import time
 import pickle
 
-
+BLACK = -1
 def save_list(end_board):
     dest = os.getcwd().replace("\AlphaHalfGo-Zero", "\AlphaPubg-Zero")+"\\newBoard"
     print(dest)
@@ -57,18 +57,25 @@ class Arena():
 
             #curPlayer = White = 1, curPlayer +1 = 2 -> players[2] = self.player1
             #curPlayer = Black = -1, curPlayer + 1 = 0 -> players[0] = self.player2
-            action = players[curPlayer+1](self.game.getCanonicalForm(board, curPlayer), turn)
-            if curPlayer == Black:
-                action = self.game.blackActionConverter(action)
+            canonicalBoard = self.game.getCanonicalForm(board, curPlayer)
+            action = players[curPlayer+1](canonicalBoard, turn)
 
-            valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), 1) #curPlayer)
+            valids = self.game.getValidMoves(canonicalBoard, 1) #curPlayer)
 
             if valids[action]==0:
                 print("\n player: %s"%curPlayer)
                 print(action)
+                print("Cnonical Board:\n%s"%np.array(canonicalBoard).reshape(8,8))
+                print("Object Board")
                 print(board.reshape(8,8))
+                print("Valids:\n%s"%np.array(valids[:-1]).reshape(8,8))
                 print("curPlayer is:%s"%curPlayer)
                 assert valids[action] >0
+
+            
+            if curPlayer == BLACK:
+                # print("Before change, action is :%s"%action)
+                action = self.game.blackActionConverter(action)
 
             #update board, curPlayer, turn at the end, as developmet guide indeicated
             board, curPlayer = self.game.getNextState(board, curPlayer, action)

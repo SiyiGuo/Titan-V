@@ -80,7 +80,7 @@ class Coach():
             #choose action with highest winning probability
             action = np.random.choice(len(pi), p=pi)
 
-            if self.curlPlayer == BLACK:
+            if self.curPlayer == BLACK:
                 action = self.game.blackActionConverter(action)
 
             #DEBUG

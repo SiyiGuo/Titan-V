@@ -40,13 +40,14 @@ class HalfGoGame(Game):
 
         return self.n*self.n + 1
 
-    def blackActionConverter(action):
+    def blackActionConverter(self, action):
         """
         input: action, canonical board action
         output: black's real action
+        !!!
+        NOTICE: pi vector and valid action is GROUP BY ROW!!!!!
         """
-        if action <= 31:
-            return 63 - action
+        return 63 - action
 
     def getNextState(self, board, player, action):
         # if player takes action on board, return next (board,player)
@@ -118,7 +119,7 @@ class HalfGoGame(Game):
         result[result == -3] = CORNER
         if player == BLACK:
             result = np.rot90(result, k = 2)
-        return result.flatten()
+        return result#.flatten()
 
     def getSymmetries(self, board, pi):
         """

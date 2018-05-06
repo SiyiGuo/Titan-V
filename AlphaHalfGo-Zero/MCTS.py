@@ -172,6 +172,13 @@ class MCTS():
                     best_act = a
         a = best_act
 
+        try:
+            assert a<48 #index of first column, sixth row
+        except:
+            print("\nPlayer: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+            print("Valids:%s"%valids[:-1].reshape(8,8))
+            exit()
+
         #assert invalid move
         # if curr_player == WHITE:
         #     try:
