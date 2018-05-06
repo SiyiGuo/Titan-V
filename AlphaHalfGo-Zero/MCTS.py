@@ -123,8 +123,8 @@ class MCTS():
             self.Ps[s], v = self.nnet.predict(canonicalBoard, turn)
 
             # find all valid move for current player
-            valids = self.game.getValidMoves(canonicalBoard, curr_player)
-            # valids = self.game.getValidMoves(canonicalBoard, 1) #As board has been rotated
+            # valids = self.game.getValidMoves(canonicalBoard, curr_player)
+            valids = self.game.getValidMoves(canonicalBoard, 1) #As board has been rotated
 
             # remove all the invalid move
             before_mask = np.array(self.Ps[s][:-1])
@@ -155,7 +155,7 @@ class MCTS():
 
         # case we have policy for current string
         # valids = self.Vs[s]
-        valids = self.game.getValidMoves(canonicalBoard, curr_player)
+        valids = self.game.getValidMoves(canonicalBoard, 1)#curr_player) as safe area is always at top
         cur_best = -float('inf')
         best_act = -1
 
@@ -172,29 +172,37 @@ class MCTS():
                     best_act = a
         a = best_act
 
+        try:
+            assert a<48 #index of first column, sixth row
+        except:
+            print("\nPlayer: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+            print("Valids:%s"%valids[:-1].reshape(8,8))
+            exit()
+
         #assert invalid move
-        if curr_player == WHITE:
-            try:
-                assert a<48 #index of first column, sixth row
-            except:
-                print("\nPlayer: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
-                print("Valids:%s"%valids[:-1].reshape(8,8))
-                exit()
-        elif curr_player == BLACK:
-            try:
-                assert a > 15 #index of last column, second row
-            except:
-                print("\nPlayer: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
-                print("Valids:%s"%valids[:-1].reshape(8,8))
-                exit()
+        # if curr_player == WHITE:
+        #     try:
+        #         assert a<48 #index of first column, sixth row
+        #     except:
+        #         print("\nPlayer: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+        #         print("Valids:%s"%valids[:-1].reshape(8,8))
+        #         exit()
+        # elif curr_player == BLACK:
+        #     try:
+        #         assert a > 15 #index of last column, second row
+        #     except:
+        #         print("\nPlayer: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+        #         print("Valids:%s"%valids[:-1].reshape(8,8))
+        #         exit()
 
         # 1 = friendly, as this is self-play on each turn
         # so: next_player is always -1
         # -1 means enemy, not BLACK
+        # next player will always be black
         next_s, next_player = self.game.getNextState(canonicalBoard, 1, a) 
 
         # substitute ourself to another player, 
-        next_s = self.game.getCanonicalForm(next_s, next_player) 
+        next_s = self.game.getCanonicalForm(next_s, next_player) #next_player is alywas black
         
         # search for it
         v = self.search(next_s, turn + 1)

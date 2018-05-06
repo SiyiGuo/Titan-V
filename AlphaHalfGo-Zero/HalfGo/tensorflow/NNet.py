@@ -55,17 +55,17 @@ class NNetWrapper(NeuralNet):
                 boards, pis, vs , turns = list(zip(*[examples[i] for i in sample_ids])) #boards,possible winning on each position, winning result
                 turns = [[turn] for turn in turns]
 
-                for i in range(len(boards)):
-                    actual_turn = turns[i][0]
-                    player = 1 if actual_turn %2 ==0 else -1
-                    board = boards[i]
-                    if player == 1:
-                        board[0:2, :][board[0:2, :]==0] = 3
-                    else:
-                        board[6:8, :][board[0:2, :]==0] = 3
-                #     # print(actual_turn)
-                #     # print(np.array(boards[i]).reshape(8,8))
-                #     # a = input()
+                # for i in range(len(boards)):
+                #     actual_turn = turns[i][0]
+                #     player = 1 if actual_turn %2 ==0 else -1
+                #     board = boards[i]
+                #     if player == 1:
+                #         board[0:2, :][board[0:2, :]==0] = 3
+                #     else:
+                #         board[6:8, :][board[0:2, :]==0] = 3
+                # #     # print(actual_turn)
+                # #     # print(np.array(boards[i]).reshape(8,8))
+                # #     # a = input()
 
                 # predict and compute gradient and do SGD step
                 train_input_dict = {self.nnet.input_boards: boards, #input X
@@ -116,12 +116,12 @@ class NNetWrapper(NeuralNet):
 
         board = np.copy(board)
 
-        if turn %2 == 0:
-            #White
-            board[0:2, :][ board[0:2, :] == 0] = 3
-        else:
-            #BLACK
-            board[6:8, :][board[0:2, :]==0] = 3
+        # if turn %2 == 0:
+        #     #White
+        #     board[0:2, :][ board[0:2, :] == 0] = 3
+        # else:
+        #     #BLACK
+        #     board[6:8, :][board[0:2, :]==0] = 3
         
 
         board = board[np.newaxis, :, :]
