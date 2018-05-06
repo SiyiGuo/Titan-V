@@ -140,11 +140,11 @@ class MCTS():
                 # If you have got dozens or hundreds of these messages you should pay attention to your NNet and/or training process.   
                 if v < 1:
                     print("All valid moves were masked, do workaround.")
+                    print("Canonical Board:")
                     print(np.array(canonicalBoard).reshape(8,8))
                     # print(np.array(self.Ps[s][:-1]).reshape(8,8))
                     # print(before_mask.reshape(8,8))
-                    print(v)
-                    print(turn)
+                    print("V:%s, Turn:%s, Current Player:%s"%(v, turn, curr_player))
                 self.Ps[s] = self.Ps[s] + valids
                 self.Ps[s] /= np.sum(self.Ps[s])
 
@@ -154,7 +154,8 @@ class MCTS():
             return -v
 
         # case we have policy for current string
-        valids = self.Vs[s]
+        # valids = self.Vs[s]
+        valids = self.game.getValidMoves(canonicalBoard, curr_player)
         cur_best = -float('inf')
         best_act = -1
 
@@ -171,19 +172,21 @@ class MCTS():
                     best_act = a
         a = best_act
 
-        # #assert invalid move
-        # if curr_player == WHITE:
-        #     try:
-        #         assert a<48 #index of first column, sixth row
-        #     except:
-        #         print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
-        #         exit()
-        # elif curr_player == BLACK:
-        #     try:
-        #         assert a > 15 #index of last column, second row
-        #     except:
-        #         print("Player: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
-        #         exit()
+        #assert invalid move
+        if curr_player == WHITE:
+            try:
+                assert a<48 #index of first column, sixth row
+            except:
+                print("\nPlayer: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+                print("Valids:%s"%valids[:-1].reshape(8,8))
+                exit()
+        elif curr_player == BLACK:
+            try:
+                assert a > 15 #index of last column, second row
+            except:
+                print("\nPlayer: %s, action: %s, turn: %s, board:\n%s"%(curr_player, a, turn, canonicalBoard.reshape(8,8)))
+                print("Valids:%s"%valids[:-1].reshape(8,8))
+                exit()
 
         # 1 = friendly, as this is self-play on each turn
         # so: next_player is always -1

@@ -56,6 +56,7 @@ class Arena():
                 print("\n player: %s"%curPlayer)
                 print(action)
                 print(board.reshape(8,8))
+                print("curPlayer is:%s"%curPlayer)
                 assert valids[action] >0
 
             #update board, curPlayer, turn at the end, as developmet guide indeicated
@@ -64,12 +65,12 @@ class Arena():
 
         if verbose:
             assert(self.display)
-            print("Game over: Turn ", str(turn), "Result ", str(self.game.getGameEnded(board, 1, turn)))
+            print("Game over: Turn ", str(turn), "WinnerPlayer ", str(self.game.getGameEnded(board, 1, turn)))
             self.display(board)
 
         #return single game result
         result = self.game.getGameEnded(board, 1, turn)
-        print("For object board:%s"%np.array(board).reshape(8,8))
+        print("For object board:\n%s"%np.array(board).reshape(8,8))
         print("The winner player is:%s"%result)
         return result
 
