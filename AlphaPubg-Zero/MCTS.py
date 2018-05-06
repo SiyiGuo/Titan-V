@@ -48,10 +48,12 @@ class MCTS():
         if (float(sum(counts)) ==0):
             print("\nerror in MCTS.getActionProb, before deciding action")
             print("turnindex:%s"%turn)
+            print("This is canonical board")
             print(canonicalBoard.reshape(8,8))
             print("non existing pattern: \n %s"%np.fromstring(s, dtype=int).reshape(8,8)) #could add reshape here
-            exit()
-        
+            print("There is no Move")
+            return self.game.getActionSize()
+            
         if temp==0:
             bestA = np.argmax(counts)  #find the best move in the simulation
             probs = [0]*len(counts) #set prob of winning for other move to be zero
@@ -102,7 +104,6 @@ class MCTS():
         """
         Since turn parameter is not included
         """
-        # turn does not end until 24
         # if s not in self.Es: # situation s's result not known
         self.Es[s] = self.game.getGameEnded(canonicalBoard, 1, turn) #adding this result to the Es set, 1 means 1 winning, -1 means 1 losing
         
@@ -181,7 +182,6 @@ class MCTS():
 
         # substitute ourself to another player, 
         
-        #TODO change banned
         next_s = self.game.getCanonicalForm(next_s, next_player) 
         
         # search for it

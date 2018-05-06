@@ -41,6 +41,7 @@ class PubgGame(Game):
         Second Srhink
         Turn 193: turn = 192
         """
+        
         board = Board(self.n, np.copy(board))
         # if turn == 128:
         #     board.shrink(turn)
@@ -49,7 +50,8 @@ class PubgGame(Game):
         #     board.shrink(turn)
         #     board.shrink(turn)
         
-        if action != None:
+        if action != None and action != self.getActionSize():
+            #Case there is no move
             #Move piece first
             piece_index = action // 8
             direction_index = action % 8

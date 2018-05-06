@@ -74,22 +74,23 @@ class Coach():
 
             if self.curPlayer == WHITE:
                 pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) 
-                
+                if pi is self.game.getActionSize():   
+                    action = self.game.getActionSize()
+                else:
+                    # one board situation can generate two tranining example # as symmetric does not matter
+                    sym = self.game.getSymmetries(canonicalBoard, pi)
 
-                # one board situation can generate two tranining example # as symmetric does not matter
-                sym = self.game.getSymmetries(canonicalBoard, pi)
+                    #adding tranning example
+                    for b,policyVector in sym: 
+                        # (canonicalBoard,player, polivy vector)
+                        trainExamples.append([b, self.curPlayer, policyVector, episodeStep])
+                    
+                    # #DEBUG: 
+                    # probs_display = [round(x,2) for x in pi]
+                    # print("curr_player:%s turn:%s, probs:\n%s"%(self.curPlayer, episodeStep, np.array(probs_display).reshape(8,8)))
 
-                #adding tranning example
-                for b,policyVector in sym: 
-                    # (canonicalBoard,player, polivy vector)
-                    trainExamples.append([b, self.curPlayer, policyVector, episodeStep])
-                
-                # #DEBUG: 
-                # probs_display = [round(x,2) for x in pi]
-                # print("curr_player:%s turn:%s, probs:\n%s"%(self.curPlayer, episodeStep, np.array(probs_display).reshape(8,8)))
-
-                #choose action with highest winning probability
-                action = np.random.choice(len(pi), p=pi)
+                    #choose action with highest winning probability
+                    action = np.random.choice(len(pi), p=pi)
             else:
                 #For abp trainer
                 action = self.abpTrainer.play(canonicalBoard, episodeStep)
@@ -103,13 +104,12 @@ class Coach():
 
             #DEBUG
             # print("in player point of view \n player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))
-
             #self.curPlayer turn to next player, objective board update, turn update
-            piece_index = action // 8
-            direction_index = action % 8
-            direction = [(-1,0), (1,0), (0,-1), (0,1), (-2,0), (0,-2), (0,-2), (0,2)][direction_index] #note in board, it is row, column
-            y_dir, x_dir = direction
-            piece_column, piece_row = piece_index //8, piece_index % 8
+            # piece_index = action // 8
+            # direction_index = action % 8
+            # direction = [(-1,0), (1,0), (0,-1), (0,1), (-2,0), (0,-2), (0,-2), (0,2)][direction_index] #note in board, it is row, column
+            # y_dir, x_dir = direction
+            # piece_column, piece_row = piece_index //8, piece_index % 8
             # print("\nTurn:%s, Player:%s, Object Board:\n%s\n choose action:%s"%(episodeStep, self.curPlayer, board.reshape(8,8), action))
             # print("Move piece from:%s, %s to: %s, %s"%(piece_column, piece_row, piece_column+x_dir, piece_row+y_dir))
 
