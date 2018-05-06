@@ -10,6 +10,7 @@ from random import shuffle
 from Pubg.PubgLogic import WHITE, BLACK
 
 from Pubg.PubgPlayer import *
+from Pubg.AlphaBetaPlayer import AbpPlayer
 
 class Coach():
     """
@@ -24,6 +25,10 @@ class Coach():
         self.mcts = MCTS(self.game, self.nnet, self.args)
         self.trainExamplesHistory = []    # history of examples from args.numItersForTrainExamplesHistory latest iterations
         self.skipFirstSelfPlay = False # can be overriden in loadTrainExamples()
+
+        self.abpTrainer = AbpPlayer(self.game, 1, abpDepth=2)
+
+
 
     def executeEpisode(self):
         """
@@ -57,7 +62,6 @@ class Coach():
             #           1: Objective board: Black and White
             #           2: CanonicalBoard:  Friendly and Enemy
 
-            #TODO: Resolve BAnned AREA
             canonicalBoard = self.game.getCanonicalForm(board, self.curPlayer)
 
             # if episodes > tempThreshold, MCTS will stop updating probs, and just return best move
@@ -67,24 +71,35 @@ class Coach():
             # create probability of winning for each action on board for self.currPlayer's POV
             # return a vector of 512 + 1
             print("turn:%s"%episodeStep, end="\r")
-            pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) 
-            
 
-            # one board situation can generate two tranining example # as symmetric does not matter
-            sym = self.game.getSymmetries(canonicalBoard, pi)
+            if self.curPlayer == WHITE:
+                pi = self.mcts.getActionProb(canonicalBoard, episodeStep, temp=temp) 
+                
 
-            #adding tranning example
-            #BUG: not showing correctly
-            for b,policyVector in sym: 
-                # (canonicalBoard,player, polivy vector)
-                trainExamples.append([b, self.curPlayer, policyVector, episodeStep])
-            
-            # #DEBUG: 
-            # probs_display = [round(x,2) for x in pi]
-            # print("curr_player:%s turn:%s, probs:\n%s"%(self.curPlayer, episodeStep, np.array(probs_display).reshape(8,8)))
+                # one board situation can generate two tranining example # as symmetric does not matter
+                sym = self.game.getSymmetries(canonicalBoard, pi)
 
-            #choose action with highest winning probability
-            action = np.random.choice(len(pi), p=pi)
+                #adding tranning example
+                for b,policyVector in sym: 
+                    # (canonicalBoard,player, polivy vector)
+                    trainExamples.append([b, self.curPlayer, policyVector, episodeStep])
+                
+                # #DEBUG: 
+                # probs_display = [round(x,2) for x in pi]
+                # print("curr_player:%s turn:%s, probs:\n%s"%(self.curPlayer, episodeStep, np.array(probs_display).reshape(8,8)))
+
+                #choose action with highest winning probability
+                action = np.random.choice(len(pi), p=pi)
+            else:
+                #For abp trainer
+                action = self.abpTrainer.play(canonicalBoard, episodeStep)
+                pi = [0] * self.game.getActionSize()
+                pi[action] = 1
+                sym = self.game.getSymmetries(canonicalBoard, pi)
+                for b,policyVector in sym: 
+                    # (canonicalBoard,player, polivy vector)
+                    trainExamples.append([b, self.curPlayer, policyVector, episodeStep])
+                
 
             #DEBUG
             # print("in player point of view \n player %s going to take action %s in turn %s board:\n%s"%(self.curPlayer, action, episodeStep, canonicalBoard.reshape(8,8)))

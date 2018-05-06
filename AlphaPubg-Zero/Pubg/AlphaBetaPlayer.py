@@ -1,5 +1,4 @@
 import numpy as np
-import Pubg.PubgGame as pubg
 import math
 import operator
 import time
@@ -19,6 +18,7 @@ class AbpPlayer():
     def play(self, board, turn):
         """
         input: A canonical board
+        return: a action number in range(513)
         """
         s = time.time()
         results = {}
@@ -48,9 +48,9 @@ class AbpPlayer():
         # result = self.game.getGameEnded(board, currentP, turn)
         result = self.game.getGameEnded(board, 1, turn)
         if result != 0:
-            print("Board:\n%s"%np.array(board.reshape(8,8)))
-            print("result:%s"%result)
-            print("Another result:%s"%self.game.getCanonicalForm(board, currentP))
+            # print("Board:\n%s"%np.array(board.reshape(8,8)))
+            # print("result:%s"%result)
+            # print("Another result:%s"%self.game.getCanonicalForm(board, currentP))
             return (1 if result*currentP == self.player else (-1)) * 10000
         if depth == 0:
             return self.boardValue(board, turn)
