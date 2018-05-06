@@ -3,6 +3,13 @@ from Game import Game
 import numpy as np
 
 
+import pickle
+
+def load_neww_board():
+    with open("newBoard", "rb") as fp:
+        newBoard = pickle.load(fp)
+        return newBoard
+
 #coordinate system: (column, row)
 class PubgGame(Game):
     def __init__(self, n):
@@ -191,36 +198,39 @@ class PubgGame(Game):
         return board.tostring()
     
     def generateRandomBoard(self):
-        test = [
-            [3,0,0,0,0,0,0,3],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0],
-            [3,0,0,0,0,0,0,3],
-        ]
+        # test = [
+        #     [3,0,0,0,0,0,0,3],
+        #     [0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0],
+        #     [0,0,0,0,0,0,0,0],
+        #     [3,0,0,0,0,0,0,3],
+        # ]
 
-        white,black = np.random.randint(low = 6, high = 13, size = 2)
-        i = 0
-        while i <= white:
-            col = np.random.randint(low = 1, high = 7)
-            row = np.random.randint(low = 1, high = 7)
-            if test[col][row] == 0:
-                test[col][row] = 1
-                i += 1
-        i = 0
-        while i <= white:
-            col = np.random.randint(low=1, high=7)
-            row = np.random.randint(low=1, high=7)
-            if test[col][row] == 0:
-                test[col][row] = -1
-                i += 1
-        print("\nrandom board has been generated:\n")
-        test = np.array(test)
-        print(test.reshape(8,8))
-        return test
+        # white,black = np.random.randint(low = 6, high = 13, size = 2)
+        # i = 0
+        # while i <= white:
+        #     col = np.random.randint(low = 1, high = 7)
+        #     row = np.random.randint(low = 1, high = 7)
+        #     if test[col][row] == 0:
+        #         test[col][row] = 1
+        #         i += 1
+        # i = 0
+        # while i <= white:
+        #     col = np.random.randint(low=1, high=7)
+        #     row = np.random.randint(low=1, high=7)
+        #     if test[col][row] == 0:
+        #         test[col][row] = -1
+        #         i += 1
+        # print("\nrandom board has been generated:\n")
+        # test = np.array(test)
+        # print(test.reshape(8,8))
+        # return test
+        newBoard = load_neww_board()
+        print(np.array(newBoard).reshape(8,8))
+        return newBoard
     
 def display(board):
     n = board.shape[0]

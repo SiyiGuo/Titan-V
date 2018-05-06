@@ -1,6 +1,15 @@
 import numpy as np
+import os
 from pytorch_classification.utils import Bar, AverageMeter
 import time
+import pickle
+
+
+def save_list(end_board):
+    dest = os.getcwd().replace("\AlphaHalfGo-Zero", "\AlphaPubg-Zero")+"\\newBoard"
+    print(dest)
+    with open(dest, 'wb') as fp:
+        pickle.dump(end_board, fp)
 
 class Arena():
     """
@@ -72,6 +81,7 @@ class Arena():
         result = self.game.getGameEnded(board, 1, turn)
         print("For object board:\n%s"%np.array(board).reshape(8,8))
         print("The winner player is:%s"%result)
+        save_list(board)
         return result
 
     def playGames(self, num, verbose=False):

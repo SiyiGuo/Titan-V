@@ -1,16 +1,16 @@
 import numpy as np
 from pytorch_classification.utils import Bar, AverageMeter
 import time
-import pickle
 
-def records_saver(records):
-    with open ("records", 'wb') as fp:
-        pickle.dump(records, fp)
 
-def records_reader(filename):
-    with open(filename, 'rb') as fp:
-        records = pickle.load(fp)
-    return records
+# def records_saver(records):
+#     with open ("records", 'wb') as fp:
+#         pickle.dump(records, fp)
+
+# def records_reader(filename):
+#     with open(filename, 'rb') as fp:
+#         records = pickle.load(fp)
+#     return records
 
 class Arena():
     """
