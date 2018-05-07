@@ -11,7 +11,6 @@ from pytorch_classification.utils import Bar, AverageMeter
 from NeuralNet import NeuralNet
 
 import tensorflow as tf
-import tfdeploy as td
 from .HalfGoNNet import HalfGoNNet as hnnet
 
 args = dotdict({
@@ -140,9 +139,3 @@ class NNetWrapper(NeuralNet):
         with self.nnet.graph.as_default():
             self.saver = tf.train.Saver()
             self.saver.restore(self.sess, filepath)
-        
-        td.setup(tf)
-        model = td.Model()
-        print("td.Model() finish")
-        model.add(self.nnet.pi, self.sess)
-        model.save("test1v.pkl")

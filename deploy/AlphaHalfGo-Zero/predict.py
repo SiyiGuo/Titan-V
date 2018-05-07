@@ -23,14 +23,33 @@ class Predict():
     def batchnorm_forward(self, X, gamma, beta):
         # print(X.shape)
         if len(X.shape)>2:
-            mu = np.mean(X, axis=(0,1,2))
-            var = np.var(X, axis=(0,1,2))
+            H,W,C = X.shape
+            print(H,W,C)
+            mu = np.mean(X, axis=(0,1))
+            mu_reshape = mu.reshape(1,1,C)
+            convert = np.ones((H,W,512))
+            mu_broacast = (convert*mu_reshape)
+            #Broadcase to (8,8,C)
+            # print(mu_reshape.shape)
+            # print(X.shape)
+            # a = input()
+            print(mu_reshape)
+            print(mu_broacast.shape)
+            print(mu_broacast)
+            print(X.shape)
+            var = np.var((X-mu_broacast)**2, axis=(0,1))
+            print(var)
+            a = input()
         else:
             mu = np.mean(X, axis=1)
             var = np.var(X, axis=1)
-        X_norm = (X - mu) / np.sqrt(var + 0.001)
-        out = gamma * X_norm + beta
 
+        print(X.shape)
+        print(mu.shape)
+        print(var.shape)
+
+        X_norm = (X - mu) / np.sqrt(var)
+        out = gamma * X_norm + beta
         return out
 
     def ReLU(self, x):
@@ -149,4 +168,8 @@ class Predict():
 
         return prob,v
 
-
+test = Predict()
+data = np.array([0]+[0] * 63)
+prob, v = test.predict(data)
+print(prob)
+print(v)

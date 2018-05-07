@@ -4,7 +4,8 @@ import numpy as np
 
 # read Graph + Checkpoint
 with tf.Session() as sess:
-    graph_path = "./temp/best.pth.tar.meta"
+    print ("Path is")
+    graph_path = "./temp/temp.pth.tar.meta"
     model_path = os.path.dirname(graph_path)
 
     loader = tf.train.import_meta_graph(graph_path)

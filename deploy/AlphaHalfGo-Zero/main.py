@@ -10,7 +10,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 args = dotdict({
     'checkpoint': './temp/',
-    'load_model': True,
+    'load_model': False,
     'load_folder_file': ('./temp/','checkpoint_5.pth.tar'),
     'numItersForTrainExamplesHistory': 20,
 

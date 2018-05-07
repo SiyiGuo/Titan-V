@@ -31,7 +31,11 @@ class HalfGoNNet():
 
             #convolution Layer setup
             x_image = tf.reshape(self.input_boards, [-1, self.board_x, self.board_y, 1])                    # batch_size  x board_x x board_y x 1
-            h_conv1 = Relu(BatchNormalization(self.conv2d(x_image, args.num_channels, 'same'), axis=3, training=self.isTraining))     # batch_size  x board_x x board_y x num_channels
+            print("X_images:%s"%x_image)
+            before_h_conv1 = BatchNormalization(self.conv2d(x_image, args.num_channels, 'same'), axis=3, training=self.isTraining)
+            print("before_h_conv1:%s"%before_h_conv1)
+            h_conv1 = Relu(before_h_conv1)     # batch_size  x board_x x board_y x num_channels
+            print("h_conv1:%s"%h_conv1)
             h_conv2 = Relu(BatchNormalization(self.conv2d(h_conv1, args.num_channels, 'same'), axis=3, training=self.isTraining))     # batch_size  x board_x x board_y x num_channels
             h_conv3 = Relu(BatchNormalization(self.conv2d(h_conv2, args.num_channels, 'valid'), axis=3, training=self.isTraining))    # batch_size  x (board_x-2) x (board_y-2) x num_channels
             h_conv4 = Relu(BatchNormalization(self.conv2d(h_conv3, args.num_channels, 'valid'), axis=3, training=self.isTraining))    # batch_size  x (board_x-4) x (board_y-4) x num_channels
@@ -52,7 +56,7 @@ class HalfGoNNet():
             self.prob = tf.nn.softmax(self.pi) #fotmax function, final layer of the network
             self.v = Tanh(Dense(s_fc2, 1))                                                               # batch_size x 1
 
-            self.calculate_loss()
+            # self.calculate_loss()
 
     def conv2d(self, x, out_channels, padding):
       return tf.layers.conv2d(x, out_channels, kernel_size=[3,3], padding=padding)
