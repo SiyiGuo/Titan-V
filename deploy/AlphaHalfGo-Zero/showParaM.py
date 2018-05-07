@@ -4,7 +4,7 @@ import numpy as np
 
 # read Graph + Checkpoint
 with tf.Session() as sess:
-    graph_path = "./temp/checkpoint_5.pth.tar.meta"
+    graph_path = "./temp/best.pth.tar.meta"
     model_path = os.path.dirname(graph_path)
 
     #Model has been restored

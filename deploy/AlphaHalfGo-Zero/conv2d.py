@@ -82,13 +82,15 @@ def conv_forward(A_prev, W, b, hparameters):
     return Z
 
 def batchnorm_forward(X, gamma, beta):
-    mu = np.mean(X, axis=0)
-    var = np.var(X, axis=0)
-
-    X_norm = (X - mu) / np.sqrt(var + 1e-8)
+    print(X.shape)
+    if len(X.shape)>2:
+        mu = np.mean(X, axis=(0,1,2))
+        var = np.var(X, axis=(0,1,2))
+    else:
+        mu = np.mean(X, axis=1)
+        var = np.var(X, axis=1)
+    X_norm = (X - mu) / np.sqrt(var + 0.001)
     out = gamma * X_norm + beta
-
-    cache = (X, X_norm, mu, var, gamma, beta)
 
     return out
 
@@ -180,7 +182,7 @@ def conv2d(data, pad, stride, wPath, biasPath, gPath, bPath, param):
     b = param[bPath]
 
     # data = conv_forward(data, weight, bias, {"pad": pad, "stride": stride})
-    data = conv_forward1(data, weight, bias, pad, stride)
+    data = conv_forward1(data, weight, bias, stride, pad)
 
     data = batchnorm_forward(data, g, b)
     data = ReLU(data)
@@ -217,16 +219,22 @@ data = [0]+[1] * 63
 x_image = np.array(data).reshape(8,8,1)
 conv_1 = conv2d(x_image, 1, 1, "conv2dkernel:0.npy", "conv2dbias:0.npy", "batch_normalizationgamma:0.npy", "batch_normalizationbeta:0.npy", param)
 conv_2 = conv2d(conv_1, 1, 1, "conv2d_1kernel:0.npy", "conv2d_1bias:0.npy", "batch_normalization_1gamma:0.npy", "batch_normalization_1beta:0.npy", param)
-conv_3 = conv2d(conv_2, 1, 1, "conv2d_2kernel:0.npy", "conv2d_2bias:0.npy", "batch_normalization_2gamma:0.npy", "batch_normalization_2beta:0.npy", param)
-conv_4 = conv2d(conv_3, 1, 1, "conv2d_3kernel:0.npy", "conv2d_3bias:0.npy", "batch_normalization_3gamma:0.npy", "batch_normalization_3beta:0.npy", param)
-conv_5 = conv2d(conv_4, 1, 1, "conv2d_4kernel:0.npy", "conv2d_4bias:0.npy", "batch_normalization_4gamma:0.npy", "batch_normalization_4beta:0.npy", param)
+
+conv_3 = conv2d(conv_2, 0, 1, "conv2d_2kernel:0.npy", "conv2d_2bias:0.npy", "batch_normalization_2gamma:0.npy", "batch_normalization_2beta:0.npy", param)
+conv_4 = conv2d(conv_3, 0, 1, "conv2d_3kernel:0.npy", "conv2d_3bias:0.npy", "batch_normalization_3gamma:0.npy", "batch_normalization_3beta:0.npy", param)
+conv_5 = conv2d(conv_4, 0, 1, "conv2d_4kernel:0.npy", "conv2d_4bias:0.npy", "batch_normalization_4gamma:0.npy", "batch_normalization_4beta:0.npy", param)
+
 conv_5_reshape = conv_5.reshape(-1,2048)
+
 dense_1 = dense(conv_5_reshape,"densekernel:0.npy", "densebias:0.npy", "batch_normalization_5gamma:0.npy", "batch_normalization_5beta:0.npy", param)
 dense_2 = dense(dense_1,"dense_1kernel:0.npy", "dense_1bias:0.npy", "batch_normalization_6gamma:0.npy", "batch_normalization_6beta:0.npy", param)
+
 pi = pure_dense(dense_2, "dense_2kernel:0.npy", "dense_2bias:0.npy", param)
 prob = softmax(pi)
+
 v = pure_dense(dense_2, "dense_3kernel:0.npy", "dense_3bias:0.npy", param)
 v = np.tanh(v)
+
 e =time.time()
 print(s-e)
 
@@ -241,7 +249,7 @@ print(s-e)
 # e =time.time()
 # print(s-e)
 
-print(prob.shape)
+print(prob)
 print(v)
 # print("----------------")
 # print(data1[-1][-1][-1])
