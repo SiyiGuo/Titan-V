@@ -95,7 +95,8 @@ class Coach():
                 #For abp trainer
                 action = self.abpTrainer.play(canonicalBoard, episodeStep)
                 pi = [0] * self.game.getActionSize()
-                pi[action] = 1
+                if action < 513:
+                    pi[action] = 1
                 sym = self.game.getSymmetries(canonicalBoard, pi)
                 for b,policyVector in sym: 
                     # (canonicalBoard,player, polivy vector)
@@ -222,10 +223,11 @@ class Coach():
 
             #OLD VS NEW
             print('PITTING AGAINST PREVIOUS VERSION')
-            rp = RandomPlayer(self.game).play
+            # rp = RandomPlayer(self.game).play
+            abp2 = AbpPlayer(self.game, 1, abpDepth=2).play
             # arena = Arena(lambda board, turn: np.argmax(pmcts.getActionProb(board, turn, temp=0)),
             #               lambda board, turn: np.argmax(nmcts.getActionProb(board, turn, temp=0)), self.game)
-            arena = Arena(rp,
+            arena = Arena(abp2,
                           lambda board, turn: np.argmax(nmcts.getActionProb(board, turn, temp=0)), self.game)
             pwins, nwins, draws = arena.playGames(self.args.arenaCompare) #playing new mode against old models
 
