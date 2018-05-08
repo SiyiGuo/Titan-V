@@ -36,7 +36,11 @@ n2 = NNet(g)
 n2.load_checkpoint('./temp','temp.pth.tar')
 args2 = dotdict({'numMCTSSims': 1, 'cpuct':1.0})
 mcts2 = MCTS(g, n2, args2)
-data = [0]+[0] * 63
+data = [1]+[1] * 63
+# data[0] = 3
+# data[7] = 3
+# data[63] = 3
+# data[56] = 3
 x_image = np.array(data).reshape(8,8)
 mcts2.search(x_image,1)
 # n2p = lambda x, turn: np.argmax(mcts2.getActionProb(x, turn, temp=0))

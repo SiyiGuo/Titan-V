@@ -106,6 +106,7 @@ class NNetWrapper(NeuralNet):
         # turn = [[turn]]
 
         # run
+        print(board.shape)
         prob, v = self.sess.run([self.nnet.prob, self.nnet.v], feed_dict={self.nnet.input_boards: board, 
                                                                             # self.nnet.turn: turn,
                                                                             self.nnet.dropout: 0, 

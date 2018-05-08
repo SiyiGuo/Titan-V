@@ -21,35 +21,62 @@ class Predict():
             self.param[file] = np.load(path)
 
     def batchnorm_forward(self, X, gamma, beta):
-        # print(X.shape)
+        print(X.shape)
         if len(X.shape)>2:
             H,W,C = X.shape
-            print(H,W,C)
-            mu = np.mean(X, axis=(0,1))
-            mu_reshape = mu.reshape(1,1,C)
-            convert = np.ones((H,W,512))
-            mu_broacast = (convert*mu_reshape)
-            #Broadcase to (8,8,C)
-            # print(mu_reshape.shape)
-            # print(X.shape)
-            # a = input()
-            print(mu_reshape)
-            print(mu_broacast.shape)
-            print(mu_broacast)
-            print(X.shape)
-            var = np.var((X-mu_broacast)**2, axis=(0,1))
-            print(var)
-            a = input()
+            X = X.reshape(1,H,W,C)
+
+            """
+            Workiing
+            """
+
+            # mean = np.mean(X, axis=(0,1,2))
+            # variance = np.mean((X - mean.reshape((1, 1, 1, C))) ** 2, axis=(0, 1, 2))
+            # X_hat = (X - mean.reshape((1,1, 1,C))) * 1.0 / np.sqrt(variance.reshape((1, 1, 1,C)))
+            # out = gamma.reshape((1,1, 1,C)) * X_hat + beta.reshape((1,1, 1,C))
+            # return out.reshape((H,W,C))
+
+            """
+            Workiing
+            """
+            mu = np.mean(X, axis=(0,1,2))
+            var = np.var(X, axis=(0,1,2))
+            # std = np.std(X, axis=(0,1,2))
+            print(mu.shape)
+            # print(std.shape)
+            for i in range(1):
+                for j in range(H):
+                    for k in range(W):
+                        X[i,j,k,:] = (X[i,j,k,:] - mu)/np.sqrt(var + 0.001)
+            X_norm = X.reshape(H,W,C)
+
+            """
+            Working
+            """
+            # X = X.reshape(H,W,C)
+            # mu = np.mean(X, axis=(0,1))
+            # std = np.std(X, axis=(0,1))
+            # for i in range(C):
+            #     X[:,:,i] = (X[:,:,i] - mu[i]) / std[i]
+            # X_norm = X
+
+            """
+            NotWorking
+            """
+            # X = X.reshape(H,W,C)
+            # mu = np.mean(X, axis=(0,1,2))
+            # std = np.std(X, axis=(0,1,2))
+            # X_norm = (X - mu) / std
         else:
             mu = np.mean(X, axis=1)
-            var = np.var(X, axis=1)
+            std = np.std(X, axis=1)
 
-        print(X.shape)
-        print(mu.shape)
-        print(var.shape)
+            X_norm = (X - mu) / std
 
-        X_norm = (X - mu) / np.sqrt(var)
-        out = gamma * X_norm + beta
+        out = X_norm*gamma + beta
+        print(out.shape)
+        # print(out)
+        # a = input()
         return out
 
     def ReLU(self, x):
@@ -169,7 +196,14 @@ class Predict():
         return prob,v
 
 test = Predict()
-data = np.array([0]+[0] * 63)
+data = np.array([1]+[1] * 63)#.reshape(1,8,8)
+# data[0] = 3
+# data[7] = 3
+# data[63] = 3
+# data[56] = 3
+s = time.time()
 prob, v = test.predict(data)
+e = time.time()
+print(e-s)
 print(prob)
 print(v)

@@ -31,24 +31,31 @@ class HalfGoNNet():
 
             #convolution Layer setup
             x_image = tf.reshape(self.input_boards, [-1, self.board_x, self.board_y, 1])                    # batch_size  x board_x x board_y x 1
-            print("X_images:%s"%x_image)
-            before_h_conv1 = BatchNormalization(self.conv2d(x_image, args.num_channels, 'same'), axis=3, training=self.isTraining)
-            print("before_h_conv1:%s"%before_h_conv1)
-            h_conv1 = Relu(before_h_conv1)     # batch_size  x board_x x board_y x num_channels
-            print("h_conv1:%s"%h_conv1)
+            h_conv1 = Relu(BatchNormalization(self.conv2d(x_image, args.num_channels, 'same'), axis=3, training=self.isTraining))     # batch_size  x board_x x board_y x num_channels
             h_conv2 = Relu(BatchNormalization(self.conv2d(h_conv1, args.num_channels, 'same'), axis=3, training=self.isTraining))     # batch_size  x board_x x board_y x num_channels
             h_conv3 = Relu(BatchNormalization(self.conv2d(h_conv2, args.num_channels, 'valid'), axis=3, training=self.isTraining))    # batch_size  x (board_x-2) x (board_y-2) x num_channels
             h_conv4 = Relu(BatchNormalization(self.conv2d(h_conv3, args.num_channels, 'valid'), axis=3, training=self.isTraining))    # batch_size  x (board_x-4) x (board_y-4) x num_channels
             h_conv5 = Relu(BatchNormalization(self.conv2d(h_conv4, args.num_channels, 'valid'), axis=3, training=self.isTraining))    # batch_size  x (board_x-6) x (board_y-6) x num_channels
             h_conv5_flat = tf.reshape(h_conv5, [-1, args.num_channels*(self.board_x-6)*(self.board_y-6)]) 
 
+            # x_image = tf.reshape(self.input_boards, [-1, self.board_x, self.board_y, 1])                    # batch_size  x board_x x board_y x 1
+            # h_conv1 = Relu(self.conv2d(x_image, args.num_channels, 'same'))     # batch_size  x board_x x board_y x num_channels
+            # h_conv2 = Relu(self.conv2d(h_conv1, args.num_channels, 'same'))     # batch_size  x board_x x board_y x num_channels
+            # h_conv3 = Relu(self.conv2d(h_conv2, args.num_channels, 'valid'))    # batch_size  x (board_x-2) x (board_y-2) x num_channels
+            # h_conv4 = Relu(self.conv2d(h_conv3, args.num_channels, 'valid'))    # batch_size  x (board_x-4) x (board_y-4) x num_channels
+            # h_conv5 = Relu(self.conv2d(h_conv4, args.num_channels, 'valid'))    # batch_size  x (board_x-6) x (board_y-6) x num_channels
+            # h_conv5_flat = tf.reshape(h_conv5, [-1, args.num_channels*(self.board_x-6)*(self.board_y-6)]) 
+
             # h_conv5_flat_turn = tf.concat(axis=1, values=[self.turn, h_conv5_flat])
 
             
 
-            #two dense layer as suggested in URL: https://www.tensorflow.org/tutorials/layers Building the CNN MNIST Classifier
-            s_fc1 = Dropout(Relu(BatchNormalization(Dense(h_conv5_flat, 1024), axis=1, training=self.isTraining)), rate=self.dropout) # batch_size x 1024
-            s_fc2 = Dropout(Relu(BatchNormalization(Dense(s_fc1, 512), axis=1, training=self.isTraining)), rate=self.dropout)         # batch_size x 512
+            # #two dense layer as suggested in URL: https://www.tensorflow.org/tutorials/layers Building the CNN MNIST Classifier
+            # s_fc1 = Dropout(Relu(BatchNormalization(Dense(h_conv5_flat, 1024), axis=1, training=self.isTraining)), rate=self.dropout) # batch_size x 1024
+            # s_fc2 = Dropout(Relu(BatchNormalization(Dense(s_fc1, 512), axis=1, training=self.isTraining)), rate=self.dropout)         # batch_size x 512
+
+            s_fc1 = Dropout(Relu(Dense(h_conv5_flat, 1024)), rate=self.dropout) # batch_size x 1024
+            s_fc2 = Dropout(Relu(Dense(s_fc1, 512)), rate=self.dropout)         # batch_size x 512
 
             # s_fc2_tmp = tf.concat(axis=1, values=[self.turn, s_fc2])
             # print(s_fc2_tmp)
