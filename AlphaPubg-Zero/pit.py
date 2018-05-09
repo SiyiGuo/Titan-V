@@ -25,6 +25,7 @@ rp = RandomPlayer(g).play
 gp = GreedyPubgPlayer(g).play
 hp = HumanPubgPlayer(g).play
 abp = AbpPlayer(g, 1, abpDepth=2).play
+abp4 = AbpPlayer(g, 1, abpDepth=4).play
 
 # nnet players
 # n1 = NNet(g)

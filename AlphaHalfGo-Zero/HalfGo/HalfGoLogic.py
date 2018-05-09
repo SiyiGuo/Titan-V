@@ -68,6 +68,17 @@ class Board():
         #         if self.pieces[x][y]==-1*color:
         #             count -= 1
         
+        for x in range(self.n):
+            if self.pieces[self.n - 1][x] == color:
+                count -= 1
+            if self.pieces[0][x] == color:
+                count -= 1
+        
+        for y in range(self.n):
+            if self.pieces[y][0] == color:
+                count -= 1
+            if self.pieces[y][self.n - 1] == color:
+                count -= 1
         #check the middle 4 gold point
         if self.pieces[3][3] == color:
                 count += 1

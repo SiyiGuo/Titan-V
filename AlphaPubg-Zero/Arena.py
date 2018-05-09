@@ -81,7 +81,7 @@ class Arena():
                     print("\n player: %s"%curPlayer)
                     print(action)
                     print(board)
-                    a = input()
+                    action = self.game.getActionSize()
 
 
                 # #Recording the data

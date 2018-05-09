@@ -7,7 +7,7 @@ class RandomPlayer():
     def play(self, board, turn):
         curPlayer = 1 if turn %2 ==0 else -1
         a = np.random.randint(self.game.getActionSize())
-        valids = self.game.getValidMoves(self.game.getCanonicalForm(board, curPlayer), curPlayer)
+        valids = self.game.getValidMoves(self.game.getCanonicalForm(board, 1), 1)
         while valids[a]!=1:
             a = np.random.randint(self.game.getActionSize())
         return a
