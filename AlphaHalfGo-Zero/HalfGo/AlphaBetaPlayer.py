@@ -7,7 +7,7 @@ infinity = 999999
 
 class AbpPlayer():
 
-    abpDepth = 7 # actual depth = abpdepth + 1
+    # abpDepth = 7 # actual depth = abpdepth + 1
     max = {}
     min = {}
 

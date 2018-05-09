@@ -179,7 +179,7 @@ class Board():
             else:
                 # if (self.pieces[y + 2*y_dir][x + 2*x_dir],self.pieces[y + y_dir][x + x_dir]) == (friend, enemy):
                 #     self.pieces[y + y_dir][x + x_dir] = EMPTY
-                if (self.pieces[a][b],self.pieces[c][d]) == (friend, enemy):
+                if (self.pieces[a][b],self.pieces[c][d]) == (friend, enemy) or (self.pieces[a][b],self.pieces[c][d]) == (CORNER, enemy):
                     self.pieces[c][d] = EMPTY
 
         #process myself then
@@ -195,7 +195,8 @@ class Board():
             else:
                 # if ([self.pieces[y+ y_dir][x + x_dir], self.pieces[y - y_dir][x - x_dir]) == (enemy, enemy):
                 #     self.pieces[y][x] = EMPTY
-                if (self.pieces[a][b], self.pieces[c][d]) == (enemy, enemy):
+                e,f = self.pieces[a][b], self.pieces[c][d]
+                if (e == enemy or e == CORNER) and (f == enemy or f == CORNER):
                     self.pieces[y][x] = EMPTY
 
 

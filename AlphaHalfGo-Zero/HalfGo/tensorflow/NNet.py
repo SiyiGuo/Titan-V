@@ -18,7 +18,7 @@ args = dotdict({
     'dropout': 0.3,
     'epochs': 20, #rounds of training
     'batch_size': 128, # take 2 games as input
-    'num_channels': 512,
+    'num_channels': 128,
 })
 
 class NNetWrapper(NeuralNet):

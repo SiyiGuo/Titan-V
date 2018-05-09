@@ -98,22 +98,22 @@ class HalfGoGame(Game):
             1 player Won
             -1 player Lost
         """
-        if end_Evaluate:
-            print("Start Board:\n%s"%(np.array(board).reshape(8,8)))
-            result = endEvaluator.playGame(board)
-            return result
+        if turn < 24:
+            return 0
         else:
-            b = Board(self.n)
-            b.pieces = np.copy(board)
-            if turn < 24: #4: for adding turn parameter
-                return 0
+            if end_Evaluate:
+                print("Start Board:\n%s"%(np.array(board).reshape(8,8)))
+                result = endEvaluator.playGame(board)
+                return result
             else:
+                b = Board(self.n)
+                b.pieces = np.copy(board)
                 if b.countDiff(player) > 0:
                     return 1
                 elif b.countDiff == 0:
                     return 1e-4 #tie condiitiion
-            
-            return -1
+                
+                return -1
 
     def getCanonicalForm(self, board, player):
         """

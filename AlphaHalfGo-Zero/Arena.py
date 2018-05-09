@@ -5,8 +5,9 @@ import time
 import pickle
 
 BLACK = -1
+
 def save_list(end_board):
-    dest = os.getcwd().replace("\AlphaHalfGo-Zero", "\AlphaPubg-Zero")+"\\newBoard"
+    dest = os.getcwd().replace("\AlphaHalfGo-Zero", "\AlphaPubg-Zero")+"\\newBoard" + str(time.time())
     print(dest)
     with open(dest, 'wb') as fp:
         pickle.dump(end_board, fp)
@@ -49,7 +50,7 @@ class Arena():
         turn = 0 #turn indicator
 
         #game start
-        while self.game.getGameEnded(board, curPlayer, turn)==0: #this should == trun < 24
+        while self.game.getGameEnded(board, curPlayer, turn, end_Evaluate=True)==0: #this should == trun < 24
             if verbose:
                 assert(self.display)
                 print("Turn ", str(turn), "Player ", str(curPlayer))
@@ -83,11 +84,11 @@ class Arena():
 
         if verbose:
             assert(self.display)
-            print("Game over: Turn ", str(turn), "WinnerPlayer ", str(self.game.getGameEnded(board, 1, turn)))
+            print("Game over: Turn ", str(turn), "WinnerPlayer ", str(self.game.getGameEnded(board, 1, turn, end_Evaluate=True)))
             self.display(board)
 
         #return single game result
-        result = self.game.getGameEnded(board, 1, turn)
+        result = self.game.getGameEnded(board, 1, turn, end_Evaluate=True)
         print("For object board:\n%s"%np.array(board).reshape(8,8))
         print("The winner player is:%s"%result)
         save_list(board)

@@ -223,7 +223,7 @@ class Board(object):
                 d = x_dest + x_dir
                 if  (a < 0 or b < 0 or c < 0 or d < 0) or (a >= self.n or b >= self.n or c >= self.n or d >= self.n):
                     continue
-                elif self.pieces[a][b] == friend and (self.pieces[c][d] == enemy or self.pieces[c][d] == CORNER):
+                elif (self.pieces[a][b] == friend or self.pieces[a][b] == CORNER) and self.pieces[c][d] == enemy:
                     self.pieces[c][d] = EMPTY
 
             for direction in self.__directions:
@@ -238,7 +238,7 @@ class Board(object):
 
                 if  (a < 0 or b < 0 or c < 0 or d < 0) or (a >= self.n or b >= self.n or c >= self.n or d >= self.n):
                     continue
-                elif self.pieces[a][b] == enemy and (self.pieces[c][d] == enemy or self.pieces[c][d] == CORNER):
+                elif (self.pieces[a][b] == enemy or self.pieces[a][b] == CORNER) and (self.pieces[c][d] == enemy or self.pieces[c][d] == CORNER):
                     self.pieces[y_dest][x_dest] = EMPTY
 
     def countPieces(self):
