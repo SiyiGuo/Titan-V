@@ -9,6 +9,14 @@ try:
 except ImportError:
     from HalfGoLogic import Board, EMPTY, BANNED, WHITE, BLACK, CORNER
 
+from .AlphaBetaPlayer import AbpPlayer
+
+from .PubgGame import PubgGame
+from .PubgArena import Arena
+pubg = PubgGame(8)
+abp2 = AbpPlayer(pubg, 1, abpDepth = 2).play
+endEvaluator = Arena(abp2, abp2, pubg)
+
 
 class HalfGoGame(Game):
     def __init__(self, n):
@@ -79,7 +87,7 @@ class HalfGoGame(Game):
             valids[self.n*y+x]=1 #since all rows are grouped together
         return np.array(valids)
 
-    def getGameEnded(self, board, player, turn):
+    def getGameEnded(self, board, player, turn, end_Evaluate = False):
         """
         Input:
             board: cannoical board
@@ -90,17 +98,22 @@ class HalfGoGame(Game):
             1 player Won
             -1 player Lost
         """
-        b = Board(self.n)
-        b.pieces = np.copy(board)
-        if turn < 24: #4: for adding turn parameter
-            return 0
+        if end_Evaluate:
+            print("Start Board:\n%s"%(np.array(board).reshape(8,8)))
+            result = endEvaluator.playGame(board)
+            return result
         else:
-            if b.countDiff(player) > 0:
-                return 1
-            elif b.countDiff == 0:
-                return 1e-4 #tie condiitiion
-        
-        return -1
+            b = Board(self.n)
+            b.pieces = np.copy(board)
+            if turn < 24: #4: for adding turn parameter
+                return 0
+            else:
+                if b.countDiff(player) > 0:
+                    return 1
+                elif b.countDiff == 0:
+                    return 1e-4 #tie condiitiion
+            
+            return -1
 
     def getCanonicalForm(self, board, player):
         """

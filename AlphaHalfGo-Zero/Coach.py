@@ -101,7 +101,7 @@ class Coach():
             #so we judge result in WHITE's POV
             # the last turn after black does not added to the trainExample, as we already know who won
             # we add winning result in next if Statement
-            r = self.game.getGameEnded(board, self.curPlayer, episodeStep) #in WHITE's POV
+            r = self.game.getGameEnded(board, self.curPlayer, episodeStep, end_Evaluate =False) #in WHITE's POV
 
             if r!=0 and self.curPlayer == WHITE:
                 #DEBUG
@@ -116,6 +116,7 @@ class Coach():
                 # x[2] policyVector from mcts
                 # x[3] turn
                 #TODO do I need to add turn for poliicy vector as well?
+                r = self.game.getGameEnded(board, self.curPlayer, episodeStep, end_Evaluate =True)
                 generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE)), x[3]) for x in trainExamples] #add turn as a input, no need to make change for pi
                 # generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=WHITE))) for x in trainExamples]
                 # generatedTraining = [(x[0],x[2],r*((-1)**(x[1]!=self.curPlayer))) for x in trainExamples]
